@@ -19,7 +19,7 @@ This is an instant messaging service where you can send messages, images, change
 
 ![chat](https://user-images.githubusercontent.com/76717163/106700205-4a60cb00-65dc-11eb-9354-5bd83c6b4143.png)
 
-<h2>Settings</h2>#
+<h2>Settings</h2>
 
 ![settings](https://user-images.githubusercontent.com/76717163/106700340-8bf17600-65dc-11eb-84ff-5fd522abbc6a.png)
 
