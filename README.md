@@ -4,5 +4,6 @@ This is an instant messaging service where you can send messages, images, change
 
 
 <h1>Preview of the chat</h1>
+
 ![website](https://user-images.githubusercontent.com/76717163/106698914-b7bf2c80-65d9-11eb-8789-c5c81d1e60ad.jpg)
 
