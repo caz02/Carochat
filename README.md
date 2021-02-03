@@ -12,6 +12,7 @@ This is an instant messaging service where you can send messages, images, change
 ![login](https://user-images.githubusercontent.com/76717163/106700085-05d52f80-65dc-11eb-9ce2-5a11aa35b47d.png)
 
 <h2>Homepage & Contacts</h2>
+
 ![homepage](https://user-images.githubusercontent.com/76717163/106700158-3026ed00-65dc-11eb-86ac-cb44b4b5237c.png)
 
 <h2>Chats</h2>
