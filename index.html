@@ -1,4 +1,4 @@
-<!DOCTYPE>
+<!DOCTYPE html>
 <html>
 <head>
 	<title>CaroChat</title>
@@ -10,7 +10,7 @@
 	@font-face{
 
 		font-family: headFont;
-		src: url(ui/fonts/Bernadette/Bernadette.otf);
+		src: url(ui/fonts/Bernadette/Bernadette.ttf);
 
 	}
 
@@ -323,13 +323,13 @@
 
 		display:none;
 	}
-// all the background design//
+/* all the background design*/
 
 
 
 </style>
 <body>
-	//format of the user panel//
+	<!-- format of the user panel -->
 	
 	<div id="wrapper">
 
@@ -420,7 +420,8 @@
 		loader_holder.className = "loader_on";
 		xml.onload = function (){
 
-			if(xml.readyState == 4 || xml.status == 200){
+			// Only handle result when request is complete and status is OK
+			if(xml.readyState == 4 && xml.status == 200){
 
 				loader_holder.className = "loader_off";
 				handle_result(xml.responseText,type);
@@ -444,7 +445,22 @@
 				var inner_right_panel = _("inner_right_panel");
 				inner_right_panel.style.overflow = "visible";
 
-				var obj = JSON.parse(result);
+				// parse JSON safely; if response is HTML (PHP warning/login page) handle gracefully
+				// quick guard: if the server returned HTML (starts with '<') don't attempt JSON.parse
+				if(result.trim().charAt(0) === '<'){
+					console.error('API returned HTML instead of JSON — aborting handle_result.');
+					// likely a session redirect or PHP error page; redirect to login to recover
+					try{ if(result.indexOf('login.php') !== -1) window.location = 'login.php'; }catch(err){}
+					return;
+				}
+
+				var obj;
+				try{
+					obj = JSON.parse(result);
+				}catch(e){
+					console.error('Invalid JSON from API:', e, result);
+					return;
+				}
 				if(typeof(obj.logged_in) != "undefined" && !obj.logged_in){
  
 					window.location = "login.php";
@@ -474,13 +490,14 @@
 							case "chats_refresh":
 							SEEN_STATUS = false;
 							var messages_holder = _("messages_holder");
-							messages_holder.innerHTML = obj.messages;
-
-							setTimeout(function(){
-									messages_holder.scrollTo(0,messages_holder.scrollHeight);
+							if(messages_holder){
+								messages_holder.innerHTML = obj.messages;
+								setTimeout(function(){
+									if(messages_holder.scrollTo) messages_holder.scrollTo(0,messages_holder.scrollHeight);
 									var message_text = _("message_text");
-									message_text.focus();
+									if(message_text) message_text.focus();
 								},100);
+							}
 
 							break;
 
@@ -489,16 +506,17 @@
 								SEEN_STATUS = false;
 								var inner_left_panel = _("inner_left_panel");
 
-								inner_left_panel.innerHTML = obj.user;
-								inner_right_panel.innerHTML = obj.messages;
+								if(inner_left_panel) inner_left_panel.innerHTML = obj.user;
+								if(inner_right_panel) inner_right_panel.innerHTML = obj.messages;
 
 								var messages_holder = _("messages_holder");
-								
-								setTimeout(function(){
-									messages_holder.scrollTo(0,messages_holder.scrollHeight);
-									var message_text = _("message_text");
-									message_text.focus();
-								},100);
+								if(messages_holder){
+									setTimeout(function(){
+										if(messages_holder.scrollTo) messages_holder.scrollTo(0,messages_holder.scrollHeight);
+										var message_text = _("message_text");
+										if(message_text) message_text.focus();
+									},100);
+								}
 
 
 									break;
