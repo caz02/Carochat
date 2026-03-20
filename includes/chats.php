@@ -23,9 +23,9 @@
 		$row = $result[0];
 		
 			$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-			if(file_exists($row->image)){
-			$image = $row->image
-	;			}
+			if(!empty($row->image) && file_exists($row->image)){
+				$image = $row->image;
+			}
 
 			
 			$row->image = $image;

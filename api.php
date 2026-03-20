@@ -1,6 +1,15 @@
 <?php 
 
+// For development: log errors but do NOT display them in responses.
+// Displaying errors injects HTML into JSON responses and breaks the frontend JSON.parse.
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
+
+// Start session and set JSON content type early so headers are always correct.
 session_start();
+header('Content-Type: application/json; charset=UTF-8');
 
 $DATA_RAW = file_get_contents("php://input");
 $DATA_OBJ = json_decode($DATA_RAW);
@@ -80,7 +89,7 @@ if(isset($DATA_OBJ->data_type) && $DATA_OBJ->data_type == "signup")
 function message_left($data,$row)
 {
 	$image = ($row->gender == "Male") ? "ui/images/user_male.jpg" : "ui/images/user_female.jpg";
-	if(file_exists($row->image)){
+	if(!empty($row->image) && file_exists($row->image)){
 		$image = $row->image;
 	}
 	
@@ -104,7 +113,7 @@ function message_left($data,$row)
 function message_right($data,$row)
 {
 	$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-	if(file_exists($row->image)){
+	if(!empty($row->image) && file_exists($row->image)){
 		$image = $row->image;
 	}
 	

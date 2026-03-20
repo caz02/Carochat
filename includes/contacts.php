@@ -48,10 +48,10 @@
 
 			foreach ($myusers as $row) {
   				
-  				$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-  				if(file_exists($row->image)){
-  					$image = $row->image;
-  				}
+				$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
+				if(!empty($row->image) && file_exists($row->image)){
+					$image = $row->image;
+				}
  
 				$mydata .= "
 				<div id='contact' style='position:relative;' userid='$row->userid' onclick='start_chat(event)'>
