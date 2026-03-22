@@ -1,84 +1,131 @@
-<?php 
-	
-	$myid = $_SESSION['userid'];
-	$sql = "select * from users where userid != '$myid' limit 10";
-	$myusers = $DB->read($sql,[]);
+<?php
 
-	$mydata =
-	'
-	<style>
-		@keyframes appear{
+	// ensure contacts table exists
+	$DB->write("CREATE TABLE IF NOT EXISTS contacts (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		userid VARCHAR(64) NOT NULL,
+		contactid VARCHAR(64) NOT NULL,
+		created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		UNIQUE KEY uniq_contact (userid, contactid)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
-			0%{opacity:0;transform: translateY(50px)}
-			100%{opacity:1;transform: translateY(0px)}
- 		}
+	$myid = isset($_SESSION['userid']) ? $_SESSION['userid'] : null;
+	if(!$myid){
+		$info->message = "Not authenticated";
+		$info->data_type = "error";
+		echo json_encode($info);
+		die;
+	}
 
- 		#contact{
- 			cursor:pointer;
- 			transition: all .5s cubic-bezier(0.68, -2, 0.265, 1.55);
-	 	}
+	// helper: render a single user row (used for both contacts and search results)
+	function render_user_row($row, $msgs = [], $is_contact = false){
+		$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
+		if(!empty($row->image) && file_exists($row->image)){
+			$image = $row->image;
+		}
+		$userid = $row->userid;
+		$username = htmlspecialchars($row->username);
+		$badge = '';
+		if(count($msgs) > 0 && isset($msgs[$userid])){
+			$badge = "<div style='width:20px;height:20px;border-radius:50%;background-color:orange;color:white;position:absolute;left:0px;top:0px;'>".$msgs[$userid]."</div>";
+		}
+		$btn = $is_contact ? "<button disabled style='margin-top:6px;'>Added</button>" : "<button onclick=\"add_contact('".$userid."')\" style='margin-top:6px;'>Add</button>";
 
-	 	#contact:hover{
-	 		transform: scale(1.1);
-	 	}
+		// include userid attribute and onclick handler so clicks open the chat in the right panel
+		return "<div class='contact_row' userid='".$userid."' onclick='start_chat(event)' style='position:relative;padding:8px;border-bottom:1px solid #222;cursor:pointer;'>
+						<img src='".$image."' style='width:48px;height:48px;border-radius:6px;vertical-align:middle;margin-right:8px;'>
+						<span style='vertical-align:middle;'>".$username."</span>
+						<div style='float:right;vertical-align:middle;'>".$btn."</div>
+						".$badge.
+					"</div>";
+	}
 
-	</style>
-	<div style="text-align: center; anidmation: appear 1s ease">';
-		
-		if(is_array($myusers)){
+	// count unread messages by sender
+	$msgs = array();
+	$me = $myid;
+	$query = "select * from messages where receiver = :me AND received = 0";
+	$mymgs = $DB->read($query,['me'=>$me]);
+	if(is_array($mymgs)){
+		foreach ($mymgs as $row2) {
+			$sender = $row2->sender;
+			if(isset($msgs[$sender])) $msgs[$sender]++; else $msgs[$sender] = 1;
+		}
+	}
 
-			//check for new messages
-			$msgs = array();
-			$me = $_SESSION['userid'];
-			$query = "select * from messages where receiver = '$me' && received = 0";
-			$mymgs = $DB->read($query,[]);
+	// handle actions: search / add
+	$action = isset($DATA_OBJ->find->action) ? $DATA_OBJ->find->action : null;
 
-			if(is_array($mymgs)){
+	if($action === 'add' && isset($DATA_OBJ->find->contactid)){
+		$contactid = $DATA_OBJ->find->contactid;
+		if($contactid === $myid){
+			$info->message = "Cannot add yourself";
+			$info->data_type = "contacts";
+			echo json_encode($info);
+			die;
+		}
+		// insert if not exists
+		$exists = $DB->read("select * from contacts where userid = :u and contactid = :c limit 1", ['u'=>$myid, 'c'=>$contactid]);
+		if(!$exists){
+			$DB->write("insert into contacts (userid, contactid) values (:u,:c)", ['u'=>$myid,'c'=>$contactid]);
+		}
+		// fall through to render updated contacts list
+	}
 
-				foreach ($mymgs as $row2) {
-					$sender = $row2->sender;
-
-					if(isset($msgs[$sender])){
-						$msgs[$sender]++;
-					}else{
- 						$msgs[$sender] = 1;
-					}
+	// If search action, perform a search and return results
+	if($action === 'search'){
+		$q = isset($DATA_OBJ->find->q) ? trim($DATA_OBJ->find->q) : '';
+		$mydata = "<div style='padding:8px;'>";
+		$mydata .= "<input id='contact_search' placeholder='Search people by name or email' style='width:100%;padding:8px;margin-bottom:8px;' value='".htmlspecialchars($q)."' />";
+		if($q !== ''){
+			$like = "%".$q."%";
+			$sql = "select userid,username,email,gender,image from users where (username like :q or email like :q) and userid != :myid limit 20";
+			$results = $DB->read($sql, ['q'=>$like, 'myid'=>$myid]);
+			if(is_array($results)){
+				// get current contacts for this user to mark existing
+				$mycontacts = $DB->read("select contactid from contacts where userid = :u", ['u'=>$myid]);
+				$contact_ids = [];
+				if(is_array($mycontacts)){
+					foreach($mycontacts as $c) $contact_ids[$c->contactid] = true;
 				}
-			}
-
-			foreach ($myusers as $row) {
-  				
-				$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-				if(!empty($row->image) && file_exists($row->image)){
-					$image = $row->image;
+				foreach($results as $row){
+					$is_contact = isset($contact_ids[$row->userid]);
+					$mydata .= render_user_row($row, $msgs, $is_contact);
 				}
- 
-				$mydata .= "
-				<div id='contact' style='position:relative;' userid='$row->userid' onclick='start_chat(event)'>
-					<img src='$image'>
-					<br>$row->username";
-
-					if(count($msgs) > 0 && isset($msgs[$row->userid])){
-						$mydata .= "<div style='width:20px;height:20px;border-radius:50%;background-color:orange;color:white;position:absolute;left:0px;top:0px;'>".$msgs[$row->userid]."</div>";
-					}
-
-				$mydata .= "
-				</div>";
+			} else {
+				$mydata .= "<div style='padding:8px;color:#999'>No results</div>";
 			}
 		}
- 
- 	$mydata .= '
-	</div>';
+		$mydata .= "</div>";
 
-	//$result = $result[0];
+		// include small script to wire search input and add button
+		$mydata .= "<script>document.getElementById('contact_search').addEventListener('input', function(e){ var q=this.value; clearTimeout(this._t); this._t=setTimeout(function(){ get_data({action:'search', q:q}, 'contacts'); }, 250); }); function add_contact(id){ get_data({action:'add', contactid:id}, 'contacts'); }</"."script>";
+
+		$info->message = $mydata;
+		$info->data_type = "contacts";
+		echo json_encode($info);
+		die;
+	}
+
+	// default: render contacts list with a search box on top
+	$mydata = "<div style='padding:8px;'>";
+	$mydata .= "<input id='contact_search' placeholder='Search people by name or email' style='width:100%;padding:8px;margin-bottom:8px;' />";
+
+	// fetch contacts
+	$sql = "select u.userid,u.username,u.email,u.gender,u.image from users u join contacts c on c.contactid = u.userid where c.userid = :u order by c.created desc";
+	$contacts = $DB->read($sql, ['u'=>$myid]);
+	if(is_array($contacts) && count($contacts) > 0){
+		foreach($contacts as $row){
+			$mydata .= render_user_row($row, $msgs, true);
+		}
+	} else {
+		$mydata .= "<div style='padding:12px;color:#ccc'>You have no contacts yet. Use the search box above to find and add people.</div>";
+	}
+
+	// attach script to wire the search box and add action
+	$mydata .= "</div><script>document.getElementById('contact_search').addEventListener('input', function(e){ var q=this.value; clearTimeout(this._t); this._t=setTimeout(function(){ get_data({action:'search', q:q}, 'contacts'); }, 250); }); function add_contact(id){ get_data({action:'add', contactid:id}, 'contacts'); }</"."script>";
+
 	$info->message = $mydata;
 	$info->data_type = "contacts";
-	echo json_encode($info);
-
-	die;
-
-	$info->message = "No contacts were found";
-	$info->data_type = "error";
 	echo json_encode($info);
 
 ?>

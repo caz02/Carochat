@@ -2,7 +2,8 @@
 
 $info = (Object)[];
 
-	$data = false;
+	// initialize array for bind parameters
+	$data = [];
 	$data['userid'] = $_SESSION['userid'];
  
 	//validate username

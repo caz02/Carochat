@@ -32,10 +32,31 @@ if(isset($_POST['data_type'])){
 $destination = "";
 if(isset($_FILES['file']) && $_FILES['file']['name'] != ""){
 
-	$allowed[] = "image/jpeg";
-	$allowed[] = "image/png";
+	// allow common jpeg/jpg and png mime types. We'll also validate extension below.
+	$allowed = [
+		// image types
+		'image/jpeg',
+		'image/jpg',
+		'image/pjpeg',
+		'image/png',
+		'image/jfif',
+		// audio types
+		'audio/webm',
+		'audio/ogg',
+		'audio/mpeg',
+		'audio/mp3',
+		'audio/x-wav',
+		'audio/wav',
+		'audio/mp4'
+	];
 
-	if($_FILES['file']['error'] == 0 && in_array($_FILES['file']['type'], $allowed)){
+	$fileTypeOk = ($_FILES['file']['error'] == 0 && in_array($_FILES['file']['type'], $allowed));
+
+	// basic extension check as an additional guard
+	$ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
+	$extOk = in_array($ext, ['jpg','jpeg','png','webm','ogg','mp3','m4a','wav']);
+
+	if($fileTypeOk && $extOk){
 
 		//good to go
 		$folder = "uploads/";
@@ -44,11 +65,34 @@ if(isset($_FILES['file']) && $_FILES['file']['name'] != ""){
 			mkdir($folder,0777,true);
 		}
 
-		$destination = $folder . $_FILES['file']['name'];
-		move_uploaded_file($_FILES['file']['tmp_name'], $destination);
-		
-		$info->message = "Your image was uploaded";
+		// create a safe, unique filename to avoid spaces/special chars and collisions
+		$originalName = pathinfo($_FILES['file']['name'], PATHINFO_FILENAME);
+		$originalName = preg_replace('/[^A-Za-z0-9\-_]/', '_', $originalName); // allow alnum, dash, underscore
+		$uniquePrefix = time() . '_' . substr(md5(uniqid('', true)), 0, 6);
+		$safeName = $uniquePrefix . '_' . $originalName . '.' . $ext;
+		$destination = $folder . $safeName;
+
+		// attempt to move uploaded file and report failure if it doesn't work
+		if(!move_uploaded_file($_FILES['file']['tmp_name'], $destination)){
+			// capture last PHP error for debugging
+			$err = error_get_last();
+			error_log('uploader.php: move_uploaded_file failed for ' . $_FILES['file']['name'] . ' -> ' . $destination . ' ; err=' . print_r($err, true));
+			http_response_code(500);
+			$info->message = "Failed to save uploaded file.";
+			$info->data_type = $data_type;
+			// include a short non-sensitive reason to help client-side debugging
+			$info->reason = isset($err['message']) ? substr($err['message'],0,180) : null;
+			echo json_encode($info);
+			return;
+		}
+
+		// set safe permissions
+		@chmod($destination, 0644);
+
+		$info->message = "Your file was uploaded";
 		$info->data_type = $data_type;
+		// include the destination path so the client can update UI immediately if needed
+		$info->file = $destination;
 		echo json_encode($info);
 	}
 
@@ -59,43 +103,92 @@ if(isset($_FILES['file']) && $_FILES['file']['name'] != ""){
 if($data_type == "change_profile_image"){
 
 	if($destination != ""){
-
-		//save to database
-		$id = $_SESSION['userid'];
-		$query = "update users set image = '$destination' where userid = '$id' limit 1";
-		$DB->write($query,[]);
+		//save to database (only if we have a logged-in user)
+		if(isset($_SESSION['userid'])){
+			$id = $_SESSION['userid'];
+			$query = "update users set image = '$destination' where userid = '$id' limit 1";
+			$DB->write($query,[]);
+		} else {
+			// no session — skip DB write but leave file on disk
+			error_log('uploader.php: change_profile_image called without session; skipping DB write');
+		}
 
 	}
 
 }else 
 if($data_type == "send_image"){
 
-	$arr['userid'] = "null";
+	// receiver userid (the chat partner)
+	$userid = null;
 	if(isset($_POST['userid'])){
-		
-		$arr['userid'] = addslashes($_POST['userid']);
-		
+		$userid = addslashes($_POST['userid']);
 	}
 
-		$arr['message'] = "";
-		$arr['date'] = date("Y-m-d H:i:s");
-		$arr['sender'] = $_SESSION['userid'];
-		$arr['msgid'] = get_random_string_max(60);
-		$arr['file'] = $destination;
+	// determine sender: prefer session, fall back to explicit POST 'sender' if provided
+	$sender = null;
+	if(isset($_SESSION['userid'])){
+		$sender = $_SESSION['userid'];
+	} elseif(isset($_POST['sender'])){
+		$sender = addslashes($_POST['sender']);
+	}
 
-			$arr2['sender'] = $_SESSION['userid'];
-			$arr2['receiver'] = $arr['userid'];
+	$arr = [];
+	$arr['userid'] = $userid;
+	$arr['message'] = "";
+	$arr['date'] = date("Y-m-d H:i:s");
+	$arr['sender'] = $sender;
+	$arr['msgid'] = get_random_string_max(60);
+	$arr['file'] = $destination;
 
-			$sql = "select * from messages where (sender = :sender && receiver = :receiver) || (receiver = :sender && sender = :receiver) limit 1";
-			$result2 = $DB->read($sql,$arr2);
+	// Only attempt DB insert if we have a sender and a receiver
+	if(!empty($arr['sender']) && !empty($arr['userid'])){
 
-			if(is_array($result2)){
-				$arr['msgid'] = $result2[0]->msgid;
+		$arr2 = [];
+		$arr2['sender'] = $arr['sender'];
+		$arr2['receiver'] = $arr['userid'];
 
-			}
+		$sql = "select * from messages where (sender = :sender && receiver = :receiver) || (receiver = :sender && sender = :receiver) limit 1";
+		$result2 = $DB->read($sql,$arr2);
+
+		if(is_array($result2) && isset($result2[0]->msgid)){
+			$arr['msgid'] = $result2[0]->msgid;
+		}
 
 		$query = "insert into messages (sender,receiver,message,date,msgid,files) values (:sender,:userid,:message,:date,:msgid,:file)";
 		$DB->write($query,$arr);
+
+	} else {
+		// missing sender/receiver — do not attempt DB write, but keep the file on disk
+		error_log('uploader.php: skipping DB insert for send_image due to missing sender or userid; sender=' . var_export($sender, true) . ' userid=' . var_export($userid, true));
+	}
+
+}
+
+// handle audio sends
+if($data_type == "send_audio"){
+
+	$arr['userid'] = "null";
+	if(isset($_POST['userid'])){
+		$arr['userid'] = addslashes($_POST['userid']);
+	}
+
+	$arr['message'] = "";
+	$arr['date'] = date("Y-m-d H:i:s");
+	$arr['sender'] = $_SESSION['userid'];
+	$arr['msgid'] = get_random_string_max(60);
+	$arr['files'] = $destination;
+
+	$arr2['sender'] = $_SESSION['userid'];
+	$arr2['receiver'] = $arr['userid'];
+
+	$sql = "select * from messages where (sender = :sender && receiver = :receiver) || (receiver = :sender && sender = :receiver) limit 1";
+	$result2 = $DB->read($sql,$arr2);
+	if(is_array($result2)){
+		$arr['msgid'] = $result2[0]->msgid;
+	}
+
+	$query = "insert into messages (sender,receiver,message,date,msgid,files) values (:sender,:userid,:message,:date,:msgid,:files)";
+	$DB->write($query,$arr);
 
 }
 

@@ -88,7 +88,8 @@ if(isset($DATA_OBJ->data_type) && $DATA_OBJ->data_type == "signup")
 
 function message_left($data,$row)
 {
-	$image = ($row->gender == "Male") ? "ui/images/user_male.jpg" : "ui/images/user_female.jpg";
+	// keep names consistent with other parts of the app (male.jpg / girl.jpg)
+	$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
 	if(!empty($row->image) && file_exists($row->image)){
 		$image = $row->image;
 	}
@@ -101,7 +102,17 @@ function message_left($data,$row)
 		$data->message<br><br>";
 
 		if($data->files != "" && file_exists($data->files)){
-			$a .= "<img src='$data->files' style='width:100%;cursor:pointer;' onclick='image_show(event)' /> <br>";
+			$ext = strtolower(pathinfo($data->files, PATHINFO_EXTENSION));
+			$audioExts = array('webm','ogg','mp3','m4a','wav');
+			if(in_array($ext,$audioExts)){
+					// append a cache-busting query so updated audio is always loaded
+					$audioSrc = $data->files . '?_=' . time();
+					$a .= "<audio controls style='width:100%'><source src='$audioSrc' type='audio/".$ext."'>Your browser does not support audio playback</audio><br>";
+			}else{
+					// append a cache-busting query so updated images are always loaded
+					$imgSrc = $data->files . '?_=' . time();
+					$a .= "<img src='$imgSrc' style='width:100%;cursor:pointer;' onclick='image_show(event)' /> <br>";
+			}
 		}
 		$a .= "<span style='font-size:11px;color:white;'>".date("jS M Y H:i:s a",strtotime($data->date))."<span>
 	<img id='trash' src='ui/icons/trash.png' onclick='delete_message(event)' msgid='$data->id' />
@@ -135,7 +146,15 @@ function message_right($data,$row)
 		$data->message<br><br>";
 
 		if($data->files != "" && file_exists($data->files)){
-			$a .= "<img src='$data->files' style='width:100%;cursor:pointer;' onclick='image_show(event)' /> <br>";
+			$ext = strtolower(pathinfo($data->files, PATHINFO_EXTENSION));
+			$audioExts = array('webm','ogg','mp3','m4a','wav');
+			if(in_array($ext,$audioExts)){
+					$audioSrc = $data->files . '?_=' . time();
+					$a .= "<audio controls style='width:100%'><source src='$audioSrc' type='audio/".$ext."'>Your browser does not support audio playback</audio><br>";
+			}else{
+					$imgSrc = $data->files . '?_=' . time();
+					$a .= "<img src='$imgSrc' style='width:100%;cursor:pointer;' onclick='image_show(event)' /> <br>";
+			}
 		}
 		$a .= "<span style='font-size:11px;color:#888;'>".date("jS M Y H:i:s a",strtotime($data->date))."<span>
 	<img id='trash' src='ui/icons/trash.png' onclick='delete_message(event)' msgid='$data->id' />
@@ -154,7 +173,13 @@ function message_controls()
 	<div style='display:flex;width:100%;height:40px;'>
 		<label for='message_file'><img src='ui/icons/attach.png' style='opacity:0.8;width:30px;margin:5px;cursor:pointer;' ></label>
 		<input type='file' id='message_file' name='file' style='display:none' onchange='send_image(this.files)' />
-		<input id='message_text' onkeyup='enter_pressed(event)' style='flex:6;border:solid thin #ccc;border-bottom:none;font-size:14px;padding:4px;' type='text' placeHolder='type your message'/>
+		<input id='message_text' onkeydown='enter_pressed(event)' style='flex:6;border:solid thin #ccc;border-bottom:none;font-size:14px;padding:4px;' type='text' placeHolder='type your message'/>
+		<!-- Mic button: click to toggle on desktop, hold on mobile -->
+				<!-- Voice-note mic (existing) -->
+				<button id='mic_button' type='button' style='margin:0 6px;cursor:pointer;' title='Record voice note'>🎙</button>
+				<!-- Walkie / live-talk button (starts live WebRTC session) -->
+				<button id='walkie_button' type='button' style='margin:0 6px;cursor:pointer;' title='Start live talk'>📻</button>
+		<span id='recording_indicator' style='display:none;color:red;margin-right:6px;'>● recording</span>
 		<input style='flex:1;cursor:pointer;' type='button' value='send' onclick='send_message(event)'/>
 	</div>
 	</div>";

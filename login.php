@@ -1,7 +1,7 @@
 <!DOCTYPE>
 <html>
 <head>
-	<title>CaroChat</title>
+	<title>Walkie Talkie</title>
 </head>
 
 <style type="text/css">
@@ -10,7 +10,7 @@
 	@font-face{
 
 		font-family: headFont;
-		src: url(ui/fonts/Bernadette/Bernadette.otf);
+		src: url(ui/fonts/Bernadette/Bernadette.ttf);
 
 	}
 
@@ -90,7 +90,7 @@
 	<div id="wrapper">
 
 		<div id="header">
-		CaroChat
+		Walkie Talkie
 		<div style="font-size:15px; font-family: myFont;">Login</div>
 		</div>
 		<div id="error" style="">Some Text</div>

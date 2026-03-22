@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>CaroChat</title>
+	<title>Walkie Talkie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <style type="text/css">
@@ -101,7 +102,7 @@
 	}
 
 	#header{
-
+		padding: 11px;
 		background-color: #33476b;
 		height:70px;
 		font-size: 50px;
@@ -113,9 +114,10 @@
 	#inner_left_panel{
 		
 		background-color: #050912;
+		position: relative; /* allow absolute-positioned controls inside */
 		flex:2;
 		min-height: 430px;
-		max-height: 490px;
+		max-height: 548px;
 
 
 	}
@@ -124,10 +126,35 @@
 		
 		background-color: #f5f6fa;
 		flex:4;
+		min-width:0;
 		min-height: 430px;
 		transition: all 2s ease;
 		max-height: 490px;
 	}
+
+/* Mobile: allow user to hide the left panel and let messages take full width */
+@media (max-width: 500px){
+	body.left-hidden #container > #inner_left_panel{ display: none !important; }
+	body.left-hidden #container > #inner_right_panel{ flex: 1 1 100% !important; }
+	/* show the hide button only on mobile */
+	#inner_left_panel .hide_btn{ display:inline-block; }
+}
+
+/* hide button styling (keeps subtle and small) */
+#inner_left_panel .hide_btn{
+	position: absolute;
+	bottom: 8px;
+	left: 8px;
+	background: rgba(0,0,0,0.4);
+	color: #ffb3b3;
+	border: 1px solid rgba(255,255,255,0.06);
+	font-size: 13px;
+	cursor: pointer;
+	padding: 6px 8px;
+	border-radius: 4px;
+	z-index: 999;
+}
+#inner_left_panel .hide_btn:active{ transform: translateY(1px); }
 
 
 	#radio_contacts:checked ~ #inner_right_panel{
@@ -323,14 +350,411 @@
 
 		display:none;
 	}
+/* Responsive/mobile tweaks */
+@media (max-width: 500px) {
+	/* compact mobile layout: keep a narrow left rail visible and make right panel touch-friendly */
+	#wrapper{ max-width:100%; display:flex; flex-direction:row; padding:0 6px; }
+	/* show a compact left rail but keep text visible (truncated) so nothing is hidden on mobile */
+	#left_panel{ display:block; flex:0 0 88px; width:88px; min-width:72px; max-width:110px; overflow:hidden; }
+	#left_panel #user_info{ padding:6px; }
+	/* reduce textual elements in the left rail but keep them visible and truncated */
+	#left_panel label{ text-indent:0; height:44px; padding:6px 8px; border:none; display:flex; align-items:center; gap:8px; }
+	#left_panel label img{ width:22px; height:22px; flex:0 0 22px; display:block; }
+	#left_panel label .nav_text{ display:inline-block; font-size:12px; color:#fff; max-width:56px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+	/* hide label text on mobile - show icon only; restore text when overlay menu is opened */
+	#left_panel label{ font-size:0; line-height:0; }
+	#left_panel label img{ display:block; margin:0 auto; }
+	body.mobile-open #left_panel label{ font-size:13px; line-height:1.2; display:flex; align-items:center; gap:8px; }
+	/* show reduced username/email in compact rail (small, truncated) */
+	#username, #email{ display:block; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:88px; }
+	/* main content stretches to remaining width */
+	#right_panel{ flex:1; width:auto; }
+	#header{ height:52px; font-size:30px; 
+        padding-top: 16%;
+        padding-bottom: 2px; }
+	#profile_image{ width:40px !important; height:40px !important; position: absolute;
+        bottom: 32%;
+        left: 7%;}
+	#inner_right_panel{ flex:1; min-height: 60vh; max-height: none; }
+	/* make inputs and buttons touch friendly */
+	input, button, textarea{ font-size:16px; }
+	.peer_btn, #walkie_button, #mic_button{ padding:10px 14px; min-height:44px; min-width:44px; border-radius:8px; }
+	#live_talk_indicator{ right:12px; bottom:90px; }
+	#remote_audio_indicator{ right:12px; bottom:140px; }
+	/* make message area responsive */
+	#message_right{
+    width: 80%!important;
+    margin-right: 10%!important;}
+	#message_left{width:80%; min-width: auto; margin-left:15%; }
+	/* image viewer scaling */
+	.image_on{ left:0; right:0; width:100%; height:auto; top:60px; }
+
+	/* show mobile menu button */
+	#mobile_menu_btn{ display:block; position:absolute; left:8px; top:10px; z-index:10005; background:transparent; border:none; color:white; font-size:22px; }
+	/* when mobile menu toggled, show left panel as overlay (full view) */
+	body.mobile-open #left_panel{ display:block; position:fixed; left:0; top:56px; bottom:0; width:72%; max-width:360px; z-index:10004; background:#071126; overflow:auto; padding-top:8px; text-indent:0; }
+	body.mobile-open #username, body.mobile-open #email{ display:block; }
+
+	/* if messages view is open on mobile, hide the inner left panel to maximize message area */
+	#messages_holder_parent{ height: 100%!important;}
+	/* Use a more specific selector to reliably override inline/display rules when messages are open */
+	body.messages-closed #container > #inner_left_panel{ display:block !important; }
+
+}
+/* Settings-specific mobile tweaks: smaller icon text above image and smaller buttons
+   so the settings block fits on small screens without hiding controls. */
+@media (max-width: 500px) {
+	/* Make helper text above the change-photo image smaller and tighter */
+	#inner_left_panel span, #inner_left_panel .help_text {
+		font-size: 11px !important;
+		line-height: 1.1 !important;
+		margin-bottom: 6px !important;
+		display: block !important;
+	}
+
+	/* Shrink the visible Change Image label/button */
+	#inner_left_panel label[for="change_image_input"],
+	#inner_left_panel #change_image_button,
+	#inner_left_panel input[type="file"] + label {
+		font-size: 12px !important;
+		padding: 6px 8px !important;
+		border-radius: 6px !important;
+	}
+
+	/* Reduce profile image/thumb in settings to save vertical space (apply only when Settings tab is active) */
+	body.settings-open #inner_left_panel img#profile_image,
+	body.settings-open #inner_left_panel img[id^="profile"] {
+		/* mobile settings: larger portrait area as requested */
+		width: 73px !important;
+        height: 86px !important;
+        margin: 8px !important;
+        margin-top: -6px !important;
+        display: block !important;
+        position: static!important;
+	}
+
+	/* Make form inputs in settings a little smaller to fit */
+	#inner_left_panel input[type="text"],
+	#inner_left_panel input[type="password"],
+	#inner_left_panel input[type="email"]{
+		font-size: 14px !important;
+		padding: 6px 8px !important;
+	}
+}
+@media (max-width: 420px) {
+	#header{ font-size:28px; }
+	input, button, textarea{ font-size:15px; }
+}
+
+
+/* On very small screens, place message input above a horizontal row of buttons */
+@media (max-width: 500px) {
+	/* target the message controls container emitted by `message_controls()` in PHP */
+	div[style*="display:flex;width:100%;height:40px;"] {
+		display: flex !important;
+		flex-direction: row !important;
+		flex-wrap: wrap !important;
+		align-items: center !important;
+		gap: 6px;
+		height: auto !important;
+		padding: 6px 8px !important;
+	}
+	/* make the text input take the full row */
+	div[style*="display:flex;width:100%;height:40px;"] input#message_text {
+		order: 0;
+		flex: 1 0 100% !important;
+		width: 100% !important;
+		box-sizing: border-box;
+		padding: 8px !important;
+		font-size: 15px !important;
+	}
+	/* buttons row: keep buttons compact and let them flow on the next line */
+	div[style*="display:flex;width:100%;height:40px;"] label[for="message_file"],
+	div[style*="display:flex;width:100%;height:40px;"] #mic_button,
+	div[style*="display:flex;width:100%;height:40px;"] #walkie_button,
+	div[style*="display:flex;width:100%;height:40px;"] input[type="button"] {
+		order: 1;
+		flex: 0 0 auto !important;
+		display: inline-flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		padding: 8px 12px !important;
+		margin: 0 6px 6px 0 !important;
+		min-width: 44px !important;
+		border-radius: 6px !important;
+	}
+	/* recording indicator stays full width under buttons */
+	div[style*="display:flex;width:100%;height:40px;"] #recording_indicator{ order:2; width:100%; text-align:center; }
+}
 /* all the background design*/
 
-
+/* Chat list styles (left panel) */
+.chats_list{ display:flex; flex-direction:column; gap:6px; padding:8px; }
+.chat_item{ display:flex; align-items:center; gap:8px; padding:8px; background:rgba(255,255,255,0.03); border-radius:6px; cursor:pointer; }
+.chat_item:hover{ background:rgba(255,255,255,0.06); }
+.chat_avatar{ width:40px; height:40px; border-radius:50%; background:#345; flex:0 0 40px; }
+.chat_meta{ display:flex; flex-direction:column; }
+.chat_name{ font-weight:600; font-size:14px; color:#fff; }
+.chat_last{ font-size:12px; color:#cfcfcf; }
 
 </style>
 <body>
+	<script>
+		// early stubs so DevTools can call these even if the main script hasn't finished
+		window.debugSignalingConnect = window.debugSignalingConnect || function(){ console.warn('debugSignalingConnect: signaling helper not initialized yet'); };
+		window.showSignalingState = window.showSignalingState || function(){ console.warn('showSignalingState: signaling helper not initialized yet'); };
+		window.startLocalStream = window.startLocalStream || function(){ return Promise.reject(new Error('startLocalStream: not initialized yet')); };
+
+		// Mobile menu toggle: toggles left panel overlay when on small screens
+		try{
+			document.addEventListener('click', function(ev){
+				var btn = document.getElementById('mobile_menu_btn');
+				var left = document.getElementById('left_panel');
+				if(!btn || !left) return;
+				if(ev.target === btn || btn.contains(ev.target)){
+					document.body.classList.toggle('mobile-open');
+					return;
+				}
+				// if click outside left_panel and button, close menu
+				if(document.body.classList.contains('mobile-open')){
+					if(!left.contains(ev.target)){
+						document.body.classList.remove('mobile-open');
+					}
+				}
+			});
+		}catch(e){console.warn('mobile menu init failed', e);} 
+
+	// Monitor for messages view and toggle a mobile-only class; initialize after DOM is ready
+	(function(){
+		function initMessagesMonitor(){
+			try{
+				var innerLeft = document.getElementById('inner_left_panel');
+				function updateMessagesOpen(){
+					// detect either the client-rendered messages wrapper or the server-inserted one
+					var m = document.getElementById('messages_holder_parent') || document.getElementById('messages_holder');
+					var radioChat = document.getElementById('radio_chat');
+					var chatOpen = (radioChat && radioChat.checked) || !!m;
+					// check the message input - if it's visible or focused we should hide the left panel on mobile
+					var msgInput = document.getElementById('message_text');
+					var inputVisible = false;
+					var inputFocused = false;
+					try{
+						inputFocused = (document.activeElement === msgInput);
+						if(msgInput){
+								// consider visible on screen when its bounding rect intersects the viewport
+								try{
+									var r = msgInput.getBoundingClientRect();
+									inputVisible = (r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < (window.innerHeight || document.documentElement.clientHeight));
+								}catch(err){
+									inputVisible = (msgInput.offsetParent !== null) && (msgInput.offsetWidth > 0 && msgInput.offsetHeight > 0);
+								}
+							}
+					}catch(err){ /* defensive */ }
+					var hideLeftBecauseInput = inputVisible || inputFocused;
+					// mobile breakpoint aligned with CSS (<=500px)
+					// Note: we keep the 'messages-open' body class for other UI logic
+					// but we no longer hide the inner left panel via inline styles here.
+					var isMobile = (window.innerWidth <= 500);
+					if(isMobile && (chatOpen || hideLeftBecauseInput)){
+						// chat is open on small screens: keep classes for other UI logic but do NOT hide
+						document.body.classList.add('messages-open');
+						document.body.classList.remove('messages-closed');
+						// ensure left panel remains visible regardless of viewport size
+						try{ if(innerLeft) innerLeft.style.display = ''; }catch(err){}
+					} else {
+						// chat not open: keep classes but ensure left panel remains visible
+						document.body.classList.remove('messages-open');
+						document.body.classList.add('messages-closed');
+						try{ if(innerLeft) innerLeft.style.display = ''; }catch(err){}
+					}
+				}
+				// initial run
+				updateMessagesOpen();
+				// observe DOM changes (messages may be injected dynamically)
+				var mo = new MutationObserver(updateMessagesOpen);
+				mo.observe(document.body, { childList: true, subtree: true });
+				// listen for radio changes and clicks on the chat label
+				var radioChatInput = document.getElementById('radio_chat');
+				if(radioChatInput) radioChatInput.addEventListener('change', updateMessagesOpen);
+				var chatLabel = document.getElementById('label_chat');
+				if(chatLabel) chatLabel.addEventListener('click', function(){ setTimeout(updateMessagesOpen,50); });
+
+				// watch for focus on the message input so we can hide the left panel while typing
+				document.addEventListener('focusin', function(ev){ if(ev.target && ev.target.id === 'message_text') updateMessagesOpen(); });
+				document.addEventListener('focusout', function(ev){ if(ev.target && ev.target.id === 'message_text') setTimeout(updateMessagesOpen,50); });
+
+				// also update visibility on scroll (viewport changes) to detect when the input enters/leaves view
+				window.addEventListener('scroll', updateMessagesOpen, true);
+				// update on resize
+				window.addEventListener('resize', updateMessagesOpen);
+			}catch(e){ console.warn('messages-open monitor failed', e); }
+		}
+		if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initMessagesMonitor); else initMessagesMonitor();
+	})();
+
+
+	</script>
+
+	<!-- small chat-list helper: fetch and render chat list into #inner_left_panel -->
+	<script>
+	(function(){
+		// cached last successful chat list so we can fall back when network/API returns empty
+		let __cachedChats = null;
+
+		async function fetchChats(retries = 3, delayMs = 200){
+			// Use the JSON POST API to request chats (same path as get_data) to avoid
+			// inconsistent GET behavior from api.php when no body is supplied.
+			const payload = { data_type: 'chats', find: {} };
+			for(let attempt = 1; attempt <= retries; attempt++){
+				try{
+					const res = await fetch('api.php', {
+						method: 'POST',
+						credentials: 'same-origin',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify(payload)
+					});
+					if(!res.ok) throw new Error('fetch failed: '+res.status);
+					const txt = await res.text();
+					if(!txt || txt.trim() === '') throw new Error('empty response');
+					try{
+						const parsed = JSON.parse(txt);
+						// update cache and return
+						__cachedChats = parsed;
+						return parsed;
+					}catch(jsonErr){
+						console.warn('fetchChats: invalid JSON, response text=', txt.slice(0,200));
+						throw jsonErr;
+					}
+				}catch(err){
+					console.warn(`fetchChats attempt ${attempt} failed:`, err && err.message ? err.message : err);
+					if(attempt < retries){
+						// backoff before retrying
+						await new Promise(r => setTimeout(r, delayMs * attempt));
+						continue;
+					}
+					// all retries exhausted — fall back to cached data if available
+					if(__cachedChats && Object.keys(__cachedChats).length){
+						console.info('fetchChats: falling back to cached chats');
+						return __cachedChats;
+					}
+					// no cached chats — return null
+					return null;
+				}
+			}
+			return null;
+		}
+
+		function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+	// timestamp of last manual left-panel render (ms since epoch). Used to avoid
+	// server-initiated updates overwriting a user-triggered view immediately after click.
+	window.__lastLeftUpdate = window.__lastLeftUpdate || 0;
+	// how long we hold off server-driven left-panel updates after a manual render (ms)
+	window.__LEFT_PANEL_HOLD_MS = window.__LEFT_PANEL_HOLD_MS || 7000; // 7s
+
+		function renderChatList(chats){
+			const pane = document.getElementById('inner_left_panel');
+			if(!pane) return;
+			pane.innerHTML = '';
+			const list = document.createElement('div'); list.className = 'chats_list';
+			(chats||[]).forEach(c => {
+				const item = document.createElement('div'); item.className = 'chat_item'; item.dataset.chatId = c.id;
+				item.innerHTML = '<div class="chat_avatar"></div>' +
+					'<div class="chat_meta"><div class="chat_name">'+escapeHtml(c.name)+'</div><div class="chat_last">'+escapeHtml(c.last||'')+'</div></div>';
+				item.addEventListener('click', function(){ openChat(this.dataset.chatId); });
+				list.appendChild(item);
+			});
+			pane.appendChild(list);
+			try{ window.__lastLeftUpdate = Date.now(); }catch(e){}
+
+			// add a small hide/show button into the left panel so mobile users can collapse it
+			// (rendered here so it survives when renderChatList clears innerHTML)
+			try{
+				let hideBtn = pane.querySelector('.hide_btn');
+				if(!hideBtn){
+					hideBtn = document.createElement('button');
+					hideBtn.className = 'hide_btn';
+					hideBtn.id = 'inner_left_hide_btn';
+					hideBtn.textContent = 'hide';
+					hideBtn.addEventListener('click', function(ev){
+						ev.preventDefault();
+						document.body.classList.toggle('left-hidden');
+						this.textContent = document.body.classList.contains('left-hidden') ? 'show' : 'hide';
+					});
+					pane.appendChild(hideBtn);
+				}
+			}catch(e){ console.warn('adding hide button failed', e); }
+
+			// ensure hide button persists even when server replaces inner_left_panel HTML
+			try{
+				(function ensureHideBtn(){
+					const pane = document.getElementById('inner_left_panel');
+					if(!pane) return;
+					function addBtnIfMissing(){
+						if(pane.querySelector('.hide_btn')) return;
+						const btn = document.createElement('button');
+						btn.className = 'hide_btn';
+						btn.id = 'inner_left_hide_btn';
+						btn.textContent = document.body.classList.contains('left-hidden') ? 'show' : 'hide';
+						btn.addEventListener('click', function(ev){ ev.preventDefault(); document.body.classList.toggle('left-hidden'); this.textContent = document.body.classList.contains('left-hidden') ? 'show' : 'hide'; });
+						// append near end but before any dynamically added controls
+						pane.appendChild(btn);
+					}
+					// initial add
+					addBtnIfMissing();
+					// observe changes and re-add when innerHTML is replaced
+					const mo = new MutationObserver(function(mutations){
+						// small debounce: if children changed, ensure button exists
+						let changed = false;
+						for(const m of mutations){ if(m.type === 'childList') { changed = true; break; } }
+						if(changed) setTimeout(addBtnIfMissing, 20);
+					});
+					mo.observe(pane, { childList: true, subtree: false });
+				})();
+			}catch(e){ console.warn('ensureHideBtn failed', e); }
+		}
+
+		async function openChat(chatId){
+			// load messages for the selected chat
+			let messages;
+			try{
+				const res = await fetch('api.php?action=get_messages&chat_id='+encodeURIComponent(chatId), { credentials: 'same-origin' });
+				if(!res.ok) throw new Error('no');
+				messages = await res.json();
+			}catch(e){
+				// fallback sample messages
+				messages = [ { from: 'them', text: 'Hello from '+chatId, ts: Date.now()-60000 }, { from: 'me', text: 'Hi!', ts: Date.now() } ];
+			}
+			renderMessages(messages, chatId);
+					// on small screens, mark messages-open so CSS can adapt, but avoid setting inline styles that hide the panel
+					if(window.innerWidth <= 500){
+						document.body.classList.add('messages-open');
+					}
+		}
+
+		function renderMessages(messages, chatId){
+			const target = document.getElementById('inner_right_panel'); if(!target) return;
+			target.innerHTML = '';
+			const header = document.createElement('div'); header.style.padding = '12px'; header.style.background = '#eef'; header.textContent = 'Chat: '+chatId; target.appendChild(header);
+			const wrap = document.createElement('div'); wrap.id = 'messages_holder_parent'; wrap.style.padding = '12px';
+			(messages||[]).forEach(m => {
+				const d = document.createElement('div'); d.className = m.from === 'me' ? 'message_right' : 'message_left';
+				d.style.margin = '6px 0'; d.style.padding = '8px'; d.style.borderRadius = '6px';
+				d.style.maxWidth = '80%';
+				if(m.from === 'me'){ d.style.marginLeft = 'auto'; d.style.background = '#eef;'; d.style.color = '#111'; }
+				else { d.style.background = '#cce'; d.style.color = '#111'; }
+				d.textContent = m.text;
+				wrap.appendChild(d);
+			});
+			target.appendChild(wrap);
+		}
+
+		// chat label is wired elsewhere (get_chats) — avoid duplicate click handlers that can race
+	})();
+	</script>
+
 	<!-- format of the user panel -->
-	
 	<div id="wrapper">
 
 		<div id="left_panel" >
@@ -362,7 +786,8 @@
 			<div id="loader_holder" class="loader_off"><img style="width:70px;" src="ui/icons/load.gif"></div>
 				
 				<div id="image_viewer" class="image_off" onclick="close_image(event)"></div>
-				CaroChat
+						<button id="mobile_menu_btn" aria-label="Menu" style="display:none;">☰</button>
+						Walkie Talkie
 			</div>
 			<div id="container" style="display: flex;">
 			
@@ -378,15 +803,482 @@
 				
 
 					<div id="inner_right_panel"></div>
+					<span id="live_talk_indicator" style="display:none; position: fixed; right: 20px; bottom: 34px; z-index:9999; color:#e74c3c; font-weight:bold; background: rgba(255,255,255,0.9); padding:4px 6px; border-radius:4px;">LIVE</span>
 			</div>
 		</div>
 
 	</div>
 
-</body>
-</html>
 
 <script type="text/javascript">
+
+	// ensure the inner left panel always has the hide/show control even when server replaces HTML
+	document.addEventListener('DOMContentLoaded', function(){
+		try{
+			const pane = document.getElementById('inner_left_panel');
+			if(!pane) return;
+			function addBtnIfMissing(){
+				if(pane.querySelector('.hide_btn')) return;
+				const btn = document.createElement('button');
+				btn.className = 'hide_btn'; btn.id = 'inner_left_hide_btn';
+				btn.textContent = document.body.classList.contains('left-hidden') ? 'show' : 'hide';
+				btn.addEventListener('click', function(ev){ ev.preventDefault(); document.body.classList.toggle('left-hidden'); this.textContent = document.body.classList.contains('left-hidden') ? 'show' : 'hide'; });
+				pane.appendChild(btn);
+			}
+			addBtnIfMissing();
+			const mo = new MutationObserver(function(muts){
+				for(const m of muts){ if(m.type === 'childList'){ setTimeout(addBtnIfMissing,20); break; } }
+			});
+			mo.observe(pane, { childList: true, subtree: false });
+		}catch(e){ console.warn('left hide init failed', e); }
+	});
+
+	// wire up contacts search/add UI that is returned as server HTML
+	document.addEventListener('DOMContentLoaded', function(){
+		try{
+			const pane = document.getElementById('inner_left_panel');
+			if(!pane) return;
+			function attachContactsHandlers(){
+				try{
+					const input = pane.querySelector('#contact_search');
+					if(input && !input._attached){
+						input._attached = true;
+						input.addEventListener('input', function(e){
+							var q = this.value || '';
+							clearTimeout(this._t);
+							var self = this;
+							this._t = setTimeout(function(){
+								try{ get_data({action:'search', q: q}, 'contacts'); }catch(err){ console.warn('contacts search failed', err); }
+							}, 250);
+						});
+					}
+
+					// expose add_contact globally so server-rendered buttons can call it
+					if(!window.add_contact){
+						window.add_contact = function(id){ try{ get_data({action:'add', contactid: id}, 'contacts'); }catch(err){ console.warn('add_contact failed', err); } };
+					}
+				}catch(e){ console.warn('attachContactsHandlers error', e); }
+			}
+
+			// initial attach
+			attachContactsHandlers();
+
+			// observe pane changes and re-attach when server replaces HTML
+			const mo2 = new MutationObserver(function(muts){
+				for(const m of muts){ if(m.type === 'childList'){ setTimeout(attachContactsHandlers, 20); break; } }
+			});
+			mo2.observe(pane, { childList: true, subtree: false });
+		}catch(e){ console.warn('contacts init failed', e); }
+	});
+
+
+	// --- WebRTC + signaling client (paste inside index.html) ---
+(() => {
+  const SIGNALING_URL = `ws://${location.hostname}:3000`; // if server on same host
+  const STUN_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
+
+  let ws;
+  let localStream = null;
+  let pc = null;
+  let currentTarget = null;
+	let audioUnlocked = false; // set to true after user gesture unlocks audio playback
+	// resolve current user id dynamically from window (set after user_info arrives)
+	function getCurrentUserId(){ return window.CURRENT_USER_ID || null; }
+
+  function log(...args){ console.log('[signaling]', ...args); }
+
+	// Try to unlock audio playback via a user gesture by resuming AudioContext and playing a tiny silent buffer.
+	async function unlockAudio(){
+		if(audioUnlocked) return true;
+		try{
+			const Ctx = window.AudioContext || window.webkitAudioContext;
+			if(!Ctx) return false;
+			const ctx = new Ctx();
+			if(ctx.state === 'suspended') await ctx.resume();
+			// play a silent buffer to unlock autoplay restrictions
+			const buffer = ctx.createBuffer(1, 1, 22050);
+			const src = ctx.createBufferSource();
+			src.buffer = buffer;
+			src.connect(ctx.destination);
+			src.start(0);
+			audioUnlocked = true;
+					// persist unlocked state so future visits on same browser won't require re-click
+					try{ localStorage.setItem('carochat_audio_unlocked','1'); }catch(e){}
+					const btn = document.getElementById('enable_audio_btn'); if(btn) btn.style.display = 'none';
+			console.log('audio unlocked');
+			return true;
+		}catch(e){ console.warn('unlockAudio failed', e); return false; }
+	}
+
+	function ensureEnableAudioButton(){
+		if(document.getElementById('enable_audio_btn')) return;
+		const btn = document.createElement('button');
+		btn.id = 'enable_audio_btn';
+		btn.textContent = 'Enable sound';
+		btn.style.position = 'fixed';
+		btn.style.right = '20px';
+		btn.style.bottom = '60px';
+		btn.style.zIndex = 10002;
+		btn.style.padding = '6px 8px';
+		btn.onclick = () => { unlockAudio(); btn.style.display='none'; };
+		document.body.appendChild(btn);
+	}
+
+		// restore persisted unlocked state on load
+		try{ if(localStorage.getItem('carochat_audio_unlocked') === '1') audioUnlocked = true; }catch(e){}
+
+  function connectSignaling() {
+    if (ws && ws.readyState === WebSocket.OPEN) return;
+    ws = new WebSocket(SIGNALING_URL);
+    // expose ws for debugging
+    try{ window._signaling_ws_ref = ws; }catch(e){}
+		ws.addEventListener('open', () => {
+			const id = getCurrentUserId();
+			log('ws open, registering user', id);
+			if (id) ws.send(JSON.stringify({ type: 'register', from: String(id) }));
+			// mark connected at socket level; will be confirmed by 'registered' message
+			try{ if(window.signalingClient) window.signalingClient._socketOpen = true; }catch(e){}
+		});
+		ws.addEventListener('message', ev => {
+			// log raw message for easier debugging
+			try{ console.log('[signaling][recv]', ev.data); }catch(e){}
+			let msg;
+			try{ msg = JSON.parse(ev.data); }catch(err){ console.warn('invalid signaling JSON', ev.data); return; }
+			handleSignalMessage(msg);
+		});
+		ws.addEventListener('close', () => { log('ws closed'); try{ if(window.signalingClient) window.signalingClient._connected = false; }catch(e){} });
+    ws.addEventListener('error', e => console.error('ws error', e));
+  }
+
+  function sendSignal(obj){
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      console.warn('signaling socket not open');
+      return;
+    }
+		// normalize ids to strings to avoid numeric/string mismatches
+		try{ if(obj && obj.from) obj.from = String(obj.from); }catch(e){}
+		try{ if(obj && obj.to) obj.to = String(obj.to); }catch(e){}
+		ws.send(JSON.stringify(obj));
+  }
+
+  async function startLocalStream() {
+    if (localStream) return localStream;
+		try{
+			localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			try{ window._localStream_ref = localStream; }catch(e){}
+			try{ console.log('[signaling] obtained localStream', localStream.getTracks().map(t=>t.kind)); }catch(e){}
+		}catch(err){ console.error('getUserMedia failed', err); throw err; }
+		return localStream;
+  }
+
+  function createPeerConnection(toId) {
+    pc = new RTCPeerConnection({ iceServers: STUN_SERVERS });
+		pc.onicecandidate = e => {
+				try{ console.log('[signaling][pc] onicecandidate', e.candidate); }catch(e){}
+				if (e.candidate) {
+					sendSignal({ type: 'candidate', from: getCurrentUserId(), to: toId, payload: e.candidate });
+				}
+		};
+			try{ window._pc_ref = pc; }catch(e){}
+			pc.onconnectionstatechange = () => { try{ console.log('[signaling][pc] connectionState', pc.connectionState); }catch(e){} };
+			pc.oniceconnectionstatechange = () => { try{ console.log('[signaling][pc] iceConnectionState', pc.iceConnectionState); }catch(e){} };
+			pc.onicegatheringstatechange = () => { try{ console.log('[signaling][pc] iceGatheringState', pc.iceGatheringState); }catch(e){} };
+			pc.onsignalingstatechange = () => { try{ console.log('[signaling][pc] signalingState', pc.signalingState); }catch(e){} };
+		// remote audio
+		const remoteAudio = document.createElement('audio');
+		remoteAudio.autoplay = true;
+		remoteAudio.volume = 1.0;
+		remoteAudio.muted = false;
+		remoteAudio.controls = false;
+		remoteAudio.style.display = 'none';
+
+		// tiny visual indicator for incoming audio
+		function showRemoteIndicator(on){
+			let badge = document.getElementById('remote_audio_indicator');
+			if(!badge){
+				badge = document.createElement('div');
+				badge.id = 'remote_audio_indicator';
+				badge.textContent = 'Listening...';
+				badge.style.position = 'fixed';
+				badge.style.right = '20px';
+				badge.style.bottom = '140px';
+				badge.style.background = 'rgba(0,0,0,0.7)';
+				badge.style.color = 'white';
+				badge.style.padding = '6px 10px';
+				badge.style.borderRadius = '6px';
+				badge.style.zIndex = 10001;
+				badge.style.display = 'none';
+				document.body.appendChild(badge);
+			}
+			badge.style.display = on ? 'block' : 'none';
+		}
+
+		pc.ontrack = e => {
+			remoteAudio.srcObject = e.streams[0];
+			// append hidden audio element (used for playback control)
+			if(!document.body.contains(remoteAudio)) document.body.appendChild(remoteAudio);
+			// try to play immediately; if browser blocks autoplay, show a click-to-enable
+					const tryPlay = async () => {
+						try {
+							if(!audioUnlocked){
+								// if we haven't unlocked audio globally yet, show a persistent enable button
+								ensureEnableAudioButton();
+								// still attempt to play in case the browser allows it
+							}
+							await remoteAudio.play();
+						} catch (err) {
+							console.warn('autoplay blocked for this element; user must enable audio via the button');
+							ensureEnableAudioButton();
+						}
+					};
+					tryPlay();
+
+			// when audio actually starts playing, show the indicator
+			remoteAudio.onplay = () => { showRemoteIndicator(true); };
+			remoteAudio.onpause = () => { showRemoteIndicator(false); };
+			remoteAudio.onended = () => { showRemoteIndicator(false); };
+		};
+    return pc;
+  }
+
+  async function startLiveTalk(toId) {
+		// Prevent concurrent calls / repeated offers
+		connectSignaling();
+
+		// wait briefly for registration/peers to arrive if socket just opened
+		const waitForPeer = async (id, timeout=5000) => {
+			const start = Date.now();
+			while(Date.now() - start < timeout){
+				try{ if(window.signalingClient && Array.isArray(window.signalingClient.peers) && window.signalingClient.peers.indexOf(String(id)) !== -1) return true; }catch(e){}
+				// also accept numeric matches
+				try{ if(window.signalingClient && Array.isArray(window.signalingClient.peers) && window.signalingClient.peers.indexOf(Number(id)) !== -1) return true; }catch(e){}
+				await new Promise(r=>setTimeout(r,200));
+			}
+			return false;
+		};
+
+		// only proceed if the target appears in peers list (helps avoid server 'target not connected')
+		const targetConnected = await waitForPeer(toId, 4000);
+		if(!targetConnected){
+			console.warn('signaling: target', toId, 'not present in peers list — aborting offer');
+			log('signaling error target', toId, 'not connected');
+			return;
+		}
+		// If an existing peer connection exists, close it first to avoid SDP collisions
+		if (pc) {
+			try { pc.close(); } catch (e) { console.warn('close existing pc failed', e); }
+			pc = null;
+		}
+		// negotiation lock
+		try{ if(window.signalingClient) window.signalingClient._negotiating = true; }catch(e){}
+		// safety timeout: clear negotiating flag after 8s to avoid stuck state
+		let _negTO = null;
+		try{ _negTO = setTimeout(()=>{ try{ if(window.signalingClient) window.signalingClient._negotiating = false; }catch(e){} }, 8000); }catch(e){}
+		currentTarget = toId;
+		const stream = await startLocalStream();
+		// ensure tracks are enabled when starting transmit
+		try{ stream.getTracks().forEach(t => { try{ t.enabled = true; }catch(e){} }); }catch(e){}
+		pc = createPeerConnection(toId);
+		// add local tracks (avoid adding duplicates)
+		const existingSenders = pc.getSenders ? pc.getSenders().map(s => s.track) : [];
+		stream.getTracks().forEach(t => {
+			if (existingSenders.indexOf(t) === -1) pc.addTrack(t, stream);
+		});
+
+			try {
+				const offer = await pc.createOffer();
+				await pc.setLocalDescription(offer);
+				sendSignal({ type: 'offer', from: getCurrentUserId(), to: toId, payload: offer });
+				log('sent offer to', toId);
+			} catch (err) {
+				console.error('startLiveTalk error', err);
+				// cleanup on failure
+				try { if (pc) pc.close(); } catch(e){}
+				pc = null;
+			} finally {
+				try{ if(window.signalingClient) window.signalingClient._negotiating = false; }catch(e){}
+				try{ if(_negTO) clearTimeout(_negTO); }catch(e){}
+			}
+  }
+
+  async function stopLiveTalk() {
+    if (pc) {
+      try { pc.close(); } catch(e){}
+      pc = null;
+    }
+    if (localStream) {
+      localStream.getTracks().forEach(t => t.stop());
+      localStream = null;
+    }
+    currentTarget = null;
+    log('stopped live talk');
+  }
+
+	// stop transmitting audio but keep PC alive so incoming audio continues
+	function stopTransmit(){
+		try{
+			if(localStream){
+				localStream.getTracks().forEach(t => { try{ t.enabled = false; }catch(e){} });
+				log('transmit stopped (tracks disabled)');
+			}
+		}catch(e){ console.error('stopTransmit error', e); }
+	}
+
+  async function handleSignalMessage(msg) {
+    const { type, from, payload } = msg;
+    log('signal:', type, 'from', from);
+    if (type === 'offer') {
+      // incoming call: create pc, attach local stream, set remote, create answer
+      currentTarget = from;
+			// create peer connection and set remote description
+			pc = createPeerConnection(from);
+			await pc.setRemoteDescription(new RTCSessionDescription(payload));
+			// NOTE: do not acquire or add local audio tracks here - we want the callee to be able to *hear* without
+			// requiring microphone permission. If the callee later wants to transmit, they should initiate via startLiveTalk.
+			const answer = await pc.createAnswer();
+			await pc.setLocalDescription(answer);
+			sendSignal({ type: 'answer', from: getCurrentUserId(), to: from, payload: answer });
+      log('sent answer to', from);
+    } else if (type === 'answer') {
+			// remote accepted our offer
+			try{
+				if(!pc){ throw new Error('no RTCPeerConnection available to apply answer'); }
+				// only attempt to apply the answer when in an appropriate state
+				if(pc.signalingState === 'have-local-offer' || pc.signalingState === 'have-local-pranswer' || pc.signalingState === 'stable'){
+					await pc.setRemoteDescription(new RTCSessionDescription(payload));
+					log('remote answer applied');
+				} else {
+					// unexpected state — log and attempt to apply anyway inside try/catch
+					console.warn('apply answer: unexpected pc.signalingState', pc.signalingState);
+					try{ await pc.setRemoteDescription(new RTCSessionDescription(payload)); log('remote answer applied (forced)'); }catch(err){ console.error('setRemoteDescription failed', err, 'pc.signalingState=', pc.signalingState, 'localDesc=', pc.localDescription); }
+				}
+			}catch(err){
+				console.error('failed to apply remote answer', err);
+			} finally {
+				try{ if(window.signalingClient) window.signalingClient._negotiating = false; }catch(e){}
+			}
+    } else if (type === 'candidate') {
+			// add ICE candidate
+			try {
+				if(!pc){ console.warn('addIceCandidate: no pc available yet, skipping'); }
+				else await pc.addIceCandidate(new RTCIceCandidate(payload));
+			} catch (err) {
+				console.warn('addIceCandidate error', err);
+			}
+			} else if (type === 'registered') {
+				// server acknowledges registration and may include initial peers
+				const id = msg.id || payload || getCurrentUserId();
+				log('registered as', id);
+				try{ if(window.signalingClient){ window.signalingClient._connected = true; window.signalingClient._socketOpen = true; window.signalingClient.peers = msg.peers || []; } }catch(e){}
+				updateDebugSignalingBadge();
+		} else if (type === 'peers') {
+		// peers list broadcast (kept for internal tracking but no UI render)
+		try{ if(window.signalingClient) window.signalingClient.peers = msg.peers || []; }catch(e){}
+		updateDebugSignalingBadge();
+	} else if (type === 'error') {
+			console.warn('signaling error', msg.message);
+			// if server reports target not connected, set a short cooldown for that target to avoid repeated offers
+			try{
+				const m = msg.message || '';
+				const match = m.match(/target\s+(\d+)\s+not\s+connected/);
+				if(match && window.signalingClient){
+					const targetId = match[1];
+					window.signalingClient._targetUnavailable[targetId] = true;
+					// if we were negotiating with that target, abort/cleanup
+					try{
+						if(currentTarget && String(currentTarget) === String(targetId)){
+							console.log('signaling: target disconnected during negotiation, cleaning up');
+							try{ if(pc) pc.close(); }catch(e){}
+							pc = null;
+							try{ if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream = null; } }catch(e){}
+							currentTarget = null;
+							try{ if(window.signalingClient) window.signalingClient._negotiating = false; }catch(e){}
+						}
+					}catch(e){}
+					setTimeout(()=>{ try{ delete window.signalingClient._targetUnavailable[targetId]; }catch(e){} }, 5000);
+				}
+			}catch(e){}
+    }
+  }
+
+
+	// Render the peers UI (clickable list) and enable/disable mic button accordingly
+	function renderPeersUI(){
+		try{
+			const container = document.getElementById('peers_ui');
+			if(!container) return;
+			const peers = (window.signalingClient && Array.isArray(window.signalingClient.peers)) ? window.signalingClient.peers : [];
+			if(peers.length === 0){
+				container.innerHTML = '<strong>Online:</strong> none';
+			} else {
+				container.innerHTML = '<strong>Online:</strong> ' + peers.map(id => `<button class="peer_btn" data-id="${id}" style="margin-right:6px;padding:4px 6px;">${id}</button>`).join(' ');
+				// attach handlers
+				container.querySelectorAll('.peer_btn').forEach(b => {
+					b.onclick = function(e){
+						const id = this.getAttribute('data-id');
+						try{ if(window.signalingClient) window.signalingClient.startLiveTalk(id); }catch(er){ console.error('call peer failed', er); }
+					};
+				});
+			}
+			// disable mic button when no peers
+			try{
+				// disable any inline walkie triggers and peer buttons when nobody's online
+				var disabled = peers.length === 0;
+				var walkies = Array.prototype.slice.call(document.querySelectorAll('.peer_btn, #walkie_button'));
+				walkies.forEach(function(el){ try{ el.disabled = disabled; }catch(e){} });
+			}catch(e){}
+		}catch(e){ console.error('renderPeersUI error', e); }
+	}
+
+  // small public API for UI wiring
+	window.signalingClient = {
+		connect: connectSignaling,
+		// track peers and negotiating state
+		_connected: false,
+		_socketOpen: false,
+		_negotiating: false,
+		peers: [],
+		_targetUnavailable: {},
+		_lastOfferTimes: {},
+		startLiveTalk: (toId) => {
+			if (!getCurrentUserId()) {
+				console.warn('CURRENT_USER_ID not set: set window.CURRENT_USER_ID after login');
+				return;
+			}
+			// throttle repeated offers to same target (3s)
+			const now = Date.now();
+			if(window.signalingClient && window.signalingClient._lastOfferTimes && window.signalingClient._lastOfferTimes[toId] && now - window.signalingClient._lastOfferTimes[toId] < 3000){
+				console.warn('throttling repeated offers to', toId);
+				return;
+			}
+			if(window.signalingClient && window.signalingClient._targetUnavailable && window.signalingClient._targetUnavailable[toId]){
+				console.warn('target recently reported unavailable:', toId);
+				return;
+			}
+			// set negotiating flag immediately to avoid races between concurrent clicks
+			try{ if(window.signalingClient) window.signalingClient._negotiating = true; }catch(e){}
+			// call the async starter and ensure flag cleanup
+			startLiveTalk(toId).catch(err => console.error('startLiveTalk error', err)).finally(()=>{
+				try{ if(window.signalingClient) window.signalingClient._negotiating = false; }catch(e){}
+			});
+			try{ if(window.signalingClient && window.signalingClient._lastOfferTimes) window.signalingClient._lastOfferTimes[toId] = now; }catch(e){}
+		},
+		stopLiveTalk: () => { stopLiveTalk(); }
+	};
+
+// expose a few helpers to the console for easier debugging
+try{ window.startLocalStream = startLocalStream; }catch(e){}
+try{ window.stopTransmit = stopTransmit; }catch(e){}
+try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
+
+	// render peers initially (if any cached)
+	try{ setTimeout(renderPeersUI, 500); }catch(e){}
+
+		// try auto-connect if current user id is already known
+		if (getCurrentUserId()) connectSignaling();
+})();
+
+
 	
 	var CURRENT_CHAT_USER = "";
 	var SEEN_STATUS = false;
@@ -406,6 +1298,19 @@
 	
 	var label_settings = _("label_settings");
 	label_settings.addEventListener("click",get_settings);
+
+	// keep a body-level class in sync with the settings radio so we can scope CSS to the Settings tab
+	var radio_settings = _("radio_settings");
+	function __updateSettingsBodyClass(){
+		try{
+			if(radio_settings && radio_settings.checked) document.body.classList.add('settings-open'); else document.body.classList.remove('settings-open');
+		}catch(e){}
+	}
+	if(radio_settings){
+		radio_settings.addEventListener('change', __updateSettingsBodyClass);
+		// set initial state
+		setTimeout(__updateSettingsBodyClass, 50);
+	}
 	
 
 	var logout = _("logout");
@@ -475,16 +1380,76 @@
 
 							username.innerHTML = obj.username;
 							email.innerHTML = obj.email;
-							profile_image.src = obj.image;
+							try{
+								var imgSrc = obj.image || '';
+								if(imgSrc){
+									if(imgSrc.indexOf('?') === -1) profile_image.src = imgSrc + '?_=' + Date.now();
+									else profile_image.src = imgSrc + '&_=' + Date.now();
+								} else {
+									profile_image.src = imgSrc;
+								}
+							}catch(e){ try{ profile_image.src = obj.image; }catch(err){} }
+							// expose current user id for signaling (best-effort from server response)
+							window.CURRENT_USER_ID = obj.userid || obj.user_id || obj.id || obj.username;
+							console.log('user_info received — setting CURRENT_USER_ID =', window.CURRENT_USER_ID, obj);
+							// if signaling client exists, connect/register now
+							try{ if(window.signalingClient && typeof window.signalingClient.connect === 'function') window.signalingClient.connect(); }catch(e){}
 							break;
+
+						// helper: remove any elements that include the "Now Chatting" heading
+						function sanitizeLeftPanelHTML(html){
+							try{
+								if(!html) return html;
+								var tmp = document.createElement('div'); tmp.innerHTML = html;
+								// only strip on small screens where we want the compact view
+								if(window.innerWidth <= 500){
+									var nodes = Array.prototype.slice.call(tmp.querySelectorAll('*'));
+									nodes.forEach(function(el){
+										if(el && el.textContent && /Now\s*Chatting/i.test(el.textContent)){
+											el.parentNode && el.parentNode.removeChild(el);
+										}
+									});
+								}
+								return tmp.innerHTML;
+							}catch(e){ console.warn('sanitizeLeftPanelHTML failed', e); return html; }
+						}
+
+							// detect whether a chunk of HTML contains a chat list (used to avoid overwrites)
+							function htmlContainsChats(html){
+								try{
+									if(!html) return false;
+									var tmp = document.createElement('div'); tmp.innerHTML = html;
+									// check for common markers: container with class 'chats_list' or items with class 'chat_item'
+									if(tmp.querySelector && (tmp.querySelector('.chats_list') || tmp.querySelector('.chat_item'))) return true;
+									// also check for visible headings that indicate presence of chats
+									var text = (tmp.textContent||'').toLowerCase();
+									if(text.indexOf('previous chats') !== -1 || text.indexOf('previous:') !== -1) return true;
+									return false;
+								}catch(e){ return false; }
+							}
+
+							function shouldApplyLeftUpdate(html){
+								// if user very recently opened the chats panel, avoid clobbering unless the server payload contains real chat items
+								if(typeof window.__lastLeftUpdate === 'number' && (Date.now() - window.__lastLeftUpdate) < 2500){
+									return htmlContainsChats(html);
+								}
+								return true;
+							}
 
 
 							case "contacts":
 							var inner_left_panel = _("inner_left_panel");
 
 
-								inner_right_panel.style.overflow = "hidden";
-								inner_left_panel.innerHTML = obj.message;
+									inner_right_panel.style.overflow = "hidden";
+								// avoid overwriting a recent manual left-panel render (e.g. user clicked Chat)
+								try{
+									if(shouldApplyLeftUpdate(obj.message)){
+										if(inner_left_panel) inner_left_panel.innerHTML = obj.message;
+									} else {
+										console.info('Skipping server left-panel update (contacts) because user recently opened chats and payload contains no chat items');
+									}
+								}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = obj.message; }
 								break;
 
 							case "chats_refresh":
@@ -497,6 +1462,13 @@
 									var message_text = _("message_text");
 									if(message_text) message_text.focus();
 								},100);
+
+								// attach mic handlers (walkie-talkie)
+								try{ if(typeof attachMicHandlers === 'function') attachMicHandlers(); }catch(err){}
+								// attach live-talk handlers (WebRTC)
+								try{ if(typeof attachLiveMicHandlers === 'function') attachLiveMicHandlers(); }catch(err){}
+								// attach live-talk handlers (WebRTC)
+								try{ if(typeof attachLiveMicHandlers === 'function') attachLiveMicHandlers(); }catch(err){}
 							}
 
 							break;
@@ -506,7 +1478,13 @@
 								SEEN_STATUS = false;
 								var inner_left_panel = _("inner_left_panel");
 
-								if(inner_left_panel) inner_left_panel.innerHTML = obj.user;
+								try{
+									if(shouldApplyLeftUpdate(obj.user)){
+										if(inner_left_panel) inner_left_panel.innerHTML = (window.innerWidth <= 500) ? sanitizeLeftPanelHTML(obj.user) : obj.user;
+									} else {
+										console.info('Skipping server left-panel update (chats) because user recently opened chats and payload contains no chat items');
+									}
+								}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = (window.innerWidth <= 500) ? sanitizeLeftPanelHTML(obj.user) : obj.user; }
 								if(inner_right_panel) inner_right_panel.innerHTML = obj.messages;
 
 								var messages_holder = _("messages_holder");
@@ -518,13 +1496,21 @@
 									},100);
 								}
 
+								// attach mic handlers (walkie-talkie)
+								try{ if(typeof attachMicHandlers === 'function') attachMicHandlers(); }catch(err){}
+
 
 									break;
 
 							case "settings":
 								var inner_left_panel = _("inner_left_panel");
-
-								inner_left_panel.innerHTML = obj.message;
+								try{
+									if(shouldApplyLeftUpdate(obj.message)){
+										if(inner_left_panel) inner_left_panel.innerHTML = obj.message;
+									} else {
+										console.info('Skipping server left-panel update (settings) because user recently opened chats and payload contains no chat items');
+									}
+								}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = obj.message; }
 							break;
 
 							case "send_image":
@@ -601,18 +1587,35 @@
 
 		},"send_message");
 
+		// clear and refocus the input to improve UX
+		try{
+			message_text.value = "";
+			message_text.focus();
+		}catch(err){}
+
 	}
 
 	function enter_pressed(e)
 	{
+		// make the handler robust across browsers and insertion methods
+		e = e || window.event || null;
 
-		if(e.keyCode == 13)
-		{
+		var code = 0;
+		if(e){
+			// modern: key, deprecated: keyCode/which
+			if(typeof e.key !== 'undefined'){
+				if(e.key === 'Enter') code = 13;
+			}
+			if(!code) code = e.keyCode || e.which || 0;
+		}
+
+		if(code === 13){
+			// call send_message and prevent default form-like behavior
+			try{ if(e && e.preventDefault) e.preventDefault(); }catch(err){}
 			send_message(e);
 		}
-		
-		SEEN_STATUS = true;
 
+		SEEN_STATUS = true;
 	}
 
 	setInterval(function(){
@@ -759,42 +1762,68 @@
 		function upload_profile_image(files){
 		
 			var filename = files [0].name;
-			var ext_start = filename.lastIndexOf(".");
-			var ext = filename.substr(ext_start + 1,3);
-			if(!(ext == "jpg" || ext == "JPG")){
-
-				alert("This file type is not allowed");
+			// allow jpg, jpeg and png (case-insensitive)
+			var ext = (filename.split('.').pop() || '').toLowerCase();
+			if(['jpg','jpeg','png'].indexOf(ext) === -1){
+				alert("This file type is not allowed. Allowed: jpg, jpeg, png");
 				return;
 			}
 			
 
 			var change_image_button = _("change_image_button");
-			change_image_button.disabled = true;
-			change_image_button.innerHTML = "Uploading Image...";
+			try{ if(change_image_button){ change_image_button.disabled = true; change_image_button.innerHTML = "Uploading Image..."; } }catch(e){}
 
 
 			var myform = new FormData();
 
 			var xml = new XMLHttpRequest();
 
-			xml.onload = function(){
+			xml.onreadystatechange = function(){
+				if(xml.readyState !== 4) return;
+				// log response for debugging
+				try{ console.log('upload_profile_image response', xml.status, xml.responseText); }catch(e){}
+				if(xml.status == 200){
+					var txt = xml.responseText;
+					try{ console.log('uploader response:', txt); }catch(e){}
+					// try to parse JSON and update the profile image immediately if server returned the file path
+					try{
+						var j = JSON.parse(txt);
+						if(j && j.file){
+							console.log('uploader returned file:', j.file);
+							try{
+								var profile_image_el = _("profile_image");
+								var src = j.file;
+								// ensure the URL is safe and add cache-buster
+								src = encodeURI(src) + (src.indexOf('?') === -1 ? '?_=' + Date.now() : '&_=' + Date.now());
+								if(profile_image_el) profile_image_el.src = src;
+							}catch(e){ console.warn('failed to set profile image from uploader response', e); }
 
-				if(xml.readyState == 4 || xml.status == 200){
-
-					//alert(xml.responseText);
+							// also try to fetch the file directly (force GET) so we can confirm server serves it and warm cache
+							try{
+								var fetchUrl = encodeURI(j.file) + (j.file.indexOf('?') === -1 ? '?_=' + Date.now() : '&_=' + Date.now());
+								console.log('Fetching uploaded file to warm cache:', fetchUrl);
+								fetch(fetchUrl, { method: 'GET', credentials: 'same-origin' }).then(function(resp){
+									console.log('fetch uploaded file status', resp.status, fetchUrl);
+								}).catch(function(err){ console.warn('fetch uploaded file failed', err); });
+							}catch(e){ console.warn('failed to fetch uploaded file', e); }
+						}
+					}catch(e){ console.warn('uploader response not JSON', e); }
+					// refresh ui
 					get_data({}, "user_info");
-					get_settings(true);
-					change_image_button.disabled = false;
-					change_image_button.innerHTML = "Change Image";
-
+					try{ get_settings(true); }catch(e){}
+					try{ if(change_image_button){ change_image_button.disabled = false; change_image_button.innerHTML = "Change Image"; } }catch(e){}
+				} else {
+					console.error('Image upload failed', xml.status, xml.responseText);
+					try{ alert('Image upload failed (status='+xml.status+'). See console for details.'); }catch(e){}
+					try{ if(change_image_button){ change_image_button.disabled = false; change_image_button.innerHTML = "Change Image"; } }catch(e){}
 				}
-
-			}
+			};
 
 			myform.append('file', files[0]);
 			myform.append('data_type',"change_profile_image");
 	 
 
+			try{ console.log('Uploading file', files[0].name, files[0].type, files[0].size); }catch(e){}
 			xml.open("POST","uploader.php",true);
 			xml.send(myform);
 
@@ -828,11 +1857,16 @@
 
 		function start_chat(e){
 
-
-		var userid = e.target.getAttribute("userid");
-		if(e.target.id == ""){
-			userid = e.target.parentNode.getAttribute("userid");
-		}
+		// prefer the event currentTarget (element the handler is attached to) so clicks on child elements still resolve
+		try{
+			var el = (e && e.currentTarget) ? e.currentTarget : (e && e.target) ? e.target : null;
+			var userid = '';
+			if(el){
+				userid = el.getAttribute('userid') || '';
+				// fallback to parent node if needed
+				if(!userid && el.parentNode) userid = el.parentNode.getAttribute && el.parentNode.getAttribute('userid') || '';
+			}
+		}catch(err){ console.warn('start_chat parse error', err); var userid = ''; }
 
 		CURRENT_CHAT_USER = userid;
 
@@ -840,15 +1874,13 @@
 		radio_chat.checked = true;
 		get_data({userid:CURRENT_CHAT_USER},"chats");
 
-	}
+		}
 
 	function send_image(files){
 			var filename = files[0].name;
-			var ext_start = filename.lastIndexOf(".");
-			var ext = filename.substr(ext_start + 1,3);
-			if(!(ext == "jpg" || ext == "JPG")){
-
-				alert("This file type is not allowed");
+			var ext = (filename.split('.').pop() || '').toLowerCase();
+			if(['jpg','jpeg','png'].indexOf(ext) === -1){
+				alert("This file type is not allowed. Allowed: jpg, jpeg, png");
 				return;
 			}
 	
@@ -858,6 +1890,18 @@
 			xml.onload = function(){
 
 				if(xml.readyState == 4 || xml.status == 200){
+
+					// try to parse uploader response and warm cache for the uploaded file
+					try{
+						var txt = xml.responseText;
+						var j = JSON.parse(txt);
+						console.log('send_image uploader response', j);
+						if(j && j.file){
+							var f = encodeURI(j.file) + (j.file.indexOf('?') === -1 ? '?_=' + Date.now() : '&_=' + Date.now());
+							console.log('fetching uploaded chat image to warm cache', f);
+							fetch(f, { method: 'GET', credentials: 'same-origin' }).then(function(resp){ console.log('fetch status', resp.status, f); }).catch(function(err){ console.warn('fetch failed', err); });
+						}
+					}catch(e){ console.warn('send_image response not JSON', e); }
 
 					handle_result(xml.responseText,"send_image");
 					get_data({
@@ -879,6 +1923,241 @@
 
 	}
 
+
+// Walkie-talkie: recording via MediaRecorder
+var _mediaRecorder = null;
+var _recordedChunks = [];
+var _recordingStream = null;
+var _isRecording = false;
+var _recordingTimeout = null;
+var MAX_RECORD_MS = 30000; // 30s default
+
+function attachMicHandlers(){
+	var mic = document.getElementById('mic_button');
+	var indicator = document.getElementById('recording_indicator');
+	if(!mic) return;
+
+	// remove previous handlers to avoid duplicates
+	mic.onclick = null; mic.onmousedown = null; mic.onmouseup = null; mic.ontouchstart = null; mic.ontouchend = null;
+
+	function startRecordingForUI(){
+		if(_isRecording) return;
+		var mt = document.getElementById('message_text');
+		if(mt && mt.value.trim() !== '') return; // only when text empty
+		startMicRecording();
+	}
+
+	function stopRecordingForUI(){
+		if(!_isRecording) return;
+		stopMicRecording();
+	}
+
+	// Desktop: click toggles start/stop
+	mic.addEventListener('click', function(e){
+		if(_isRecording) stopRecordingForUI(); else startRecordingForUI();
+	});
+
+	// Desktop mouse hold behavior (optional) - start on mousedown, stop on mouseup
+	mic.addEventListener('mousedown', function(e){
+		// only left button
+		if(e.which === 1) startRecordingForUI();
+	});
+	mic.addEventListener('mouseup', function(e){ stopRecordingForUI(); });
+
+	// Mobile: touchstart/touchend (hold)
+	mic.addEventListener('touchstart', function(e){ e.preventDefault(); startRecordingForUI(); });
+	mic.addEventListener('touchend', function(e){ e.preventDefault(); stopRecordingForUI(); });
+}
+
+// Attach handlers for live WebRTC hold-to-talk (uses signalingClient.startLiveTalk/stopLiveTalk)
+function attachLiveMicHandlers(){
+	// support multiple live-talk triggers: global floating button and inline walkie button
+	var liveBtns = Array.prototype.slice.call(document.querySelectorAll('#walkie_button'));
+	// pick the first for indicator positioning if needed
+	var liveBtn = liveBtns.length ? liveBtns[0] : null;
+	var indicator = document.getElementById('live_talk_indicator');
+	if(!liveBtn) return;
+
+	// clean previous
+	liveBtns.forEach(function(b){ b.onmousedown = b.onmouseup = b.ontouchstart = b.ontouchend = null; });
+
+	function startLive(){
+		if(!CURRENT_CHAT_USER){ alert('Open a chat to start live talk'); return; }
+		try{ if(window.signalingClient) window.signalingClient.startLiveTalk(CURRENT_CHAT_USER); }catch(e){ console.error('startLive error', e); }
+		try{ if(indicator) indicator.style.display = 'inline'; }catch(e){}
+	}
+
+	function stopLive(){
+		// stop transmitting but keep the peer connection alive so receiving continues
+		try{ stopTransmit(); }catch(e){ console.error('stopTransmit error', e); }
+		try{ if(indicator) indicator.style.display = 'none'; }catch(e){}
+	}
+
+	// attach to each live button (both floating and inline)
+	liveBtns.forEach(function(btn){
+		btn.addEventListener('mousedown', function(e){ if(e.which === 1) startLive(); });
+		btn.addEventListener('mouseup', function(e){ stopLive(); });
+		btn.addEventListener('touchstart', function(e){ e.preventDefault(); startLive(); });
+		btn.addEventListener('touchend', function(e){ e.preventDefault(); stopLive(); });
+		// click toggles start/stop for convenience
+		btn.addEventListener('click', function(e){ if(indicator && indicator.style.display === 'inline') stopLive(); else startLive(); });
+	});
+}
+
+// --- Debug helpers for signaling visibility ---
+function updateDebugSignalingBadge(){
+	try{
+		var idEl = document.getElementById('dbg_id');
+		var statusEl = document.getElementById('dbg_status');
+		var btn = document.getElementById('dbg_connect_btn');
+		if(idEl) idEl.textContent = 'ID: ' + (window.CURRENT_USER_ID || '-');
+		if(statusEl){
+			if(window.signalingClient && window.signalingClient.connect && window.signalingClient._connected){
+				statusEl.style.display = 'inline';
+			} else {
+				statusEl.style.display = 'none';
+			}
+		}
+				// show peers list if present
+				var peersEl = document.getElementById('dbg_peers');
+				if(peersEl){
+					try{ peersEl.textContent = 'Peers: ' + (window.signalingClient && Array.isArray(window.signalingClient.peers) ? window.signalingClient.peers.join(',') : '-'); }catch(e){ peersEl.textContent = 'Peers: -'; }
+				}
+		if(btn){
+			btn.onclick = function(){
+				try{
+					if(window.signalingClient && typeof window.signalingClient.connect === 'function'){
+						window.signalingClient.connect();
+						console.log('Called signalingClient.connect()');
+					} else {
+						console.warn('signalingClient not defined');
+						alert('signalingClient not defined — check console for errors');
+					}
+				}catch(e){ console.error('connect error', e); alert('connect error: '+e.message); }
+				setTimeout(updateDebugSignalingBadge,500);
+			};
+		}
+	}catch(e){ console.error('updateDebugSignalingBadge', e); }
+}
+
+// expose a safe connect helper to console
+window.debugSignalingConnect = function(){
+	if(window.signalingClient && typeof window.signalingClient.connect === 'function'){
+		window.signalingClient.connect();
+	} else {
+		console.warn('signalingClient not defined');
+	}
+	setTimeout(updateDebugSignalingBadge, 300);
+};
+
+// helper to dump signaling client state for debugging
+window.showSignalingState = function(){
+	try{
+		console.log('signaling state', {
+			peers: window.signalingClient && window.signalingClient.peers,
+			connected: window.signalingClient && window.signalingClient._connected,
+			socketOpen: window.signalingClient && window.signalingClient._socketOpen,
+			negotiating: window.signalingClient && window.signalingClient._negotiating,
+			targetUnavailable: window.signalingClient && window.signalingClient._targetUnavailable,
+			lastOfferTimes: window.signalingClient && window.signalingClient._lastOfferTimes,
+			wsReadyState: (window._signaling_ws_ref && typeof window._signaling_ws_ref.readyState !== 'undefined') ? window._signaling_ws_ref.readyState : null
+		});
+	}catch(e){ console.error('showSignalingState error', e); }
+};
+
+// update badge periodically so it reflects changes
+setInterval(updateDebugSignalingBadge, 1000);
+updateDebugSignalingBadge();
+
+async function startMicRecording(){
+	if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ alert('Recording not supported'); return; }
+	try{
+		var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		_recordingStream = stream;
+		_recordedChunks = [];
+		// pick a supported mimeType when available to avoid browsers producing empty blobs
+		var recorderOptions = {};
+		try{
+			var preferred = ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg','audio/wav'];
+			for(var i=0;i<preferred.length;i++){
+				var t = preferred[i];
+				if(typeof MediaRecorder !== 'undefined' && typeof MediaRecorder.isTypeSupported === 'function'){
+					if(MediaRecorder.isTypeSupported(t)){
+						recorderOptions.mimeType = t; break;
+					}
+				}
+			}
+		}catch(e){ console.warn('mime test fail', e); }
+		try{
+			_mediaRecorder = Object.keys(recorderOptions).length ? new MediaRecorder(stream, recorderOptions) : new MediaRecorder(stream);
+		}catch(err){
+			console.warn('MediaRecorder construction with options failed, falling back:', err);
+			_mediaRecorder = new MediaRecorder(stream);
+		}
+		_mediaRecorder.ondataavailable = function(e){ if(e.data && e.data.size>0) _recordedChunks.push(e.data); };
+		_mediaRecorder.onstop = async function(){
+			_isRecording = false;
+			try{ document.getElementById('recording_indicator').style.display = 'none'; }catch(e){}
+			clearTimeout(_recordingTimeout);
+			// ensure any buffered data is flushed (some implementations require requestData before stop)
+			try{ if(typeof _mediaRecorder.requestData === 'function') _mediaRecorder.requestData(); }catch(e){}
+			var blob = new Blob(_recordedChunks, { type: _recordedChunks[0] ? _recordedChunks[0].type : (recorderOptions.mimeType || 'audio/webm') });
+			// stop tracks
+			try{ _recordingStream.getTracks().forEach(t=>t.stop()); }catch(e){}
+			_recordingStream = null;
+			_mediaRecorder = null;
+			if(!blob || blob.size === 0){
+				console.warn('Recorded blob is empty. _recordedChunks length:', _recordedChunks.length);
+				alert('Recording failed — no audio data captured. Try again.');
+				return;
+			}
+			uploadAudioBlob(blob);
+		};
+		_mediaRecorder.start();
+		_isRecording = true;
+		try{ document.getElementById('recording_indicator').style.display = 'inline'; }catch(e){}
+		// enforce max length
+		_recordingTimeout = setTimeout(function(){ if(_isRecording) stopMicRecording(); }, MAX_RECORD_MS);
+	}catch(err){ console.error('mic err',err); alert('Microphone access denied or not available.'); }
+}
+
+function stopMicRecording(){
+	if(_mediaRecorder && _mediaRecorder.state !== 'inactive'){
+		try{ // requestData to flush any pending data before stopping
+			if(typeof _mediaRecorder.requestData === 'function') _mediaRecorder.requestData();
+		}catch(e){ console.debug('requestData not available', e); }
+		_mediaRecorder.stop();
+	}
+	_isRecording = false;
+}
+
+async function uploadAudioBlob(blob){
+	if(!CURRENT_CHAT_USER){ alert('Open a chat to send audio.'); return; }
+	var ext = 'webm';
+	if(blob.type.indexOf('mpeg') !== -1 || blob.type.indexOf('mp3') !== -1) ext = 'mp3';
+	else if(blob.type.indexOf('wav') !== -1) ext = 'wav';
+	else if(blob.type.indexOf('ogg') !== -1) ext = 'ogg';
+	var filename = 'audio_'+Date.now()+'.'+ext;
+	var form = new FormData();
+	form.append('file', blob, filename);
+	form.append('data_type','send_audio');
+	form.append('userid', CURRENT_CHAT_USER);
+
+	try{
+	var resp = await fetch('uploader.php', { method: 'POST', body: form, credentials: 'same-origin' });
+			var txt = await resp.text();
+			try{ var json = JSON.parse(txt); }catch(e){ console.error('invalid json', txt); return; }
+			console.log('uploadAudioBlob uploader response', json);
+			if(json && json.file){
+				// warm cache by fetching the uploaded audio file (do not autoplay)
+				var audioFetchUrl = encodeURI(json.file) + (json.file.indexOf('?') === -1 ? '?_=' + Date.now() : '&_=' + Date.now());
+				try{ fetch(audioFetchUrl, { method: 'GET', credentials: 'same-origin' }).then(function(r){ console.log('audio fetch status', r.status, audioFetchUrl); }).catch(function(err){ console.warn('audio fetch failed', err); }); }catch(e){console.warn('audio fetch error',e);}
+			}
+			// refresh chat
+			get_data({ userid: CURRENT_CHAT_USER, seen: SEEN_STATUS }, 'chats_refresh');
+	}catch(e){ console.error('upload audio failed', e); alert('Audio upload failed'); }
+}
+
 		function close_image(e){
 
 			e.target.className = "image_off";
@@ -898,5 +2177,9 @@
 		}
 
 		
+
 </script>
+
+</body>
+</html>
 

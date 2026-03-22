@@ -1,7 +1,7 @@
 <!DOCTYPE>
 <html>
 <head>
-	<title>CaroChat</title>
+	<title>Walkie Talkie</title>
 </head>
 
 <style type="text/css">
@@ -89,7 +89,7 @@
 <body>
 	<div id="wrapper">
 		<div id="header">
-		CaroChat
+		Walkie Talkiels
 		<div style="font-size:15px; font-family: myFont;">Signup</div>
 		</div>
 		<div id="error" style="">Some Text</div>

@@ -87,8 +87,8 @@ if(is_array($data)){
 
 		 			<div>
 		 			<span style="font-size:11px;">drag and drop an image to change</span><br>
-		 			<img ondragover="handle_drag_and_drop(event)" ondrop="handle_drag_and_drop(event)" ondragleave="handle_drag_and_drop(event)" src="'.$image.'" style="width:200px;height:200px;margin:10px;" />
-		 			<label for="change_image_input" id="change_image_button" style="background-color:#9b9a80;display:inline-block;padding:1em;border-radius:5px;cursor:pointer;">
+					<img id="profile_image" ondragover="handle_drag_and_drop(event)" ondrop="handle_drag_and_drop(event)" ondragleave="handle_drag_and_drop(event)" src="'.$image.'" style="width:200px;height:200px;margin:10px;" />
+		 			<label for="change_image_input" id="change_image_button" style="background-color:#9b9a80;display:block;padding:1em;border-radius:5px;cursor:pointer;">
 		 				Change Image
 		 			</label>
 		 			<input type="file" onchange="upload_profile_image(this.files)" id="change_image_input" style="display:none;" >

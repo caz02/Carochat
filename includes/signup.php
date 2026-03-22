@@ -3,9 +3,11 @@
 $info = (Object)[];
 
 
-	$data = false;
+	// initialize as array to hold bind parameters
+	$data = [];
 	$data['userid'] = $DB->generate_id(20);
-	$data['date'] = date("D-m-y H:i:s");
+	// store MySQL-compatible datetime format
+	$data['date'] = date("Y-m-d H:i:s");
 
 	//validate username
 	$data['username'] = $DATA_OBJ->username;

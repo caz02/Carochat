@@ -17,7 +17,8 @@ Class Database
 	private function connect()
 	{
 
-		$string = "mysql:host=localhost;dbname=carochat_db";
+		// use constants from config.php so DB host/name can be configured (127.0.0.1 forces TCP)
+		$string = "mysql:host=" . (defined('DBHOST') ? DBHOST : '127.0.0.1') . ";dbname=" . (defined('DBNAME') ? DBNAME : 'carochat_db');
 		try
 		{
 
@@ -26,8 +27,11 @@ Class Database
 
 		}catch(PDOException $e)
 		{
-
-			echo $e->getMessage();
+			// Return a JSON error so the frontend JSON.parse doesn't fail when the API returns an error
+			$info = (object)[];
+			$info->message = "Database connection error: " . $e->getMessage();
+			$info->data_type = "error";
+			echo json_encode($info);
 			die;
 		}
 
@@ -40,9 +44,15 @@ Class Database
 	public function write($query,$data_array = [])
 	{
 
-			$con = $this->connect();
-			$statement = $con->prepare($query);
+		$con = $this->connect();
+		$statement = $con->prepare($query);
+		try {
 			$check = $statement->execute($data_array);
+		} catch (PDOException $e) {
+			// log the error for debugging and return false
+			error_log("DB write error: " . $e->getMessage());
+			return false;
+		}
 
 		if($check)
 		{
@@ -57,10 +67,15 @@ Class Database
 	//read from database
 	public function read($query,$data_array = [])
 	{
-	
-			$con = $this->connect();
-			$statement = $con->prepare($query);
+
+		$con = $this->connect();
+		$statement = $con->prepare($query);
+		try {
 			$check = $statement->execute($data_array);
+		} catch (PDOException $e) {
+			error_log("DB read error: " . $e->getMessage());
+			return false;
+		}
 
 		if($check)
 		{
@@ -71,7 +86,7 @@ Class Database
 			}
 			return false;
 	}
-			
+		
 	return false;
 
 	}	

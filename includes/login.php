@@ -3,7 +3,8 @@
 $info = (Object)[];
 
 
-	$data = false;
+	// initialize as array to avoid deprecated automatic conversion warnings
+	$data = [];
 	
 	//validate info
 	$data['email'] = $DATA_OBJ->email;
