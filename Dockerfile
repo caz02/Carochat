@@ -24,3 +24,4 @@ RUN if [ -f package.json ]; then npm install --omit=dev; fi
 EXPOSE 10000
 
 CMD ["./start.sh"]
+
