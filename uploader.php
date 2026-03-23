@@ -2,20 +2,25 @@
 
 session_start();
 
+// response tracking
 $info = (object)[];
+$__uploader_response_sent = false;
 
-//check if logged in
-if(!isset($_SESSION['userid']))
-{	
+// For file-upload requests we read data_type from POST (not JSON). Gate endpoints that require auth.
+$data_type = "";
+if(isset($_POST['data_type'])){
+	$data_type = $_POST['data_type'];
+}
 
-	if(isset($DATA_OBJ->data_type) && $DATA_OBJ->data_type != "login"  && $DATA_OBJ->data_type != "signup")
-	{
+// If no session and the client is trying to perform an authenticated upload action,
+// return a JSON logged_in=false response so the frontend can redirect to login.
+if(!isset($_SESSION['userid'])){
+	if(in_array($data_type, ['send_image','send_audio','change_profile_image'])){
 		$info->logged_in = false;
+		header('Content-Type: application/json; charset=UTF-8');
 		echo json_encode($info);
-		die;
-
+		exit;
 	}
-		
 }
 
 
@@ -94,6 +99,16 @@ if(isset($_FILES['file']) && $_FILES['file']['name'] != ""){
 		// include the destination path so the client can update UI immediately if needed
 		$info->file = $destination;
 		echo json_encode($info);
+		$__uploader_response_sent = true;
+	}
+
+	// if the file was present but failed type/extension checks, return an error
+	if(!$fileTypeOk || !$extOk){
+		http_response_code(400);
+		$info->message = 'Invalid file type or extension';
+		$info->data_type = $data_type;
+		echo json_encode($info);
+		$__uploader_response_sent = true;
 	}
 
 
@@ -115,7 +130,7 @@ if($data_type == "change_profile_image"){
 
 	}
 
-}else 
+} else 
 if($data_type == "send_image"){
 
 	// receiver userid (the chat partner)
@@ -141,6 +156,21 @@ if($data_type == "send_image"){
 	$arr['file'] = $destination;
 
 	// Only attempt DB insert if we have a sender and a receiver
+	if(empty($arr['sender']) || empty($arr['userid'])){
+		error_log('uploader.php: send_image missing sender or userid; sender=' . var_export($arr['sender'], true) . ' userid=' . var_export($arr['userid'], true));
+		http_response_code(400);
+		$info->message = 'Missing sender or recipient for send_image';
+		$info->data_type = $data_type;
+		echo json_encode($info);
+		// ensure a JSON response (defensive)
+		if(!$__uploader_response_sent){
+			http_response_code(400);
+			echo json_encode($info);
+			$__uploader_response_sent = true;
+		}
+		return;
+	}
+
 	if(!empty($arr['sender']) && !empty($arr['userid'])){
 
 		$arr2 = [];
@@ -167,29 +197,59 @@ if($data_type == "send_image"){
 // handle audio sends
 if($data_type == "send_audio"){
 
-	$arr['userid'] = "null";
+	// initialize structure
+	$arr = [];
+	$arr['userid'] = null;
 	if(isset($_POST['userid'])){
 		$arr['userid'] = addslashes($_POST['userid']);
 	}
 
 	$arr['message'] = "";
 	$arr['date'] = date("Y-m-d H:i:s");
-	$arr['sender'] = $_SESSION['userid'];
+	$arr['sender'] = isset($_SESSION['userid']) ? $_SESSION['userid'] : null;
 	$arr['msgid'] = get_random_string_max(60);
 	$arr['files'] = $destination;
 
-	$arr2['sender'] = $_SESSION['userid'];
+	// validate required fields
+	if(empty($arr['sender']) || empty($arr['userid'])){
+		error_log('uploader.php: send_audio missing sender or userid; sender=' . var_export($arr['sender'], true) . ' userid=' . var_export($arr['userid'], true));
+		http_response_code(400);
+		$info->message = 'Missing sender or recipient for send_audio';
+		$info->data_type = $data_type;
+		echo json_encode($info);
+		return;
+	}
+
+	$arr2 = [];
+	$arr2['sender'] = $arr['sender'];
 	$arr2['receiver'] = $arr['userid'];
 
 	$sql = "select * from messages where (sender = :sender && receiver = :receiver) || (receiver = :sender && sender = :receiver) limit 1";
 	$result2 = $DB->read($sql,$arr2);
-	if(is_array($result2)){
+	if(is_array($result2) && isset($result2[0]->msgid)){
 		$arr['msgid'] = $result2[0]->msgid;
 	}
 
 	$query = "insert into messages (sender,receiver,message,date,msgid,files) values (:sender,:userid,:message,:date,:msgid,:files)";
 	$DB->write($query,$arr);
 
+	// ensure client always receives JSON response for uploads
+	if(!$__uploader_response_sent){
+		$info->message = 'Audio uploaded';
+		$info->data_type = $data_type;
+		$info->file = $destination;
+		echo json_encode($info);
+		$__uploader_response_sent = true;
+	}
+
+}
+
+// final fallback: if we reached end of script without returning JSON, send a default response
+if(!$__uploader_response_sent){
+	http_response_code(200);
+	$info->message = isset($info->message) ? $info->message : 'No action taken';
+	$info->data_type = isset($info->data_type) ? $info->data_type : $data_type;
+	echo json_encode($info);
 }
 
 function get_random_string_max($length)	{

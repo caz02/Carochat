@@ -91,6 +91,12 @@ $info = (Object)[];
 	
 		$info->message = "Your profile has been created";
 		$info->data_type = "info";
+		// auto-login the user after successful signup
+		try{ 
+			session_start();
+			$_SESSION['userid'] = $data['userid'];
+		}catch(
+			Exception $e){}
 		echo json_encode($info);
 		
 
