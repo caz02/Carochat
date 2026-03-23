@@ -1432,13 +1432,17 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 								}catch(e){ return false; }
 							}
 
-							function shouldApplyLeftUpdate(html){
-								// if user very recently opened the chats panel, avoid clobbering unless the server payload contains real chat items
-								if(typeof window.__lastLeftUpdate === 'number' && (Date.now() - window.__lastLeftUpdate) < 2500){
-									return htmlContainsChats(html);
-								}
-								return true;
-							}
+													function shouldApplyLeftUpdate(html){
+														// if user very recently opened the chats panel, avoid clobbering unless the server payload contains real chat items
+														// respect the configurable hold period (window.__LEFT_PANEL_HOLD_MS) if present
+														try{
+															var hold = (typeof window.__LEFT_PANEL_HOLD_MS === 'number') ? window.__LEFT_PANEL_HOLD_MS : 2500;
+															if(typeof window.__lastLeftUpdate === 'number' && (Date.now() - window.__lastLeftUpdate) < hold){
+																return htmlContainsChats(html);
+															}
+														}catch(e){ /* defensive */ }
+														return true;
+													}
 
 
 							case "contacts":
@@ -1624,26 +1628,33 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 
 	setInterval(function(){
 
-
 		var radio_chat = _("radio_chat");
 		var radio_contacts = _("radio_contacts");
 
-		if(CURRENT_CHAT_USER != "" && radio_chat.checked)		
-		{
-			
-			get_data({
-				userid:CURRENT_CHAT_USER,
-				seen:SEEN_STATUS
-			},"chats_refresh");
-		}
+		try{
+			if(CURRENT_CHAT_USER != "" && radio_chat && radio_chat.checked){
+				get_data({ userid:CURRENT_CHAT_USER, seen:SEEN_STATUS }, "chats_refresh");
+			}
 
-		if(radio_contacts.checked)		
-		{
-			
-			get_data({},"contacts");
-		}
+			// avoid polling contacts when the user is actively using the contact search
+			if(radio_contacts && radio_contacts.checked){
+				try{
+					var contactSearch = document.getElementById('contact_search');
+					var searchActive = false;
+					if(contactSearch){
+						var v = (contactSearch.value||'').trim();
+						if(v !== '' || document.activeElement === contactSearch) searchActive = true;
+					}
+					if(!searchActive){
+						get_data({}, "contacts");
+					} else {
+						// do not overwrite user's search results while typing/focused
+						console.info('Skipping contacts poll because contact search is active');
+					}
+				}catch(e){ console.warn('contacts poll check failed', e); get_data({}, "contacts"); }
+			}
+		}catch(e){ console.warn('periodic refresh failed', e); }
 
-	
 	},10000);
 
 	function set_seen(e){
