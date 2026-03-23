@@ -23,7 +23,7 @@
 		$row = $result[0];
 		
 			$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-			if(!empty($row->image) && file_exists($row->image)){
+			if(!empty($row->image) && is_string($row->image) && file_exists($row->image)){
 				$image = $row->image;
 			}
 
@@ -125,7 +125,7 @@
 						$myuser = $DB->get_user($other_user);
 
 						$image = ($myuser->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-						if(file_exists($myuser->image)){
+						if(!empty($myuser->image) && is_string($myuser->image) && file_exists($myuser->image)){
 							$image = $myuser->image;
 						}
 							

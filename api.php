@@ -90,7 +90,7 @@ function message_left($data,$row)
 {
 	// keep names consistent with other parts of the app (male.jpg / girl.jpg)
 	$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-	if(!empty($row->image) && file_exists($row->image)){
+	if(!empty($row->image) && is_string($row->image) && file_exists($row->image)){
 		$image = $row->image;
 	}
 	
@@ -101,7 +101,7 @@ function message_left($data,$row)
 		<b>$row->username</b><br>
 		$data->message<br><br>";
 
-		if($data->files != "" && file_exists($data->files)){
+		if(!empty($data->files) && is_string($data->files) && file_exists($data->files)){
 			$ext = strtolower(pathinfo($data->files, PATHINFO_EXTENSION));
 			$audioExts = array('webm','ogg','mp3','m4a','wav');
 			if(in_array($ext,$audioExts)){
@@ -124,7 +124,7 @@ function message_left($data,$row)
 function message_right($data,$row)
 {
 	$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-	if(!empty($row->image) && file_exists($row->image)){
+	if(!empty($row->image) && is_string($row->image) && file_exists($row->image)){
 		$image = $row->image;
 	}
 	
@@ -145,7 +145,7 @@ function message_right($data,$row)
 		<b>$row->username</b><br>
 		$data->message<br><br>";
 
-		if($data->files != "" && file_exists($data->files)){
+		if(!empty($data->files) && is_string($data->files) && file_exists($data->files)){
 			$ext = strtolower(pathinfo($data->files, PATHINFO_EXTENSION));
 			$audioExts = array('webm','ogg','mp3','m4a','wav');
 			if(in_array($ext,$audioExts)){

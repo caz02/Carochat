@@ -21,11 +21,10 @@ $info = (Object)[];
 			$result->data_type = "user_info";
 
 
-			//check image exists
+					//check image exists (guard against null/empty paths)
 					$image = ($result->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-					if(file_exists($result->image)){
+					if(!empty($result->image) && is_string($result->image) && file_exists($result->image)){
 						$image = $result->image;
-
 					}
 
 					$result->image = $image;

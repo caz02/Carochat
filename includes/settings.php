@@ -10,9 +10,9 @@ if(is_array($data)){
 
 	$data = $data[0];
 
-	//check if image exists
+	//check if image exists (guard against null/empty paths)
 	$image = ($data->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-	if(file_exists($data->image)){
+	if(!empty($data->image) && is_string($data->image) && file_exists($data->image)){
 		$image = $data->image;
 	}
 

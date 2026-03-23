@@ -180,6 +180,8 @@
 	function send_data(data,type){
 
 		var xml = new XMLHttpRequest();
+		// ensure cookies/session are sent for signup (will be set on successful signup)
+		xml.withCredentials = true;
 
 
 		xml.onload = function(){
@@ -199,6 +201,7 @@
  
 
 		xml.open("POST","api.php",true);
+		xml.withCredentials = true;
 		xml.send(data_string);
 
 	

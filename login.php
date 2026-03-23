@@ -159,6 +159,8 @@
 
 
 		var xml = new XMLHttpRequest();
+		// ensure cookies/session are sent so login can set the session cookie
+		xml.withCredentials = true;
 
 
 		xml.onload = function(){
@@ -178,6 +180,7 @@
 
 
 		xml.open("POST","api.php",true);
+		xml.withCredentials = true;
 		xml.send(data_string);
 
 	

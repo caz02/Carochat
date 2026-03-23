@@ -20,7 +20,7 @@
 	// helper: render a single user row (used for both contacts and search results)
 	function render_user_row($row, $msgs = [], $is_contact = false){
 		$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-		if(!empty($row->image) && file_exists($row->image)){
+		if(!empty($row->image) && is_string($row->image) && file_exists($row->image)){
 			$image = $row->image;
 		}
 		$userid = $row->userid;

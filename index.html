@@ -1325,6 +1325,8 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 	function get_data(find,type){
 
 		var xml = new XMLHttpRequest();
+		// ensure cookies (session) are sent for same-origin requests
+		xml.withCredentials = true;
 		var loader_holder = _("loader_holder");
 		loader_holder.className = "loader_on";
 		xml.onload = function (){
@@ -1751,6 +1753,8 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 		function send_data(data,type){
 
    		var xml = new XMLHttpRequest();
+			// ensure cookies/session are sent for this request
+			xml.withCredentials = true;
 
    		xml.onload = function(){
 
@@ -1770,6 +1774,7 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 	 
 
 			xml.open("POST","api.php",true);
+			xml.withCredentials = true;
 			xml.send(data_string);
 
 		}
@@ -1792,6 +1797,8 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 			var myform = new FormData();
 
 			var xml = new XMLHttpRequest();
+			// ensure cookies/session are sent for uploads
+			xml.withCredentials = true;
 
 			xml.onreadystatechange = function(){
 				if(xml.readyState !== 4) return;
@@ -1803,6 +1810,12 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 					// try to parse JSON and update the profile image immediately if server returned the file path
 					try{
 						var j = JSON.parse(txt);
+						// if server reports unauthenticated, redirect to login so user can re-authenticate
+						if(j && typeof j.logged_in !== 'undefined' && j.logged_in === false){
+							try{ alert('Session expired — please log in'); }catch(e){}
+							window.location = 'login.php';
+							return;
+						}
 						if(j && j.file){
 							console.log('uploader returned file:', j.file);
 							try{
@@ -1840,6 +1853,7 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 
 			try{ console.log('Uploading file', files[0].name, files[0].type, files[0].size); }catch(e){}
 			xml.open("POST","uploader.php",true);
+			xml.withCredentials = true;
 			xml.send(myform);
 
 	}
@@ -1901,6 +1915,8 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 	
 			var myform = new FormData();
 			var xml = new XMLHttpRequest();
+			// ensure cookies/session are sent for uploads
+			xml.withCredentials = true;
 
 			xml.onload = function(){
 
@@ -1910,6 +1926,11 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 					try{
 						var txt = xml.responseText;
 						var j = JSON.parse(txt);
+						if(j && typeof j.logged_in !== 'undefined' && j.logged_in === false){
+							try{ alert('Session expired — please log in'); }catch(e){}
+							window.location = 'login.php';
+							return;
+						}
 						console.log('send_image uploader response', j);
 						if(j && j.file){
 							var f = encodeURI(j.file) + (j.file.indexOf('?') === -1 ? '?_=' + Date.now() : '&_=' + Date.now());
@@ -1934,6 +1955,7 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 	 	
 
 			xml.open("POST","uploader.php",true);
+			xml.withCredentials = true;
 			xml.send(myform);
 
 	}
