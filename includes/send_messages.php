@@ -17,6 +17,10 @@
 		$arr['sender'] = $_SESSION['userid'];
 		$arr['msgid'] = get_random_string_max(60);
 
+		// log incoming send attempt for debugging
+		try{ error_log("send_messages.php: attempt sender=".var_export($arr['sender'],true)." userid=".var_export($arr['userid'],true)." msg='".substr($arr['message'],0,200)."'"); }catch(
+			Exception $e){}
+
 
 			$arr2['sender'] = $_SESSION['userid'];
 			$arr2['receiver'] = $arr['userid'];
@@ -31,6 +35,9 @@
 
 		$query = "insert into messages (sender,receiver,message,date,msgid) values (:sender,:userid,:message,:date,:msgid)";
 		$DB->write($query,$arr);
+
+		// log DB write result for debugging (record msgid and conversation)
+		try{ error_log("send_messages.php: wrote message msgid=".var_export($arr['msgid'],true)." sender=".var_export($arr['sender'],true)." receiver=".var_export($arr['userid'],true)); }catch(Exception $e){}
 
 		//user found
 		$row = $result[0];

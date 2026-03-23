@@ -61,6 +61,15 @@ if(isset($_FILES['file']) && $_FILES['file']['name'] != ""){
 	$ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
 	$extOk = in_array($ext, ['jpg','jpeg','png','webm','ogg','mp3','m4a','wav']);
 
+	// Fallback: some clients (certain Android devices, older browsers) may send a generic
+	// content-type (e.g. application/octet-stream) even for images. If the extension
+	// is trusted, allow the upload but log the unexpected MIME type for diagnostics.
+	if(!$fileTypeOk && $extOk){
+		// allow by extension for common image/audio types
+		$fileTypeOk = true;
+		error_log('uploader.php: MIME fallback - accepting file by extension. filename=' . $_FILES['file']['name'] . ' reported_type=' . ($_FILES['file']['type'] ?? 'N/A'));
+	}
+
 	if($fileTypeOk && $extOk){
 
 		//good to go
