@@ -874,7 +874,8 @@
 
 	// --- WebRTC + signaling client (paste inside index.html) ---
 (() => {
-  const SIGNALING_URL = `ws://${location.hostname}:3000`; // if server on same host
+	// use same-origin path for signaling so we can proxy wss through nginx (works with http or https)
+	const SIGNALING_URL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/signaling';
   const STUN_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
 
   let ws;
