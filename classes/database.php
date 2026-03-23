@@ -13,14 +13,20 @@ class Database
 
 	private function connect()
 	{
-		$string = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+		$string = "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4";
 
 		try
 		{
-			$connection = new PDO($string, DB_USER, DB_PASS, [
+			$options = [
 				PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 				PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
-			]);
+			];
+
+			if (defined('PDO::MYSQL_ATTR_SSL_CA')) {
+				$options[PDO::MYSQL_ATTR_SSL_CA] = DB_SSL_CA;
+			}
+
+			$connection = new PDO($string, DB_USER, DB_PASS, $options);
 			return $connection;
 
 		}catch(PDOException $e)
