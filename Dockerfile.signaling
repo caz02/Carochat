@@ -1,0 +1,12 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install --omit=dev
+
+COPY signaling-server.js ./
+
+EXPOSE 10000
+
+CMD ["sh", "-c", "PORT=${PORT:-10000} node signaling-server.js"]
