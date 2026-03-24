@@ -22,7 +22,8 @@ class Database
 				PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
 			];
 
-			if (defined('PDO::MYSQL_ATTR_SSL_CA')) {
+			// Only set MYSQL_ATTR_SSL_CA when a CA path is provided and exists.
+			if (defined('PDO::MYSQL_ATTR_SSL_CA') && defined('DB_SSL_CA') && !empty(DB_SSL_CA) && file_exists(DB_SSL_CA)) {
 				$options[PDO::MYSQL_ATTR_SSL_CA] = DB_SSL_CA;
 			}
 
