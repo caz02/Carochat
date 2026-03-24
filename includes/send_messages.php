@@ -39,6 +39,20 @@
 		// log DB write result for debugging (record msgid and conversation)
 		try{ error_log("send_messages.php: wrote message msgid=".var_export($arr['msgid'],true)." sender=".var_export($arr['sender'],true)." receiver=".var_export($arr['userid'],true)); }catch(Exception $e){}
 
+		// fetch inserted messages for this conversation (help client render immediately)
+		try{
+			$b['msgid'] = $arr['msgid'];
+			$inserted = $DB->read("select * from messages where msgid = :msgid order by id desc limit 20", $b);
+			if(is_array($inserted)){
+				$inserted = array_reverse($inserted);
+				$info->inserted_messages = $inserted;
+			} else {
+				$info->inserted_messages = [];
+			}
+		} catch(Exception $e){
+			$info->inserted_messages = [];
+		}
+
 		//user found
 		$row = $result[0];
 		
@@ -121,4 +135,3 @@ function get_random_string_max($length)	{
 }
 
 
-?>
