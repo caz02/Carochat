@@ -12,7 +12,7 @@ $out = (object)[];
 require_once(__DIR__.'/classes/autoload.php');
 $DB = new Database();
 
-if(!isset($_SESSION['userid'])){
+if(!isset($_SESSION['userid'])){ 
     http_response_code(200);
     $out->logged_in = false;
     echo json_encode($out, JSON_PRETTY_PRINT);
