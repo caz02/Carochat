@@ -10,6 +10,9 @@ define('DB_PORT', env_or_default('DB_PORT', '3306'));
 define('DB_NAME', env_or_default('DB_NAME', 'carochat_db'));
 define('DB_USER', env_or_default('DB_USER', 'root'));
 define('DB_PASS', env_or_default('DB_PASS', ''));
-define('DB_SSL_CA', env_or_default('DB_SSL_CA', '/etc/ssl/certs/ca-certificates.crt'));
+// Path to TLS CA certificate used for secure DB connections (TiDB Cloud requires TLS).
+// Default comes from env var DB_SSL_CA, or fall back to the path suggested in the
+// TiDB Cloud console (/etc/ssl/cert.pem) which may be present on some systems.
+define('DB_SSL_CA', env_or_default('DB_SSL_CA', '/etc/ssl/cert.pem'));
 define('APP_URL', env_or_default('APP_URL', 'http://127.0.0.1:10000'));
 define('WS_URL', env_or_default('WS_URL', 'ws://127.0.0.1:3000'));
