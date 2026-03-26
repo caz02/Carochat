@@ -7,6 +7,10 @@
 		
 	}
 
+// Temporary debug logging: record the session user and requested contact when chats handler runs.
+// Remove this log after debugging.
+try{ error_log("includes/chats.php: session_user=".($_SESSION['userid'] ?? 'NULL')." requested_user=".($arr['userid'] ?? 'NULL')." data_type=".($DATA_OBJ->data_type ?? 'NULL')); }catch(Exception $e){}
+
 	$refresh = false;
 	$seen = false;
 	if($DATA_OBJ->data_type == "chats_refresh"){

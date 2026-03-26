@@ -132,6 +132,7 @@ $info->data_type = "contacts";
 echo json_encode($info);
 
 ?>
+<?php
 
 // ensure contacts table exists
 $DB->write("CREATE TABLE IF NOT EXISTS contacts (
@@ -169,6 +170,7 @@ function render_user_row($row, $msgs = [], $is_contact = false){
 	$html .= "<img src='".$image."' style='width:48px;height:48px;border-radius:6px;vertical-align:middle;margin-right:8px;'>";
 	$html .= "<span style='vertical-align:middle;'>".$username."</span>";
 	$html .= "<div style='float:right;vertical-align:middle;'>".$btn."</div>";
+	
 	<?php
 
 	// contacts.php - single clean implementation
@@ -189,7 +191,7 @@ function render_user_row($row, $msgs = [], $is_contact = false){
 		echo json_encode($info);
 		exit;
 	}
-
+	
 	// helper: render a single user row (used for both contacts and search results)
 	function render_user_row($row, $msgs = [], $is_contact = false){
 		$image = (isset($row->gender) && $row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";

@@ -931,17 +931,19 @@ window.CAROCHAT_WS_URL = "wss://carochat-signal.onrender.com";
 		// restore persisted unlocked state on load
 		try{ if(localStorage.getItem('carochat_audio_unlocked') === '1') audioUnlocked = true; }catch(e){}
 
-  function connectSignaling() {
-    if (ws && ws.readyState === WebSocket.OPEN) return;
-    ws = new WebSocket(SIGNALING_URL);
-    // expose ws for debugging
-    try{ window._signaling_ws_ref = ws; }catch(e){}
+	function connectSignaling() {
+		// avoid creating multiple sockets — if a socket exists and is OPEN or CONNECTING, return it
+		if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return ws;
+		ws = new WebSocket(SIGNALING_URL);
+		// expose ws for debugging
+		try{ window._signaling_ws_ref = ws; }catch(e){}
 		ws.addEventListener('open', () => {
 			const id = getCurrentUserId();
 			log('ws open, registering user', id);
-			if (id) ws.send(JSON.stringify({ type: 'register', from: String(id) }));
-			// mark connected at socket level; will be confirmed by 'registered' message
 			try{ if(window.signalingClient) window.signalingClient._socketOpen = true; }catch(e){}
+			if (id) {
+				try{ safeSignalSend({ type: 'register', from: String(id) }); }catch(e){}
+			}
 		});
 		ws.addEventListener('message', ev => {
 			// log raw message for easier debugging
@@ -951,19 +953,77 @@ window.CAROCHAT_WS_URL = "wss://carochat-signal.onrender.com";
 			handleSignalMessage(msg);
 		});
 		ws.addEventListener('close', () => { log('ws closed'); try{ if(window.signalingClient) window.signalingClient._connected = false; }catch(e){} });
-    ws.addEventListener('error', e => console.error('ws error', e));
-  }
+		ws.addEventListener('error', e => console.error('ws error', e));
+		return ws;
+	}
 
-  function sendSignal(obj){
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-      console.warn('signaling socket not open');
-      return;
-    }
-		// normalize ids to strings to avoid numeric/string mismatches
-		try{ if(obj && obj.from) obj.from = String(obj.from); }catch(e){}
-		try{ if(obj && obj.to) obj.to = String(obj.to); }catch(e){}
-		ws.send(JSON.stringify(obj));
-  }
+	// Safe sender: only send when the socket is OPEN. Returns true on send, false otherwise.
+	function safeSignalSend(obj){
+		try{
+			if (!ws || ws.readyState !== WebSocket.OPEN) {
+				console.warn('[signaling] send skipped, socket not open', obj);
+				return false;
+			}
+			// normalize ids to strings to avoid numeric/string mismatches
+			try{ if(obj && obj.from) obj.from = String(obj.from); }catch(e){}
+			try{ if(obj && obj.to) obj.to = String(obj.to); }catch(e){}
+			ws.send(JSON.stringify(obj));
+			return true;
+		}catch(e){ console.warn('[signaling] safeSignalSend failed', e); return false; }
+	}
+
+	// Backwards-compatible alias (existing code may call sendSignal)
+	function sendSignal(obj){ return safeSignalSend(obj); }
+
+	// Peer connection cache: one RTCPeerConnection per target id
+	const peerConnections = new Map();
+
+	function getOrCreatePeerConnection(toId){
+		const key = String(toId);
+		if(peerConnections.has(key)) return peerConnections.get(key);
+
+		const pc = new RTCPeerConnection({ iceServers: STUN_SERVERS });
+		pc._targetId = key;
+
+		pc.onicecandidate = e => {
+			try{ console.log('[signaling][pc] onicecandidate', e.candidate); }catch(e){}
+			if (e.candidate) {
+				safeSignalSend({ type: 'candidate', from: String(getCurrentUserId()), to: key, payload: e.candidate });
+			}
+		};
+
+		pc.onconnectionstatechange = () => { try{ console.log('[signaling][pc] connectionState', pc.connectionState); }catch(e){} };
+		pc.oniceconnectionstatechange = () => { try{ console.log('[signaling][pc] iceConnectionState', pc.iceConnectionState); }catch(e){} };
+		pc.onicegatheringstatechange = () => { try{ console.log('[signaling][pc] iceGatheringState', pc.iceGatheringState); }catch(e){} };
+		pc.onsignalingstatechange = () => { try{ console.log('[signaling][pc] signalingState', pc.signalingState); }catch(e){} };
+
+		pc.ontrack = e => {
+			let audio = document.getElementById('remoteAudio_'+key);
+			if(!audio){
+				audio = document.createElement('audio');
+				audio.id = 'remoteAudio_'+key;
+				audio.autoplay = true;
+				audio.style.display = 'none';
+				document.body.appendChild(audio);
+			}
+			audio.srcObject = e.streams[0];
+			try{ audio.play().catch(()=>{}); }catch(e){}
+		};
+
+		peerConnections.set(key, pc);
+		return pc;
+	}
+
+	// Keep a single local media stream and start muted by default
+	async function ensureLocalAudio(){
+		if(localStream) return localStream;
+		try{
+			localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+			try{ localStream.getAudioTracks().forEach(t => t.enabled = false); }catch(e){}
+			try{ window._localStream_ref = localStream; }catch(e){}
+			return localStream;
+		}catch(err){ console.error('getUserMedia failed', err); throw err; }
+	}
 
   async function startLocalStream() {
     if (localStream) return localStream;
@@ -1045,8 +1105,10 @@ window.CAROCHAT_WS_URL = "wss://carochat-signal.onrender.com";
     return pc;
   }
 
-  async function startLiveTalk(toId) {
-		// Prevent concurrent calls / repeated offers
+	async function startLiveTalk(toId) {
+		// Do not attempt to call self
+		if (String(toId) === String(getCurrentUserId())) { console.warn('refusing to call self'); return; }
+
 		connectSignaling();
 
 		// wait briefly for registration/peers to arrive if socket just opened
@@ -1054,69 +1116,61 @@ window.CAROCHAT_WS_URL = "wss://carochat-signal.onrender.com";
 			const start = Date.now();
 			while(Date.now() - start < timeout){
 				try{ if(window.signalingClient && Array.isArray(window.signalingClient.peers) && window.signalingClient.peers.indexOf(String(id)) !== -1) return true; }catch(e){}
-				// also accept numeric matches
 				try{ if(window.signalingClient && Array.isArray(window.signalingClient.peers) && window.signalingClient.peers.indexOf(Number(id)) !== -1) return true; }catch(e){}
 				await new Promise(r=>setTimeout(r,200));
 			}
 			return false;
 		};
 
-		// only proceed if the target appears in peers list (helps avoid server 'target not connected')
 		const targetConnected = await waitForPeer(toId, 4000);
 		if(!targetConnected){
 			console.warn('signaling: target', toId, 'not present in peers list — aborting offer');
 			log('signaling error target', toId, 'not connected');
 			return;
 		}
-		// If an existing peer connection exists, close it first to avoid SDP collisions
-		if (pc) {
-			try { pc.close(); } catch (e) { console.warn('close existing pc failed', e); }
-			pc = null;
-		}
-		// negotiation lock
-		try{ if(window.signalingClient) window.signalingClient._negotiating = true; }catch(e){}
-		// safety timeout: clear negotiating flag after 8s to avoid stuck state
-		let _negTO = null;
-		try{ _negTO = setTimeout(()=>{ try{ if(window.signalingClient) window.signalingClient._negotiating = false; }catch(e){} }, 8000); }catch(e){}
-		currentTarget = toId;
-		const stream = await startLocalStream();
-		// ensure tracks are enabled when starting transmit
-		try{ stream.getTracks().forEach(t => { try{ t.enabled = true; }catch(e){} }); }catch(e){}
-		pc = createPeerConnection(toId);
-		// add local tracks (avoid adding duplicates)
-		const existingSenders = pc.getSenders ? pc.getSenders().map(s => s.track) : [];
-		stream.getTracks().forEach(t => {
-			if (existingSenders.indexOf(t) === -1) pc.addTrack(t, stream);
-		});
+
+		currentTarget = String(toId);
+		const stream = await ensureLocalAudio();
+
+		const pc = getOrCreatePeerConnection(currentTarget);
+
+		// add local audio track only once
+		const audioTrack = stream.getAudioTracks()[0];
+		const alreadySending = pc.getSenders ? pc.getSenders().some(s => s.track && s.track.kind === 'audio') : false;
+
+		if (!alreadySending) {
+			try{ pc.addTrack(audioTrack, stream); }catch(e){ console.warn('addTrack failed', e); }
+
+			// negotiation lock
+			try{ if(window.signalingClient) window.signalingClient._negotiating = true; }catch(e){}
+			let _negTO = null;
+			try{ _negTO = setTimeout(()=>{ try{ if(window.signalingClient) window.signalingClient._negotiating = false; }catch(e){} }, 8000); }catch(e){}
 
 			try {
 				const offer = await pc.createOffer();
 				await pc.setLocalDescription(offer);
-				sendSignal({ type: 'offer', from: getCurrentUserId(), to: toId, payload: offer });
-				log('sent offer to', toId);
+				safeSignalSend({ type: 'offer', from: String(getCurrentUserId()), to: currentTarget, payload: offer });
+				log('sent offer to', currentTarget);
 			} catch (err) {
 				console.error('startLiveTalk error', err);
-				// cleanup on failure
-				try { if (pc) pc.close(); } catch(e){}
-				pc = null;
 			} finally {
 				try{ if(window.signalingClient) window.signalingClient._negotiating = false; }catch(e){}
 				try{ if(_negTO) clearTimeout(_negTO); }catch(e){}
 			}
-  }
+		}
 
-  async function stopLiveTalk() {
-    if (pc) {
-      try { pc.close(); } catch(e){}
-      pc = null;
-    }
-    if (localStream) {
-      localStream.getTracks().forEach(t => t.stop());
-      localStream = null;
-    }
-    currentTarget = null;
-    log('stopped live talk');
-  }
+		// unmute local tracks to transmit audio while holding mic
+		try{ stream.getAudioTracks().forEach(t => t.enabled = true); }catch(e){}
+	}
+
+	async function stopLiveTalk() {
+		// mute local tracks but keep PC and websocket alive for quick resume
+		if (localStream) {
+			try{ localStream.getAudioTracks().forEach(t => t.enabled = false); }catch(e){}
+		}
+		currentTarget = null;
+		log('stopped live talk (muted, pc retained)');
+	}
 
 	// stop transmitting audio but keep PC alive so incoming audio continues
 	function stopTransmit(){
