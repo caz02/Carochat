@@ -88,69 +88,37 @@
 	}
 </style>
 <style type="text/css">
-/* Mobile-only card/banner layout for small screens (signup page) */
+/* Mobile adjustments */
 @media (max-width: 600px) {
-	body{ background:#f0f2f5; }
 	#wrapper{
-		max-width:420px;
-		margin:18px auto;
-		background:#fff;
-		border-radius:8px;
-		box-shadow:0 8px 26px rgba(0,0,0,0.12);
-		overflow:hidden;
-		color:#111;
+		max-width: 100%;
+		padding: 8px;
 	}
-
-	#header{
-		background: linear-gradient(180deg,#1877f2,#165fcf);
-		color:#fff;
-		font-family: headFont;
-		font-size:22px;
-		padding:18px 12px;
-		text-align:center;
-	}
-	#header > div{ font-size:13px; color:rgba(255,255,255,0.95); font-family: myFont; }
 
 	form{
-		padding:16px;
-		max-width:100%;
-		box-sizing:border-box;
+		max-width: 95%;
+		padding: 12px;
 	}
 
-	input[type=text], input[type=password]{
-		width:100%;
-		padding:12px 14px;
-		font-size:16px;
-		border-radius:6px;
-		border:1px solid #e0e0e0;
-		margin:8px 0;
-		box-sizing:border-box;
-		color:#111;
+	input[type=text], input[type=password], input[type=submit]{
+		padding: 14px;
+		font-size: 18px;
+		margin: 8px 6px;
+		width: calc(100% - 12px);
 	}
 
 	input[type=submit]{
-		display:block;
-		width:100%;
-		padding:12px 14px;
-		font-size:16px;
-		background:#1a73e8;
-		color:#fff;
-		border:none;
-		border-radius:6px;
-		cursor:pointer;
-		margin-top:8px;
+		height: 50px;
+		font-size: 18px;
+		border-radius: 6px;
 	}
 
-	a[href="login.php"]{
-		display:block;
-		text-align:center;
-		margin:12px 0 6px 0;
-		background:#34a853;
-		color:#fff;
-		padding:10px 12px;
-		border-radius:6px;
-		text-decoration:none;
+	#header{
+		font-size: calc(6vw + 18px);
+		padding: 14px 8px;
 	}
+
+	#header > div{ font-size: 14px; }
 }
 </style>
 <body>

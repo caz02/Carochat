@@ -42,7 +42,8 @@ function render_user_row($row, $msgs = [], $is_contact = false){
 		$btn = "<button onclick=\"add_contact(event, '".$userid."')\" style='margin-top:6px;'>Add</button>";
 	}
 
-	$html  = "<div class='contact_row' userid='".$userid."' onclick='start_chat(event)' style='position:relative;padding:8px;border-bottom:1px solid #222;cursor:pointer;'>";
+	$click_attr = $is_contact ? "onclick='start_chat(event)' style='cursor:pointer;'" : "style='cursor:default;'";
+	$html  = "<div class='contact_row' userid='".$userid."' $click_attr style='position:relative;padding:8px;border-bottom:1px solid #222;'>";
 	$html .= "<img src='".$image."' style='width:48px;height:48px;border-radius:6px;vertical-align:middle;margin-right:8px;object-fit:cover;'>";
 	$html .= "<span style='vertical-align:middle;display:inline-block;max-width:55%;'>";
 	$html .= "<strong>".$username."</strong><br>";
@@ -106,6 +107,12 @@ if($action === 'delete' && isset($DATA_OBJ->find->contactid)){
 
 	$DB->write(
 		"DELETE FROM contacts WHERE userid = :u AND contactid = :c LIMIT 1",
+		['u' => $myid, 'c' => $contactid]
+	);
+
+	// also delete any messages between the two users for this user's view
+	$DB->write(
+		"DELETE FROM messages WHERE (sender = :u AND receiver = :c) OR (sender = :c AND receiver = :u)",
 		['u' => $myid, 'c' => $contactid]
 	);
 }
