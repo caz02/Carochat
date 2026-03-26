@@ -58,7 +58,7 @@ if(isset($DATA_OBJ->data_type) && $DATA_OBJ->data_type == "signup")
 }elseif(isset($DATA_OBJ->data_type) && $DATA_OBJ->data_type == "contacts")
 {
 	//user info
-	include("includes/contacts_fixed.php");
+	include("includes/contacts.php");
 }elseif(isset($DATA_OBJ->data_type) && ($DATA_OBJ->data_type == "chats" || $DATA_OBJ->data_type == "chats_refresh"))
 {
 	//user info
