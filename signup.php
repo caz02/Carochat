@@ -88,44 +88,98 @@
 	}
 </style>
 <style type="text/css">
-/* Mobile-first signup card style matching login: blue banner, white card */
-body{ background: #ffffff; margin:0; font-family: myFont; }
-#page_card{ max-width:420px; margin: 22px auto; background: #fff; border-radius:8px; box-shadow: 0 6px 18px rgba(0,0,0,0.12); overflow: hidden; }
-.banner{ background: linear-gradient(180deg,#1877f2,#165fcf); height:120px; display:flex; align-items:center; justify-content:center; color:#fff; font-family: headFont; font-size:28px; }
-.banner small{ display:block; font-family: myFont; font-size:13px; opacity:0.95; }
-.card-body{ padding:18px 18px 26px; }
-.form-row{ margin-bottom:12px; }
-input[type=text], input[type=password]{ width:100%; padding:12px 14px; font-size:16px; border-radius:4px; border:1px solid #ddd; box-sizing:border-box; }
-.primary-btn{ display:block; width:100%; background:#1a73e8; color:#fff; border:none; padding:12px 14px; font-size:16px; border-radius:6px; cursor:pointer; }
-.secondary-link{ display:block; text-align:center; color:#1a73e8; margin-top:12px; text-decoration:none; }
-.create-btn{ display:block; width:100%; background:#34a853; color:#fff; border:none; padding:10px 12px; font-size:15px; border-radius:6px; cursor:pointer; margin-top:10px; }
+/* Mobile-only card/banner layout for small screens (signup page) */
+@media (max-width: 600px) {
+	body{ background:#f0f2f5; }
+	#wrapper{
+		max-width:420px;
+		margin:18px auto;
+		background:#fff;
+		border-radius:8px;
+		box-shadow:0 8px 26px rgba(0,0,0,0.12);
+		overflow:hidden;
+		color:#111;
+	}
 
-@media (max-width: 600px){
-	#page_card{ margin: 12px; }
-	.banner{ height:110px; font-size:22px; }
-	.card-body{ padding:14px; }
+	#header{
+		background: linear-gradient(180deg,#1877f2,#165fcf);
+		color:#fff;
+		font-family: headFont;
+		font-size:22px;
+		padding:18px 12px;
+		text-align:center;
+	}
+	#header > div{ font-size:13px; color:rgba(255,255,255,0.95); font-family: myFont; }
+
+	form{
+		padding:16px;
+		max-width:100%;
+		box-sizing:border-box;
+	}
+
+	input[type=text], input[type=password]{
+		width:100%;
+		padding:12px 14px;
+		font-size:16px;
+		border-radius:6px;
+		border:1px solid #e0e0e0;
+		margin:8px 0;
+		box-sizing:border-box;
+		color:#111;
+	}
+
+	input[type=submit]{
+		display:block;
+		width:100%;
+		padding:12px 14px;
+		font-size:16px;
+		background:#1a73e8;
+		color:#fff;
+		border:none;
+		border-radius:6px;
+		cursor:pointer;
+		margin-top:8px;
+	}
+
+	a[href="login.php"]{
+		display:block;
+		text-align:center;
+		margin:12px 0 6px 0;
+		background:#34a853;
+		color:#fff;
+		padding:10px 12px;
+		border-radius:6px;
+		text-decoration:none;
+	}
 }
 </style>
 <body>
 	<div id="wrapper">
-		<div id="page_card">
-			<div class="banner">Walkie Talkie <small>Sign up</small></div>
-			<div class="card-body">
-				<div id="error" style="display:none;">Some Text</div>
-				<form id="myform">
-					<div class="form-row"><input type="text" name="username" placeholder="Username"></div>
-					<div class="form-row"><input type="text" name="email" placeholder="Email"></div>
-					<div class="form-row">Gender<br>
-						<input type="radio" value="Male" name="gender_male"> Male
-						<input type="radio" value="Female" name="gender_female"> Female
-					</div>
-					<div class="form-row"><input type="password" name="password" placeholder="Password"></div>
-					<div class="form-row"><input type="password" name="password2" placeholder="Retype Password"></div>
-					<div class="form-row"><input class="primary-btn" type="submit" value="Sign up" id="signup_button"></div>
-				</form>
-				<a class="secondary-link" href="login.php">Already have an account? Login!</a>
-			</div>
+		<div id="header">
+		Walkie Talkie
+		<div style="font-size:15px; font-family: myFont;">Signup</div>
 		</div>
+		<div id="error" style="">Some Text</div>
+
+		<form id="myform">
+			<input type="text" name="username" placeholder="Username"><br>
+			<input type="text" name="email" placeholder="Email"><br>
+		<div style="padding: 10px;" >
+			
+			<br>Gender<br>
+			<input type="radio" value="Male" name="gender_male"> Male<br>
+			<input type="radio" value="Female" name="gender_female"> Female<br>
+		
+			<input type="password" name="password" placeholder="Password"><br>
+			<input type="password" name="password2" placeholder="Retype Password"><br>
+			<input type="submit" value="Sign up" id="signup_button"><br>
+
+			<br>
+			<a href="login.php" style="display: block;text-align: center; text-decoration: none">
+				Already have an account? Login!
+			</a>
+		</form>
+		
 	</div>
 
 </body>
