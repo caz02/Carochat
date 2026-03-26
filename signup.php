@@ -101,7 +101,7 @@
 	}
 
 	form{
-		margin-top: 35%;
+		margin-top: 30%;
 	}
 	input[type=text], input[type=password], input[type=submit]{
 		padding: 14px;
