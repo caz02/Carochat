@@ -1228,11 +1228,11 @@ window.CAROCHAT_WS_URL = "wss://carochat-signal.onrender.com";
 				const id = msg.id || payload || getCurrentUserId();
 				log('registered as', id);
 				try{ if(window.signalingClient){ window.signalingClient._connected = true; window.signalingClient._socketOpen = true; window.signalingClient.peers = msg.peers || []; } }catch(e){}
-				updateDebugSignalingBadge();
+					if (typeof updateDebugSignalingBadge === 'function') updateDebugSignalingBadge();
 		} else if (type === 'peers') {
 		// peers list broadcast (kept for internal tracking but no UI render)
 		try{ if(window.signalingClient) window.signalingClient.peers = msg.peers || []; }catch(e){}
-		updateDebugSignalingBadge();
+				if (typeof updateDebugSignalingBadge === 'function') updateDebugSignalingBadge();
 	} else if (type === 'error') {
 			console.warn('signaling error', msg.message);
 			// if server reports target not connected, set a short cooldown for that target to avoid repeated offers
@@ -2237,8 +2237,8 @@ window.showSignalingState = function(){
 };
 
 // update badge periodically so it reflects changes
-setInterval(updateDebugSignalingBadge, 1000);
-updateDebugSignalingBadge();
+setInterval(function(){ if (typeof updateDebugSignalingBadge === 'function') updateDebugSignalingBadge(); }, 1000);
+if (typeof updateDebugSignalingBadge === 'function') updateDebugSignalingBadge();
 
 async function startMicRecording(){
 	if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ alert('Recording not supported'); return; }
