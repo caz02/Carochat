@@ -148,7 +148,7 @@ try{ error_log("includes/chats.php: session_user=".($_SESSION['userid'] ?? 'NULL
 						}
 							
 							$mydata .= "
-									<div id='active_contact' userid='{".$contact_userid."}' onclick='start_chat(event)' style='cursor:pointer'>
+									<div id='active_contact' data-userid='{".$contact_userid."}' style='cursor:pointer'>
 										<img src='$image'>
 										$myuser->username<br>
 										<span style='font-size:11px;'>$data->message</span>

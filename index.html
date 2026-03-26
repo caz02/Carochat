@@ -1968,18 +1968,20 @@ document.addEventListener('visibilitychange', function(){
 
 		function start_chat(e){
 
-		// stricter start_chat: climb DOM to find element with userid attribute and coerce to string
+		// stricter start_chat: climb DOM to find element with userid or data-userid attribute and coerce to string
 		function start_chat(e){
-			let el = e.currentTarget || e.target;
-			while (el && !el.getAttribute('userid')) {
+			// allow caller to pass either an Event or an element-like object with currentTarget/target
+			let el = (e && e.currentTarget) ? e.currentTarget : (e && e.target) ? e.target : e;
+			// walk up the DOM looking for either data-userid or userid attributes
+			while (el && el.getAttribute && !el.getAttribute('data-userid') && !el.getAttribute('userid')) {
 				el = el.parentNode;
 			}
-			if (!el) {
+			if (!el || !el.getAttribute) {
 				console.warn('start_chat: no userid found');
 				return;
 			}
 
-			const userid = String(el.getAttribute('userid') || '').trim();
+			const userid = String(el.getAttribute('data-userid') || el.getAttribute('userid') || '').trim();
 			if (!userid) {
 				console.warn('start_chat: empty userid');
 				return;
@@ -1992,6 +1994,21 @@ document.addEventListener('visibilitychange', function(){
 			if(radio_chat) radio_chat.checked = true;
 			get_data({ userid: CURRENT_CHAT_USER }, "chats");
 		}
+
+		// Event delegation: handle clicks on elements that carry data-userid (contacts)
+		document.addEventListener('click', function(ev){
+			try{
+				let t = ev.target;
+				while(t && t !== document){
+					if(t.getAttribute && (t.getAttribute('data-userid') || t.getAttribute('userid'))){
+						// call start_chat with a synthetic-like object so it finds the element
+						start_chat({ currentTarget: t, target: ev.target });
+						break;
+					}
+					t = t.parentNode;
+				}
+			}catch(err){ /* defensive: ignore delegation errors */ }
+		}, false);
 
 	function send_image(files){
 			var filename = files[0].name;
