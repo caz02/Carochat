@@ -35,7 +35,13 @@
 
 			}
 
-		$query = "insert into messages (sender,receiver,message,date,msgid) values (:sender,:userid,:message,:date,:msgid)";
+		// ensure message flags are explicitly set so new rows are visible to both sides
+		$arr['received'] = 0;
+		$arr['seen'] = 0;
+		$arr['deleted_sender'] = 0;
+		$arr['deleted_receiver'] = 0;
+
+		$query = "insert into messages \n\t\t(sender, receiver, message, date, msgid, received, seen, deleted_sender, deleted_receiver) \n\t\tvalues \n\t\t(:sender, :userid, :message, :date, :msgid, :received, :seen, :deleted_sender, :deleted_receiver)";
 		$DB->write($query,$arr);
 
 		// log DB write result for debugging (record msgid and conversation)

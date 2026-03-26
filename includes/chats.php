@@ -58,7 +58,8 @@ try{ error_log("includes/chats.php: session_user=".($_SESSION['userid'] ?? 'NULL
 						$a['sender'] = $_SESSION['userid'];
 						$a ['receiver'] = $arr['userid'];
 
-						$sql = "select * from messages where (sender = :sender && receiver = :receiver && deleted_sender = 0) || (receiver = :sender && sender = :receiver && deleted_receiver = 0) order by id desc limit 10";
+						// tolerate NULL flags by using coalesce(...,0)=0 so older rows with NULLs are treated as not-deleted
+						$sql = "select * from messages \n\t\t\twhere \n\t\t\t(sender = :sender and receiver = :receiver and coalesce(deleted_sender,0) = 0) \n\t\t\tor \n\t\t\t(sender = :receiver and receiver = :sender and coalesce(deleted_receiver,0) = 0) \n\t\t\torder by id desc \n\t\t\tlimit 10";
 						$result2 = $DB->read($sql,$a);
 
 						if(is_array($result2)){
