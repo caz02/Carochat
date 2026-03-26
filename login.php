@@ -133,7 +133,6 @@
 
 		<div id="header">
 		Walkie Talkie
-		<div style="font-size:15px; font-family: myFont;">Login</div>
 		</div>
 		<div id="error" style="">Some Text</div>
 		<form id="myform">
