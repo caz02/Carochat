@@ -7,9 +7,7 @@
 		
 	}
 
-// Temporary debug logging: record the session user and requested contact when chats handler runs.
-// Remove this log after debugging.
-try{ error_log("includes/chats.php: session_user=".($_SESSION['userid'] ?? 'NULL')." requested_user=".($arr['userid'] ?? 'NULL')." data_type=".($DATA_OBJ->data_type ?? 'NULL')); }catch(Exception $e){}
+// NOTE: debug logging removed to avoid noisy logs in production.
 
 	$refresh = false;
 	$seen = false;
@@ -40,8 +38,10 @@ try{ error_log("includes/chats.php: session_user=".($_SESSION['userid'] ?? 'NULL
 			$mydata = "";
 			if(!$refresh){
 
+			$display_userid = '';
+			try{ $display_userid = isset($row->userid) ? strval($row->userid) : ''; }catch(Exception $e){ $display_userid = ''; }
 			$mydata = "Now Chatting with:<br>
-						<div id='active_contact'>
+						<div id='active_contact' data-userid='".$display_userid."'>
 							<img src='$image'>
 							$row->username
 						</div>";
@@ -148,7 +148,7 @@ try{ error_log("includes/chats.php: session_user=".($_SESSION['userid'] ?? 'NULL
 						}
 							
 							$mydata .= "
-									<div id='active_contact' data-userid='{".$contact_userid."}' style='cursor:pointer'>
+									<div id='active_contact' data-userid='".$contact_userid."' style='cursor:pointer'>
 										<img src='$image'>
 										$myuser->username<br>
 										<span style='font-size:11px;'>$data->message</span>
