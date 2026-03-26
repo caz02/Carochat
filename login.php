@@ -100,6 +100,9 @@
 		padding: 12px;
 	}
 
+	form{
+		margin-top: 35%;
+	}
 	input[type=text], input[type=password], input[type=submit]{
 		padding: 14px;
 		font-size: 18px;
@@ -114,8 +117,12 @@
 	}
 
 	#header{
+		display: flex;
+		justify-content: center;
+		align-items: center;
 		font-size: calc(6vw + 18px);
-		padding: 14px 8px;
+		padding: 28px 13px;
+		margin: -13px;
 	}
 
 	#header > div{ font-size: 14px; }
