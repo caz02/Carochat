@@ -1711,7 +1711,7 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 			}
 		}catch(e){ console.warn('periodic refresh failed', e); }
 
-	},10000);
+	},3000);
 
 	function set_seen(e){
 
@@ -2062,36 +2062,64 @@ function attachMicHandlers(){
 
 // Attach handlers for live WebRTC hold-to-talk (uses signalingClient.startLiveTalk/stopLiveTalk)
 function attachLiveMicHandlers(){
-	// support multiple live-talk triggers: global floating button and inline walkie button
-	var liveBtns = Array.prototype.slice.call(document.querySelectorAll('#walkie_button'));
-	// pick the first for indicator positioning if needed
-	var liveBtn = liveBtns.length ? liveBtns[0] : null;
-	var indicator = document.getElementById('live_talk_indicator');
-	if(!liveBtn) return;
+	const liveBtns = Array.from(document.querySelectorAll('#walkie_button'));
+	const indicator = document.getElementById('live_talk_indicator');
+	if(!liveBtns.length) return;
 
-	// clean previous
-	liveBtns.forEach(function(b){ b.onmousedown = b.onmouseup = b.ontouchstart = b.ontouchend = null; });
+	let liveActive = false;
 
 	function startLive(){
-		if(!CURRENT_CHAT_USER){ alert('Open a chat to start live talk'); return; }
-		try{ if(window.signalingClient) window.signalingClient.startLiveTalk(CURRENT_CHAT_USER); }catch(e){ console.error('startLive error', e); }
-		try{ if(indicator) indicator.style.display = 'inline'; }catch(e){}
+		if(liveActive) return;
+		if(!CURRENT_CHAT_USER){
+			alert('Open a chat to start live talk');
+			return;
+		}
+		if(String(CURRENT_CHAT_USER) === String(window.CURRENT_USER_ID)){
+			console.warn('refusing to call self');
+			return;
+		}
+		liveActive = true;
+		try{
+			if(window.signalingClient) window.signalingClient.startLiveTalk(String(CURRENT_CHAT_USER));
+		}catch(e){
+			console.error('startLive error', e);
+		}
+		if(indicator) indicator.style.display = 'inline';
 	}
 
 	function stopLive(){
-		// stop transmitting but keep the peer connection alive so receiving continues
-		try{ stopTransmit(); }catch(e){ console.error('stopTransmit error', e); }
-		try{ if(indicator) indicator.style.display = 'none'; }catch(e){}
+		if(!liveActive) return;
+		liveActive = false;
+		try{
+			stopTransmit();
+		}catch(e){
+			console.error('stopTransmit error', e);
+		}
+		if(indicator) indicator.style.display = 'none';
 	}
 
-	// attach to each live button (both floating and inline)
 	liveBtns.forEach(function(btn){
-		btn.addEventListener('mousedown', function(e){ if(e.which === 1) startLive(); });
-		btn.addEventListener('mouseup', function(e){ stopLive(); });
-		btn.addEventListener('touchstart', function(e){ e.preventDefault(); startLive(); });
-		btn.addEventListener('touchend', function(e){ e.preventDefault(); stopLive(); });
-		// click toggles start/stop for convenience
-		btn.addEventListener('click', function(e){ if(indicator && indicator.style.display === 'inline') stopLive(); else startLive(); });
+		btn.onmousedown = null;
+		btn.onmouseup = null;
+		btn.ontouchstart = null;
+		btn.ontouchend = null;
+		btn.onclick = null;
+
+		btn.addEventListener('mousedown', function(e){
+			if(e.button === 0) startLive();
+		});
+		btn.addEventListener('mouseup', stopLive);
+		btn.addEventListener('mouseleave', stopLive);
+
+		btn.addEventListener('touchstart', function(e){
+			e.preventDefault();
+			startLive();
+		}, { passive: false });
+
+		btn.addEventListener('touchend', function(e){
+			e.preventDefault();
+			stopLive();
+		}, { passive: false });
 	});
 }
 

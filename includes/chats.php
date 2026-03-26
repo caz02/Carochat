@@ -105,10 +105,11 @@ try{ error_log("includes/chats.php: session_user=".($_SESSION['userid'] ?? 'NULL
 	}else{
 
 //read from db
-		$a['userid'] = $_SESSION['userid'];
+	$a['userid'] = $_SESSION['userid'];
 
-		$sql = "select * from messages where (sender = :userid || receiver = :userid) group by msgid order by id desc limit 10";
-		$result2 = $DB->read($sql,$a);
+	// safer latest-per-conversation query: select the most recent row per msgid
+	$sql = "\nselect m.*\nfrom messages m\ninner join (\n\tselect max(id) as max_id\n\tfrom messages\n\twhere sender = :userid or receiver = :userid\n\tgroup by msgid\n) latest on latest.max_id = m.id\norder by m.id desc\nlimit 10\n";
+	$result2 = $DB->read($sql,$a);
 
 		$mydata = "Previous Chats:<br>";
 
