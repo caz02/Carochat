@@ -1644,6 +1644,7 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 		}
 		
 
+		console.log('sending message to CURRENT_CHAT_USER =', CURRENT_CHAT_USER, 'from', window.CURRENT_USER_ID);
 		get_data({
 
 			message :message_text.value.trim(),
@@ -1967,23 +1968,29 @@ document.addEventListener('visibilitychange', function(){
 
 		function start_chat(e){
 
-		// prefer the event currentTarget (element the handler is attached to) so clicks on child elements still resolve
-		try{
-			var el = (e && e.currentTarget) ? e.currentTarget : (e && e.target) ? e.target : null;
-			var userid = '';
-			if(el){
-				userid = el.getAttribute('userid') || '';
-				// fallback to parent node if needed
-				if(!userid && el.parentNode) userid = el.parentNode.getAttribute && el.parentNode.getAttribute('userid') || '';
+		// stricter start_chat: climb DOM to find element with userid attribute and coerce to string
+		function start_chat(e){
+			let el = e.currentTarget || e.target;
+			while (el && !el.getAttribute('userid')) {
+				el = el.parentNode;
 			}
-		}catch(err){ console.warn('start_chat parse error', err); var userid = ''; }
+			if (!el) {
+				console.warn('start_chat: no userid found');
+				return;
+			}
 
-	CURRENT_CHAT_USER = String(userid);
+			const userid = String(el.getAttribute('userid') || '').trim();
+			if (!userid) {
+				console.warn('start_chat: empty userid');
+				return;
+			}
 
-		var radio_chat = _("radio_chat");
-		radio_chat.checked = true;
-		get_data({userid:CURRENT_CHAT_USER},"chats");
+			CURRENT_CHAT_USER = userid;
+			console.log('start_chat selected CURRENT_CHAT_USER =', CURRENT_CHAT_USER);
 
+			var radio_chat = _("radio_chat");
+			if(radio_chat) radio_chat.checked = true;
+			get_data({ userid: CURRENT_CHAT_USER }, "chats");
 		}
 
 	function send_image(files){
@@ -2107,6 +2114,7 @@ function attachLiveMicHandlers(){
 		}
 		liveActive = true;
 		try{
+			console.log('starting live talk to CURRENT_CHAT_USER =', CURRENT_CHAT_USER, 'from', window.CURRENT_USER_ID);
 			if(window.signalingClient) window.signalingClient.startLiveTalk(String(CURRENT_CHAT_USER));
 		}catch(e){
 			console.error('startLive error', e);

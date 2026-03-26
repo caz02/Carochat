@@ -139,13 +139,16 @@ try{ error_log("includes/chats.php: session_user=".($_SESSION['userid'] ?? 'NULL
 						$myuser = $DB->get_user($other_user);
 						try{ if($myuser && isset($myuser->userid)) $myuser->userid = strval($myuser->userid); }catch(Exception $e){}
 
+						// ensure contact userid is a string when embedding into HTML attributes
+						try{ $contact_userid = isset($myuser->userid) ? strval($myuser->userid) : ''; }catch(Exception $e){ $contact_userid = ''; }
+
 						$image = ($myuser->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
 						if(!empty($myuser->image) && is_string($myuser->image) && file_exists($myuser->image)){
 							$image = $myuser->image;
 						}
 							
 							$mydata .= "
-									<div id='active_contact' userid='$myuser->userid' onclick='start_chat(event)'style='cursor:pointer'>
+									<div id='active_contact' userid='{".$contact_userid."}' onclick='start_chat(event)' style='cursor:pointer'>
 										<img src='$image'>
 										$myuser->username<br>
 										<span style='font-size:11px;'>$data->message</span>
