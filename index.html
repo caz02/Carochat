@@ -1450,7 +1450,7 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 								}
 							}catch(e){ try{ profile_image.src = obj.image; }catch(err){} }
 							// expose current user id for signaling (best-effort from server response)
-							window.CURRENT_USER_ID = obj.userid || obj.user_id || obj.id || obj.username;
+							window.CURRENT_USER_ID = String(obj.userid || obj.user_id || obj.id || obj.username);
 							console.log('user_info received — setting CURRENT_USER_ID =', window.CURRENT_USER_ID, obj);
 							// if signaling client exists, connect/register now
 							try{ if(window.signalingClient && typeof window.signalingClient.connect === 'function') window.signalingClient.connect(); }catch(e){}
@@ -1651,6 +1651,16 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 
 		},"send_message");
 
+		// after sending, force a short-delay refresh for the sender so UI stays in sync
+		setTimeout(function(){
+			if(CURRENT_CHAT_USER){
+				get_data({
+					userid: String(CURRENT_CHAT_USER),
+					seen: true
+				}, "chats_refresh");
+			}
+		}, 300);
+
 		// clear and refocus the input to improve UX
 		try{
 			message_text.value = "";
@@ -1712,6 +1722,23 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 		}catch(e){ console.warn('periodic refresh failed', e); }
 
 	},3000);
+
+// Refresh current chat when window/tab regains focus or becomes visible
+window.addEventListener('focus', function(){
+	try{
+		if(CURRENT_CHAT_USER){
+			get_data({ userid: String(CURRENT_CHAT_USER), seen: true }, "chats_refresh");
+		}
+	}catch(e){ console.warn('focus refresh failed', e); }
+});
+
+document.addEventListener('visibilitychange', function(){
+	try{
+		if(!document.hidden && CURRENT_CHAT_USER){
+			get_data({ userid: String(CURRENT_CHAT_USER), seen: true }, "chats_refresh");
+		}
+	}catch(e){ console.warn('visibilitychange refresh failed', e); }
+});
 
 	function set_seen(e){
 
@@ -1951,7 +1978,7 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 			}
 		}catch(err){ console.warn('start_chat parse error', err); var userid = ''; }
 
-		CURRENT_CHAT_USER = userid;
+	CURRENT_CHAT_USER = String(userid);
 
 		var radio_chat = _("radio_chat");
 		radio_chat.checked = true;

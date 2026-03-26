@@ -25,6 +25,9 @@ try{ error_log("includes/chats.php: session_user=".($_SESSION['userid'] ?? 'NULL
 
 		//user found
 		$row = $result[0];
+
+		// ensure IDs are strings to avoid numeric precision issues in JS
+		try{ $row->userid = strval($row->userid); }catch(Exception $e){}
 		
 			$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
 			if(!empty($row->image) && is_string($row->image) && file_exists($row->image)){
@@ -63,7 +66,12 @@ try{ error_log("includes/chats.php: session_user=".($_SESSION['userid'] ?? 'NULL
 						$result2 = array_reverse($result2);			
 						foreach ($result2 as $data) {
 							# code...
+							// cast message ids to strings for JSON consistency
+							try{ $data->sender = strval($data->sender); }catch(Exception $e){}
+							try{ $data->receiver = strval($data->receiver); }catch(Exception $e){}
+							try{ $data->msgid = strval($data->msgid); }catch(Exception $e){}
 							$myuser = $DB->get_user($data->sender);
+							try{ if($myuser && isset($myuser->userid)) $myuser->userid = strval($myuser->userid); }catch(Exception $e){}
 
 
 							if($data->receiver == $_SESSION['userid'] && $data->received == 1 && $seen){
@@ -128,6 +136,7 @@ try{ error_log("includes/chats.php: session_user=".($_SESSION['userid'] ?? 'NULL
 						}
 	
 						$myuser = $DB->get_user($other_user);
+						try{ if($myuser && isset($myuser->userid)) $myuser->userid = strval($myuser->userid); }catch(Exception $e){}
 
 						$image = ($myuser->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
 						if(!empty($myuser->image) && is_string($myuser->image) && file_exists($myuser->image)){

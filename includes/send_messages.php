@@ -2,9 +2,10 @@
 
 	$arr['userid'] = "null";
 	if(isset($DATA_OBJ->find->userid)){
-		
-		$arr['userid'] = $DATA_OBJ->find->userid;
-		
+        
+        // keep userid as string to avoid JS numeric precision issues
+        $arr['userid'] = strval($DATA_OBJ->find->userid);
+        
 	}
 
 	$sql = "select * from users where userid = :userid limit 1";
@@ -14,15 +15,16 @@
 
 		$arr['message'] = $DATA_OBJ->find->message;
 		$arr['date'] = date("Y-m-d H:i:s");
-		$arr['sender'] = $_SESSION['userid'];
-		$arr['msgid'] = get_random_string_max(60);
+		// ensure IDs are strings to avoid precision loss in JS
+		$arr['sender'] = strval($_SESSION['userid']);
+		$arr['msgid'] = strval(get_random_string_max(60));
 
 		// log incoming send attempt for debugging
 		try{ error_log("send_messages.php: attempt sender=".var_export($arr['sender'],true)." userid=".var_export($arr['userid'],true)." msg='".substr($arr['message'],0,200)."'"); }catch(
 			Exception $e){}
 
 
-			$arr2['sender'] = $_SESSION['userid'];
+			$arr2['sender'] = $arr['sender'];
 			$arr2['receiver'] = $arr['userid'];
 
 			$sql = "select * from messages where (sender = :sender && receiver = :receiver) || (receiver = :sender && sender = :receiver) limit 1";
@@ -104,6 +106,18 @@
 		$info->user = $mydata;
 		$info->messages = $messages;
 		$info->data_type = "chats";
+
+		// ensure inserted message IDs and senders/receivers are strings for JSON
+		try{
+			if(isset($info->inserted_messages) && is_array($info->inserted_messages)){
+				foreach($info->inserted_messages as $m){
+					try{ $m->sender = strval($m->sender); }catch(Exception $e){}
+					try{ $m->receiver = strval($m->receiver); }catch(Exception $e){}
+					try{ $m->msgid = strval($m->msgid); }catch(Exception $e){}
+				}
+			}
+		}catch(Exception $e){}
+
 		echo json_encode($info);
 	
 	}else{
