@@ -1182,82 +1182,73 @@ window.CAROCHAT_WS_URL = "wss://carochat-signal.onrender.com";
 		}catch(e){ console.error('stopTransmit error', e); }
 	}
 
-  async function handleSignalMessage(msg) {
-    const { type, from, payload } = msg;
-    log('signal:', type, 'from', from);
-    if (type === 'offer') {
-      // incoming call: create pc, attach local stream, set remote, create answer
-      currentTarget = from;
-			// create peer connection and set remote description
-			pc = createPeerConnection(from);
-			await pc.setRemoteDescription(new RTCSessionDescription(payload));
-			// NOTE: do not acquire or add local audio tracks here - we want the callee to be able to *hear* without
-			// requiring microphone permission. If the callee later wants to transmit, they should initiate via startLiveTalk.
-			const answer = await pc.createAnswer();
-			await pc.setLocalDescription(answer);
-			sendSignal({ type: 'answer', from: getCurrentUserId(), to: from, payload: answer });
-      log('sent answer to', from);
-    } else if (type === 'answer') {
-			// remote accepted our offer
-			try{
-				if(!pc){ throw new Error('no RTCPeerConnection available to apply answer'); }
-				// only attempt to apply the answer when in an appropriate state
-				if(pc.signalingState === 'have-local-offer' || pc.signalingState === 'have-local-pranswer' || pc.signalingState === 'stable'){
-					await pc.setRemoteDescription(new RTCSessionDescription(payload));
-					log('remote answer applied');
-				} else {
-					// unexpected state — log and attempt to apply anyway inside try/catch
-					console.warn('apply answer: unexpected pc.signalingState', pc.signalingState);
-					try{ await pc.setRemoteDescription(new RTCSessionDescription(payload)); log('remote answer applied (forced)'); }catch(err){ console.error('setRemoteDescription failed', err, 'pc.signalingState=', pc.signalingState, 'localDesc=', pc.localDescription); }
+	async function handleSignalMessage(msg) {
+		const { type, from, payload } = msg;
+		const fromId = String(from || "");
+		log('signal:', type, 'from', fromId);
+
+		if (type === 'offer') {
+			currentTarget = fromId;
+			const peer = getOrCreatePeerConnection(fromId);
+			await peer.setRemoteDescription(new RTCSessionDescription(payload));
+			const answer = await peer.createAnswer();
+			await peer.setLocalDescription(answer);
+			sendSignal({ type: 'answer', from: String(getCurrentUserId()), to: fromId, payload: answer });
+			log('sent answer to', fromId);
+			return;
+		}
+
+		if (type === 'answer') {
+			try {
+				const peer = getOrCreatePeerConnection(fromId);
+				if (!peer.localDescription) {
+					console.warn('answer received before localDescription was ready');
+					return;
 				}
-			}catch(err){
+				await peer.setRemoteDescription(new RTCSessionDescription(payload));
+				log('remote answer applied for', fromId);
+			} catch (err) {
 				console.error('failed to apply remote answer', err);
 			} finally {
-				try{ if(window.signalingClient) window.signalingClient._negotiating = false; }catch(e){}
+				try { if (window.signalingClient) window.signalingClient._negotiating = false; } catch (e) {}
 			}
-    } else if (type === 'candidate') {
-			// add ICE candidate
+			return;
+		}
+
+		if (type === 'candidate') {
 			try {
-				if(!pc){ console.warn('addIceCandidate: no pc available yet, skipping'); }
-				else await pc.addIceCandidate(new RTCIceCandidate(payload));
+				const peer = getOrCreatePeerConnection(fromId);
+				await peer.addIceCandidate(new RTCIceCandidate(payload));
 			} catch (err) {
 				console.warn('addIceCandidate error', err);
 			}
-			} else if (type === 'registered') {
-				// server acknowledges registration and may include initial peers
-				const id = msg.id || payload || getCurrentUserId();
-				log('registered as', id);
-				try{ if(window.signalingClient){ window.signalingClient._connected = true; window.signalingClient._socketOpen = true; window.signalingClient.peers = msg.peers || []; } }catch(e){}
-					if (typeof updateDebugSignalingBadge === 'function') updateDebugSignalingBadge();
-		} else if (type === 'peers') {
-		// peers list broadcast (kept for internal tracking but no UI render)
-		try{ if(window.signalingClient) window.signalingClient.peers = msg.peers || []; }catch(e){}
-				if (typeof updateDebugSignalingBadge === 'function') updateDebugSignalingBadge();
-	} else if (type === 'error') {
-			console.warn('signaling error', msg.message);
-			// if server reports target not connected, set a short cooldown for that target to avoid repeated offers
-			try{
-				const m = msg.message || '';
-				const match = m.match(/target\s+(\d+)\s+not\s+connected/);
-				if(match && window.signalingClient){
-					const targetId = match[1];
-					window.signalingClient._targetUnavailable[targetId] = true;
-					// if we were negotiating with that target, abort/cleanup
-					try{
-						if(currentTarget && String(currentTarget) === String(targetId)){
-							console.log('signaling: target disconnected during negotiation, cleaning up');
-							try{ if(pc) pc.close(); }catch(e){}
-							pc = null;
-							try{ if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream = null; } }catch(e){}
-							currentTarget = null;
-							try{ if(window.signalingClient) window.signalingClient._negotiating = false; }catch(e){}
-						}
-					}catch(e){}
-					setTimeout(()=>{ try{ delete window.signalingClient._targetUnavailable[targetId]; }catch(e){} }, 5000);
+			return;
+		}
+
+		if (type === 'registered') {
+			const id = msg.id || payload || getCurrentUserId();
+			log('registered as', id);
+			try {
+				if (window.signalingClient) {
+					window.signalingClient._connected = true;
+					window.signalingClient._socketOpen = true;
+					window.signalingClient.peers = msg.peers || [];
 				}
-			}catch(e){}
-    }
-  }
+			} catch (e) {}
+			if (typeof updateDebugSignalingBadge === 'function') updateDebugSignalingBadge();
+			return;
+		}
+
+		if (type === 'peers') {
+			try { if (window.signalingClient) window.signalingClient.peers = msg.peers || []; } catch (e) {}
+			if (typeof updateDebugSignalingBadge === 'function') updateDebugSignalingBadge();
+			return;
+		}
+
+		if (type === 'error') {
+			console.warn('signaling error', msg.message);
+		}
+	}
 
 
 	// Render the peers UI (clickable list) and enable/disable mic button accordingly
@@ -2125,49 +2116,59 @@ function attachLiveMicHandlers(){
 			console.warn('refusing to call self');
 			return;
 		}
+
 		liveActive = true;
+
 		try{
 			console.log('starting live talk to CURRENT_CHAT_USER =', CURRENT_CHAT_USER, 'from', window.CURRENT_USER_ID);
 			if(window.signalingClient) window.signalingClient.startLiveTalk(String(CURRENT_CHAT_USER));
 		}catch(e){
 			console.error('startLive error', e);
 		}
+
 		if(indicator) indicator.style.display = 'inline';
 	}
 
 	function stopLive(){
 		if(!liveActive) return;
 		liveActive = false;
+
 		try{
 			stopTransmit();
 		}catch(e){
 			console.error('stopTransmit error', e);
 		}
+
 		if(indicator) indicator.style.display = 'none';
 	}
 
 	liveBtns.forEach(function(btn){
-		btn.onmousedown = null;
-		btn.onmouseup = null;
-		btn.ontouchstart = null;
-		btn.ontouchend = null;
-		btn.onclick = null;
+		if(btn.dataset.liveBound === '1') return;
+		btn.dataset.liveBound = '1';
 
-		btn.addEventListener('mousedown', function(e){
-			if(e.button === 0) startLive();
-		});
-		btn.addEventListener('mouseup', stopLive);
-		btn.addEventListener('mouseleave', stopLive);
-
-		btn.addEventListener('touchstart', function(e){
+		btn.addEventListener('pointerdown', function(e){
 			e.preventDefault();
 			startLive();
-		}, { passive: false });
+		});
 
-		btn.addEventListener('touchend', function(e){
+		btn.addEventListener('pointerup', function(e){
 			e.preventDefault();
 			stopLive();
-		}, { passive: false });
+		});
+
+		btn.addEventListener('pointercancel', function(e){
+			e.preventDefault();
+			stopLive();
+		});
+
+		btn.addEventListener('lostpointercapture', function(e){
+			e.preventDefault();
+			stopLive();
+		});
+
+		btn.addEventListener('contextmenu', function(e){
+			e.preventDefault();
+		});
 	});
 }
 
