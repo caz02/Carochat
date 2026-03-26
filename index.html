@@ -383,6 +383,15 @@ window.CAROCHAT_WS_URL = "wss://carochat-signal.onrender.com";
 	/* make inputs and buttons touch friendly */
 	input, button, textarea{ font-size:16px; }
 	.peer_btn, #walkie_button, #mic_button{ padding:10px 14px; min-height:44px; min-width:44px; border-radius:8px; }
+
+	/* make icon elements inside buttons non-interactive and not selectable
+	   so only the actual button element receives pointer events */
+	.btn-icon{
+		pointer-events: none;
+		user-select: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+	}
 	#live_talk_indicator{ right:12px; bottom:90px; }
 	#remote_audio_indicator{ right:12px; bottom:140px; }
 	/* make message area responsive */

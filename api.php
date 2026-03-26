@@ -176,9 +176,9 @@ function message_controls()
 		<input id='message_text' onkeydown='enter_pressed(event)' style='flex:6;border:solid thin #ccc;border-bottom:none;font-size:14px;padding:4px;' type='text' placeHolder='type your message'/>
 		<!-- Mic button: click to toggle on desktop, hold on mobile -->
 				<!-- Voice-note mic (existing) -->
-				<button id='mic_button' type='button' style='margin:0 6px;cursor:pointer;' title='Record voice note'>🎙</button>
+				<button id='mic_button' type='button' style='margin:0 6px;cursor:pointer;' title='Record voice note'><span class='btn-icon' aria-hidden='true'>🎙</span></button>
 				<!-- Walkie / live-talk button (starts live WebRTC session) -->
-				<button id='walkie_button' type='button' style='margin:0 6px;cursor:pointer;' title='Start live talk'>📻</button>
+				<button id='walkie_button' type='button' style='margin:0 6px;cursor:pointer;' title='Start live talk'><span class='btn-icon' aria-hidden='true'>📻</span></button>
 		<span id='recording_indicator' style='display:none;color:red;margin-right:6px;'>● recording</span>
 		<input style='flex:1;cursor:pointer;' type='button' value='send' onclick='send_message(event)'/>
 	</div>
