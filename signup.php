@@ -88,6 +88,25 @@
 	}
 </style>
 <style type="text/css">
+/* Desktop-only background for signup page. Place your desktop background image at ui/images/auth-bg.jpg */
+@media (min-width: 601px) {
+	body{
+		background-image: url('ui/images/auth-bg.jpg');
+		background-size: cover;
+		background-position: center center;
+		background-attachment: fixed;
+		background-repeat: no-repeat;
+	}
+	/* keep the wrapper visually distinct on desktop */
+	#wrapper{
+		background: rgba(255,255,255,0.92);
+		margin-top: 48px;
+		border-radius: 8px;
+		box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+	}
+}
+</style>
+<style type="text/css">
 /* Mobile adjustments */
 @media (max-width: 600px) {
 	#wrapper{
