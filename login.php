@@ -23,6 +23,13 @@
 
 	}
 
+	body{
+		background-image: url('ui/images/auth-bg.jpg');
+		background-size: cover;
+		background-position: center center;
+		background-attachment: fixed;
+		background-repeat: no-repeat;
+	}
 
 	#wrapper{
 
