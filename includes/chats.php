@@ -51,8 +51,8 @@
 
 			if(!$refresh){
 				$messages = "
-					<div id ='messages_holder_parent' onclick='set_seen(event)' style='height:650px;'>						
-					<div id ='messages_holder' style='height:450px;overflow-y:scroll;'>";
+					<div id ='messages_holder_parent' onclick='set_seen(event)' style='height:870px;'>						
+					<div id ='messages_holder' style='height:870px;overflow-y:scroll;'>";
 			}
 					   //read from db
 						$a['sender'] = $_SESSION['userid'];
