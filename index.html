@@ -1443,6 +1443,7 @@ html, body {
 try{ window.startLocalStream = startLocalStream; }catch(e){}
 try{ window.stopTransmit = stopTransmit; }catch(e){}
 try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
+try{ window.getCurrentUserId = getCurrentUserId; }catch(e){}
 
 	// render peers initially (if any cached)
 	try{ setTimeout(renderPeersUI, 500); }catch(e){}
@@ -1450,7 +1451,9 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 		// try auto-connect if current user id is already known
 		if (getCurrentUserId()) connectSignaling();
 })();
-
+// expose a global alias for getCurrentUserId so other scripts (outside the signaling closure)
+// can call it without referencing window.
+try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window.CURRENT_USER_ID || null; }; }catch(e){ /* ignore */ }
 
 	
 	var CURRENT_CHAT_USER = "";
