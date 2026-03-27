@@ -1529,7 +1529,7 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 			if(result.trim() != ""){
 
 				var inner_right_panel = _("inner_right_panel");
-				inner_right_panel.style.overflow = "visible";
+				if(inner_right_panel) try{ inner_right_panel.style.overflow = "visible"; }catch(e){}
 
 				// parse JSON safely; if response is HTML (PHP warning/login page) handle gracefully
 				// quick guard: if the server returned HTML (starts with '<') don't attempt JSON.parse
@@ -1559,17 +1559,19 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 							var email = _("email");
 							var profile_image = _("profile_image");
 
-							username.innerHTML = obj.username;
-							email.innerHTML = obj.email;
+							if(username) username.innerHTML = obj.username;
+							if(email) email.innerHTML = obj.email;
 							try{
 								var imgSrc = obj.image || '';
 								if(imgSrc){
-									if(imgSrc.indexOf('?') === -1) profile_image.src = imgSrc + '?_=' + Date.now();
-									else profile_image.src = imgSrc + '&_=' + Date.now();
+									if(profile_image) {
+										if(imgSrc.indexOf('?') === -1) profile_image.src = imgSrc + '?_=' + Date.now();
+										else profile_image.src = imgSrc + '&_=' + Date.now();
+									}
 								} else {
-									profile_image.src = imgSrc;
+									if(profile_image) profile_image.src = imgSrc;
 								}
-							}catch(e){ try{ profile_image.src = obj.image; }catch(err){} }
+							}catch(e){ try{ if(profile_image) profile_image.src = obj.image; }catch(err){} }
 							// expose current user id for signaling (best-effort from server response)
 							window.CURRENT_USER_ID = String(obj.userid || obj.user_id || obj.id || obj.username);
 							console.log('user_info received — setting CURRENT_USER_ID =', window.CURRENT_USER_ID, obj);
@@ -1626,7 +1628,7 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 							var inner_left_panel = _("inner_left_panel");
 
 
-									inner_right_panel.style.overflow = "hidden";
+									if(inner_right_panel) try{ inner_right_panel.style.overflow = "hidden"; }catch(e){}
 								// avoid overwriting a recent manual left-panel render (e.g. user clicked Chat)
 								try{
 									if(shouldApplyLeftUpdate(obj.message)){
@@ -2240,6 +2242,13 @@ function attachLiveMicHandlers(){
 		if(liveActive) return;
 		if(!CURRENT_CHAT_USER){
 			alert('Open a chat to start live talk');
+			return;
+		}
+
+		// ensure current user id is known before attempting signaling
+		if(!getCurrentUserId()){
+			alert('Please sign in or reload the page to enable live talk');
+			console.warn('startLive aborted: CURRENT_USER_ID not set');
 			return;
 		}
 		if(String(CURRENT_CHAT_USER) === String(window.CURRENT_USER_ID)){
