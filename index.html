@@ -984,6 +984,25 @@ html, body {
 					if(!window.add_contact){
 						window.add_contact = function(id){ try{ get_data({action:'add', contactid: id}, 'contacts'); }catch(err){ console.warn('add_contact failed', err); } };
 					}
+					// expose delete_contact globally so we can clear any open chat and then call the server
+					if(!window.delete_contact){
+						window.delete_contact = function(e, id){
+							try{ if(e){ e.stopPropagation(); e.preventDefault(); } }catch(ex){}
+							try{
+								// if the deleted user is the currently open chat, clear the right panel so a fresh chat will start when re-added
+								if(typeof CURRENT_CHAT_USER !== 'undefined' && String(CURRENT_CHAT_USER) === String(id)){
+									CURRENT_CHAT_USER = '';
+									var innerR = document.getElementById('inner_right_panel');
+									if(innerR) innerR.innerHTML = '<div style="padding:12px;color:#777">Contact removed — start a new chat by adding them again.</div>';
+									// also collapse any selection
+									try{ var r = document.getElementById('radio_contacts'); if(r) r.checked = true; }catch(err){}
+								}
+							}catch(err){ console.warn('delete_contact UI cleanup failed', err); }
+							// call server to perform delete and refresh contacts list
+							try{ get_data({action:'delete', contactid: id}, 'contacts'); }catch(err2){ console.warn('delete_contact failed', err2); }
+							return false;
+						};
+					}
 				}catch(e){ console.warn('attachContactsHandlers error', e); }
 			}
 
