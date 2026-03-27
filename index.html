@@ -527,6 +527,27 @@ html, body {
 	#left_panel label .nav_text{ color:#333; }
 	#profile_image{ border: none; }
 
+	/* Desktop: make the left rail a narrow icon-only column */
+	#left_panel{
+		flex: 0 0 72px;
+		width:72px;
+		min-width:72px;
+		background: #ffffff;
+		border-right: 1px solid #eef2f7;
+		padding: 12px 6px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-start;
+	}
+	#left_panel #user_info{ display:block; text-align:center; width:100%; }
+	#left_panel #profile_image{ width:40px !important; height:40px !important; border-radius:8px; margin: 6px 0; border:none; }
+	#left_panel label{ width:100%; height:56px; display:flex; align-items:center; justify-content:center; background:transparent; border:none; padding:6px 0; margin:6px 0; }
+	#left_panel label img{ width:28px; height:28px; display:block; margin:0 auto; }
+	#left_panel label .nav_text{ display:none; }
+	#left_panel label.active{ background: rgba(99, 102, 241, 0.06); border-radius: 8px; position: relative; }
+	#left_panel label.active:after{ content: ''; position: absolute; right: -6px; top: 12px; bottom: 12px; width: 6px; background: linear-gradient(180deg,#6d28d9,#7c3aed); border-radius: 4px; }
+
 	/* Header */
 	#header{ background: linear-gradient(180deg,#ffffff,#f2f7ff); color: #0b3d91; box-shadow: 0 2px 6px rgba(7,22,50,0.06); }
 	#header > div{ color: #0b3d91; }
@@ -1444,13 +1465,19 @@ try{ window.stopLiveTalk = stopLiveTalk; }catch(e){}
 
 
 	var label_contacts = _("label_contacts");
-	label_contacts.addEventListener("click",get_contacts);
-	
 	var label_chat = _("label_chat");
-	label_chat.addEventListener("click",get_chats);
-	
 	var label_settings = _("label_settings");
-	label_settings.addEventListener("click",get_settings);
+
+	// helper to mark the clicked left-rail label as active (adds visual indicator)
+	function setLeftActive(id){
+		['label_chat','label_contacts','label_settings','logout'].forEach(function(x){
+			try{ var el = document.getElementById(x); if(!el) return; if(x === id) el.classList.add('active'); else el.classList.remove('active'); }catch(e){}
+		});
+	}
+
+	if(label_contacts) label_contacts.addEventListener('click', function(){ setLeftActive('label_contacts'); try{ get_contacts(); }catch(e){} });
+	if(label_chat) label_chat.addEventListener('click', function(){ setLeftActive('label_chat'); try{ get_chats(); }catch(e){} });
+	if(label_settings) label_settings.addEventListener('click', function(){ setLeftActive('label_settings'); try{ get_settings(); }catch(e){} });
 
 	// keep a body-level class in sync with the settings radio so we can scope CSS to the Settings tab
 	var radio_settings = _("radio_settings");
