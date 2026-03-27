@@ -22,6 +22,13 @@
 		src: url(ui/fonts/SinkinSans/SinkinSans-500Medium.otf);
 
 	}
+body{
+		background-image: url('ui/images/auth-bg.jpg');
+		background-size: cover;
+		background-position: center center;
+		background-attachment: fixed;
+		background-repeat: no-repeat;
+	}
 
 
 	#wrapper{
@@ -112,6 +119,10 @@
 	#wrapper{
 		max-width: 100%;
 		padding: 8px;
+		background: rgba(255, 255, 255, 0.92);
+        margin-top: 47px;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 	}
 
 	form{
@@ -120,7 +131,7 @@
 	}
 
 	form{
-		margin-top: 30%;
+		margin-top: 17%;
 	}
 	input[type=text], input[type=password], input[type=submit]{
 		padding: 14px;

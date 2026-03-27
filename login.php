@@ -119,6 +119,10 @@
 	#wrapper{
 		max-width: 100%;
 		padding: 8px;
+		background: rgba(255, 255, 255, 0.92);
+        margin-top: 47px;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 	}
 
 	form{
