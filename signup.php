@@ -11,7 +11,7 @@
 	@font-face{
 
 		font-family: headFont;
-		src: url(ui/fonts/Bernadette/Bernadette.otf);
+		src: url(ui/fonts/Bernadette/bernadette.ttf);
 
 	}
 
