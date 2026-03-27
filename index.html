@@ -8,9 +8,12 @@ window.CAROCHAT_WS_URL = "wss://carochat-signal.onrender.com";
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
-<style type="text/css">
-	
 
+<style type="text/css">
+html, body {
+	height: 100%;
+	margin: 0;
+}
 	@font-face{
 
 		font-family: headFont;
@@ -32,8 +35,9 @@ window.CAROCHAT_WS_URL = "wss://carochat-signal.onrender.com";
 	#wrapper{
 
 		max-width:900px;
-		min-height: 500px; 
-		max-height: 650px; 
+		min-height: 100vh;
+		height: 100vh;
+		max-height: none;
 		display: flex;
 		margin:auto;
 		color:white;
@@ -554,6 +558,32 @@ window.CAROCHAT_WS_URL = "wss://carochat-signal.onrender.com";
 
 	/* Ensure icons remain visible */
 	img{ filter: none; }
+	/* Fill full viewport height and vertically-center content like the provided screenshot */
+	html, body { height: 100%; }
+	#wrapper { min-height: 100vh; height: 100vh; display:flex; align-items:stretch; }
+	#inner_left_panel, #inner_right_panel {
+		height: calc(100vh - 90px);
+		min-height: calc(100vh - 90px);
+		overflow: auto;
+	}
+	.chats_list {
+		justify-content: center;
+		align-items: center;
+		height: 100%;
+	}
+	/* make each contact a centered vertical block so avatars stack in a column */
+	#contact {
+		width: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		margin: 8px 6px;
+	}
+	#contact img { width: 68px; height: 68px; border-radius: 8px; }
+	/* Slightly bigger, more prominent header */
+	#header { height: 90px; font-size: 48px; padding-top: 8px; padding-bottom: 8px; }
 }
 </style>
 <body>
