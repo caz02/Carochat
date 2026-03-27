@@ -169,7 +169,7 @@ function message_controls()
 	
 	return "
 	</div>
-	<span onclick='delete_thread(event)' style='color:purple;cursor:pointer;'>Delete this thread </span>
+	<span onclick='delete_thread(event)' style='color:purple;cursor:pointer;margin-left:33%;'>Delete this thread </span>
 	<div style='display:flex;width:100%;height:40px;'>
 		<label for='message_file'><img src='ui/icons/attach.png' style='opacity:0.8;width:30px;margin:5px;cursor:pointer;' ></label>
 		<input type='file' id='message_file' name='file' style='display:none' onchange='send_image(this.files)' />
