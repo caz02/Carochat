@@ -30,7 +30,21 @@ html, body {
 	}
 
 
+	/* Global fix for giant icons */
+#trash, .trash_icon, img[msgid] {
+    width: 20px !important;
+    height: 20px !important;
+    cursor: pointer;
+    z-index: 10;
+}
 
+#prof_img, .msg_avatar {
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+}
 
 	#wrapper{
 
@@ -224,8 +238,8 @@ html, body {
 		border-bottom-left-radius: 50%;
 		border-top-right-radius: 30%;
 		position: relative;
-		width:60%;
-		min-width: 200px;
+		width:50%;
+		min-width: 180px;
 
 
 	}
@@ -235,7 +249,6 @@ html, body {
 		width:50px;
 		height:50px;
 		float: left;
-		margin:2px;
 		border-radius: 50%;
 		border: solid 2px white;
 	}
@@ -245,11 +258,12 @@ html, body {
 		width: 20px;
 		height:20px;
 		background-color: #34474f;
-		border: solid 2px white;
+		border: solid 2px rgb(255, 255, 255);
 		border-radius: 50%;
 		position: absolute;
 		left:-10px;
 		top:20px;
+		z-index: 99999999999;
 
 	}
 
@@ -266,8 +280,8 @@ html, body {
 		border-bottom-right-radius: 50%;
 		border-top-left-radius: 30%;
 		position: relative;
-		width:60%;
-		min-width: 200px;
+		width:50%;
+		min-width: 180px;
 
 
 	}
@@ -277,7 +291,6 @@ html, body {
 		width:50px;
 		height:50px;
 		float: left;
-		margin:2px;
 		border-radius: 50%;
 		border: solid 2px white;
 	}
@@ -294,26 +307,12 @@ html, body {
 		top:30px;
 		right:10px;
 	}
-	
-	#message_right #trash{
+    /* ensure message containers are positioned for absolute children */
+    #message_left, #message_right { position: relative; }
 
-			width:20px;
-			height:20px;
-			position:absolute;
-			top:15px;
-			left:60px;
-			cursor:pointer;
-		}
-	
-	#message_left #trash{
-
-				width:20px;
-				height:20px;
-				position:absolute;
-				top:15px;
-				right:60px;
-				cursor:pointer;
-			}
+    /* trash icons (server-rendered images) */
+	#message_right img#trash, #message_right img[msgid] { width:20px; height:20px; position:absolute; top:8px; cursor:pointer; z-index:5; right:100%;}
+	#message_left img#trash, #message_left img[msgid] { width:20px; height:20px; position:absolute; top:8px; cursor:pointer; z-index:5; left:100%; }
 
 
 	#message_right div{
@@ -326,6 +325,7 @@ html, body {
 		position: absolute;
 		right:-10px;
 		top:20px;
+		z-index: 99999999999;
 	}
 
 
@@ -585,7 +585,7 @@ html, body {
 	.chats_list{ overflow-y:auto; }
 
 	/* Message bubbles */
-	#message_left{ background: #eef6ff; color: #111; box-shadow: none; border-top-left-radius: 8px; border-bottom-left-radius: 8px; border-top-right-radius: 8px; }
+	#message_left{  background: #2f3843; color: white; box-shadow: none; border-top-left-radius: 8px; border-bottom-left-radius: 8px; border-top-right-radius: 8px; }
 	#message_right{ background: #f3f4f6; color: #111; box-shadow: none; border-bottom-right-radius: 8px; border-top-left-radius: 8px; }
 
 	/* Message controls & inputs */
@@ -626,7 +626,65 @@ html, body {
 	#contact img { width: 68px; height: 68px; border-radius: 8px; }
 	/* Slightly bigger, more prominent header */
 	#header { font-size: 48px; padding-top: 8px; padding-bottom: 8px; }
-}
+
+	/* Desktop message bubble adjustments to match screenshot 2: separate avatar, no username text, compact bubbles */
+	/* Target both server-rendered IDs (#message_left / #message_right) and client-rendered classes (.message_left/.message_right) */
+	#inner_right_panel .message_row, #inner_right_panel .message_left, #inner_right_panel .message_right, #inner_right_panel #message_left {
+		display: block;
+		position: relative;
+		margin: 10px 0;
+		margin-left:10%;
+	}
+
+	
+
+	/* Make bubbles fit content and not stretch full width */
+	#inner_right_panel .message_left, #inner_right_panel #message_left {
+		display: inline-block;
+		background: #eef6ff;
+		color: #111;
+		padding: 10px 12px;
+		border-radius: 12px;
+		max-width: 64%;
+		width: -moz-fit-content;
+		width: fit-content;
+		box-shadow: none;
+		clear: both;
+	}
+
+	#inner_right_panel .message_right, #inner_right_panel #message_right {
+		display: inline-block;
+		background: #3b2b5b;
+		color: #fff;
+		padding: 10px 12px;
+		border-radius: 12px;
+		max-width: 64%;
+		width: -moz-fit-content;
+		width: fit-content;
+		box-shadow: none;
+		clear: both;
+		float: right;
+		margin-right:10%;
+	}
+
+	/* Hide usernames injected by server-side templates */
+	#inner_right_panel #message_left b, #inner_right_panel #message_right b,
+	#inner_right_panel .message_left b, #inner_right_panel .message_right b { display: none !important; }
+
+	/* Avatar styling: absolutely position the avatar outside the bubble so it appears separated */
+	#inner_right_panel #message_left img#prof_img,
+	#inner_right_panel .message_left img.msg_avatar { position: absolute; left: -52px; top: 6px; width:40px; height:40px; border-radius:50%; object-fit:cover; }
+
+	#inner_right_panel #message_right img#prof_img,
+	#inner_right_panel .message_right img.msg_avatar { position: absolute; right: -52px; top: 6px; width:40px; height:40px; border-radius:50%; object-fit:cover; }
+
+	/* Ensure message container has some left/right padding so bubbles aren't overlapped by avatars */
+	#messages_holder_parent { padding-left: 64px; padding-right: 64px; }
+
+	/* Small tweak for trash icon within compact bubbles */
+	#inner_right_panel img#trash, #inner_right_panel .message_right img#trash, #inner_right_panel .message_left img#trash { top: 6px; }
+
+	}
 </style>
 <body>
 	<script>
@@ -1574,6 +1632,32 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 					window.location = "login.php";
 				}else{
 
+						// Helper: ensure any relative <img> srcs inside server-rendered message HTML
+						// are converted to absolute URLs so the browser requests the correct path.
+						function _fixMessageImageURLs(container){
+							try{
+								if(!container) return;
+								var el = (typeof container === 'string') ? document.querySelector(container) : container;
+								if(!el) return;
+								var imgs = el.querySelectorAll('img');
+								var origin = window.location.origin.replace(/\/$/,'');
+								for(var i=0;i<imgs.length;i++){
+									var img = imgs[i];
+									var src = img.getAttribute('src') || '';
+									if(!src) continue;
+									// skip already-absolute, protocol-relative, and data URLs
+									if(/^https?:\/\//i.test(src) || /^\/\//.test(src) || /^data:/i.test(src)) continue;
+									// make absolute
+									if(src.charAt(0) === '/'){
+										img.src = origin + src;
+									} else {
+										img.src = origin + '/' + src;
+									}
+								}
+							}catch(e){ console.warn('_fixMessageImageURLs failed', e); }
+						}
+
+
 					switch(obj.data_type){
 
 						case "user_info":
@@ -1666,6 +1750,8 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 							var messages_holder = _("messages_holder");
 							if(messages_holder){
 								messages_holder.innerHTML = obj.messages;
+								// fix any relative image URLs produced by the server so the browser will fetch them
+								_tryFix: try{ _fixMessageImageURLs(messages_holder); }catch(e){}
 								setTimeout(function(){
 									if(messages_holder.scrollTo) messages_holder.scrollTo(0,messages_holder.scrollHeight);
 									var message_text = _("message_text");
@@ -1694,7 +1780,12 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 										console.info('Skipping server left-panel update (chats) because user recently opened chats and payload contains no chat items');
 									}
 								}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = (window.innerWidth <= 500) ? sanitizeLeftPanelHTML(obj.user) : obj.user; }
-								if(inner_right_panel) inner_right_panel.innerHTML = obj.messages;
+								if(inner_right_panel) {
+									inner_right_panel.innerHTML = obj.messages;
+									// the server may output relative paths for uploaded files like "uploads/xxx.jpg";
+									// normalize those to absolute URLs so images load reliably in the browser.
+									try{ _fixMessageImageURLs(inner_right_panel); }catch(e){}
+								}
 
 								var messages_holder = _("messages_holder");
 								if(messages_holder){

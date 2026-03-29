@@ -98,7 +98,6 @@ function message_left($data,$row)
 	<div id='message_left'>
 	<div></div>
 		<img  id='prof_img' src='$image'>
-		<b>$row->username</b><br>
 		$data->message<br><br>";
 
 		if(!empty($data->files) && is_string($data->files) && file_exists($data->files)){
@@ -114,8 +113,7 @@ function message_left($data,$row)
 					$a .= "<img src='$imgSrc' style='width:100%;cursor:pointer;' onclick='image_show(event)' /> <br>";
 			}
 		}
-		$a .= "<span style='font-size:11px;color:white;'>".date("jS M Y H:i:s a",strtotime($data->date))."<span>
-	<img id='trash' src='ui/icons/trash.png' onclick='delete_message(event)' msgid='$data->id' />
+		$a .= "<img id='trash' src='ui/icons/trash.png' onclick='delete_message(event)' msgid='$data->id' />
 	</div> ";
 
 	return $a;
@@ -142,7 +140,6 @@ function message_right($data,$row)
 	$a .= "</div>
 
 		<img id='prof_img' src='$image' style='float:right'>
-		<b>$row->username</b><br>
 		$data->message<br><br>";
 
 		if(!empty($data->files) && is_string($data->files) && file_exists($data->files)){
@@ -156,8 +153,7 @@ function message_right($data,$row)
 					$a .= "<img src='$imgSrc' style='width:100%;cursor:pointer;' onclick='image_show(event)' /> <br>";
 			}
 		}
-		$a .= "<span style='font-size:11px;color:#888;'>".date("jS M Y H:i:s a",strtotime($data->date))."<span>
-	<img id='trash' src='ui/icons/trash.png' onclick='delete_message(event)' msgid='$data->id' />
+		$a .= "<img id='trash' src='ui/icons/trash.png' onclick='delete_message(event)' msgid='$data->id' />
 	</div>";
 
 	return $a;
