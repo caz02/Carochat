@@ -33,23 +33,23 @@ function render_user_row($row, $msgs = [], $is_contact = false){
 
 	$badge = '';
 	if(is_array($msgs) && isset($msgs[$userid])){
-		$badge = "<div style='width:20px;height:20px;border-radius:50%;background-color:orange;color:white;position:absolute;left:0;top:0;text-align:center;line-height:20px;font-size:11px;'>".$msgs[$userid]."</div>";
+		$badge = "<div class='contact_row_badge' style='width:20px;height:20px;border-radius:50%;background-color:orange;color:white;position:absolute;left:0;top:0;text-align:center;line-height:20px;font-size:11px;'>".$msgs[$userid]."</div>";
 	}
 
 	if($is_contact){
-		$btn = "<button onclick=\"delete_contact(event, '".$userid."')\" style='margin-top:6px;'>Delete</button>";
+		$btn = "<button class='contact_row_action contact_row_action_delete' onclick=\"delete_contact(event, '".$userid."')\" style='margin-top:6px;'>Delete</button>";
 	}else{
-		$btn = "<button onclick=\"add_contact(event, '".$userid."')\" style='margin-top:6px;'>Add</button>";
+		$btn = "<button class='contact_row_action contact_row_action_add' onclick=\"add_contact(event, '".$userid."')\" style='margin-top:6px;'>Add</button>";
 	}
 
 	$click_attr = $is_contact ? "onclick='start_chat(event)' style='cursor:pointer;'" : "style='cursor:default;'";
-	$html  = "<div class='contact_row' userid='".$userid."' $click_attr style='position:relative;padding:8px;border-bottom:1px solid #222;'>";
-	$html .= "<img src='".$image."' style='width:48px;height:48px;border-radius:6px;vertical-align:middle;margin-right:8px;object-fit:cover;'>";
-	$html .= "<span style='vertical-align:middle;display:inline-block;max-width:55%;'>";
-	$html .= "<strong>".$username."</strong><br>";
-	$html .= "<span style='font-size:11px;opacity:0.7;'>".$email."</span>";
+	$html  = "<div class='contact_row".($is_contact ? " is-contact" : " is-search-result")."' userid='".$userid."' data-userid='".$userid."' $click_attr style='position:relative;padding:8px;border-bottom:1px solid #222;'>";
+	$html .= "<img class='contact_row_avatar' src='".$image."' style='width:48px;height:48px;border-radius:6px;vertical-align:middle;margin-right:8px;object-fit:cover;'>";
+	$html .= "<span class='contact_row_body' style='vertical-align:middle;display:inline-block;max-width:55%;'>";
+	$html .= "<strong class='contact_row_name'>".$username."</strong><br>";
+	$html .= "<span class='contact_row_meta' style='font-size:11px;opacity:0.7;'>".$email."</span>";
 	$html .= "</span>";
-	$html .= "<div style='float:right;vertical-align:middle;'>".$btn."</div>";
+	$html .= "<div class='contact_row_actions' style='float:right;vertical-align:middle;'>".$btn."</div>";
 	$html .= $badge;
 	$html .= "</div>";
 
@@ -120,45 +120,50 @@ if($action === 'delete' && isset($DATA_OBJ->find->contactid)){
 // search users
 if($action === 'search'){
 	$q = isset($DATA_OBJ->find->q) ? trim($DATA_OBJ->find->q) : '';
+	if($q === ''){
+		$action = null;
+	}
+}
 
-	$mydata = "<div style='padding:8px;'>";
-	$mydata .= "<input id='contact_search' placeholder='Search people by name or email' style='width:100%;padding:8px;margin-bottom:8px;' value='".htmlspecialchars($q, ENT_QUOTES)."' />";
+if($action === 'search'){
+	$mydata = "<div class='contacts_shell' style='padding:8px;'>";
+	$mydata .= "<input id='contact_search' class='contacts_search_input' placeholder='Search people by name or email' style='width:100%;padding:8px;margin-bottom:8px;' value='".htmlspecialchars($q, ENT_QUOTES)."' />";
+	$mydata .= "<div class='contacts_list'>";
 
-	if($q !== ''){
-		$like = "%".$q."%";
+	$like = "%".$q."%";
 
-		$results = $DB->read(
-			"SELECT userid, username, email, gender, image
-			 FROM users
-			 WHERE (username LIKE :q OR email LIKE :q)
-			 AND userid != :myid
-			 LIMIT 20",
-			['q' => $like, 'myid' => $myid]
-		);
+	$results = $DB->read(
+		"SELECT userid, username, email, gender, image
+		 FROM users
+		 WHERE (username LIKE :q OR email LIKE :q)
+		 AND userid != :myid
+		 LIMIT 20",
+		['q' => $like, 'myid' => $myid]
+	);
 
-		$mycontacts = $DB->read(
-			"SELECT contactid FROM contacts WHERE userid = :u",
-			['u' => $myid]
-		);
+	$mycontacts = $DB->read(
+		"SELECT contactid FROM contacts WHERE userid = :u",
+		['u' => $myid]
+	);
 
-		$contact_ids = [];
-		if(is_array($mycontacts)){
-			foreach($mycontacts as $c){
-				$contact_ids[strval($c->contactid)] = true;
-			}
-		}
-
-		if(is_array($results) && count($results) > 0){
-			foreach($results as $row){
-				$row->userid = strval($row->userid);
-				$is_contact = isset($contact_ids[$row->userid]);
-				$mydata .= render_user_row($row, $msgs, $is_contact);
-			}
-		}else{
-			$mydata .= "<div style='padding:8px;color:#999'>No results</div>";
+	$contact_ids = [];
+	if(is_array($mycontacts)){
+		foreach($mycontacts as $c){
+			$contact_ids[strval($c->contactid)] = true;
 		}
 	}
 
+	if(is_array($results) && count($results) > 0){
+		foreach($results as $row){
+			$row->userid = strval($row->userid);
+			$is_contact = isset($contact_ids[$row->userid]);
+			$mydata .= render_user_row($row, $msgs, $is_contact);
+		}
+	}else{
+		$mydata .= "<div class='contacts_empty_state contacts_empty_search' style='padding:8px;color:#999'>No results</div>";
+	}
+
+	$mydata .= "</div>";
 	$mydata .= "</div>";
 	$mydata .= "<script>
 	(function(){
@@ -199,8 +204,9 @@ if($action === 'search'){
 }
 
 // default: render current contacts
-$mydata = "<div style='padding:8px;'>";
-$mydata .= "<input id='contact_search' placeholder='Search people by name or email' style='width:100%;padding:8px;margin-bottom:8px;' />";
+$mydata = "<div class='contacts_shell' style='padding:8px;'>";
+$mydata .= "<input id='contact_search' class='contacts_search_input' placeholder='Search people by name or email' style='width:100%;padding:8px;margin-bottom:8px;' />";
+$mydata .= "<div class='contacts_list'>";
 
 $contacts = $DB->read(
 	"SELECT u.userid, u.username, u.email, u.gender, u.image
@@ -217,9 +223,10 @@ if(is_array($contacts) && count($contacts) > 0){
 		$mydata .= render_user_row($row, $msgs, true);
 	}
 }else{
-	$mydata .= "<div style='padding:12px;color:#ccc'>You have no contacts yet. Use the search box above to find and add people.</div>";
+	$mydata .= "<div class='contacts_empty_state' style='padding:12px;color:#ccc'>You have no contacts yet. Use the search box above to find and add people.</div>";
 }
 
+$mydata .= "</div>";
 $mydata .= "</div>";
 $mydata .= "<script>
 (function(){

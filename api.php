@@ -165,18 +165,18 @@ function message_controls()
 	
 	return "
 	</div>
-	<span onclick='delete_thread(event)' style='color:purple;cursor:pointer;margin-left:33%;'>Delete this thread </span>
-	<div style='display:flex;width:100%;height:40px;'>
-		<label for='message_file'><img src='ui/icons/attach.png' style='opacity:0.8;width:30px;margin:5px;cursor:pointer;' ></label>
+	<span class='thread_delete_action' onclick='delete_thread(event)'>Delete this thread</span>
+	<div class='message_composer' style='display:flex;width:100%;height:40px;'>
+		<label class='composer_chip composer_attach' for='message_file'><img src='ui/icons/attach.png' style='opacity:0.8;width:30px;margin:5px;cursor:pointer;' ><span class='composer_chip_text'>Files</span></label>
 		<input type='file' id='message_file' name='file' style='display:none' onchange='send_image(this.files)' />
 		<input id='message_text' onkeydown='enter_pressed(event)' style='flex:6;border:solid thin #ccc;border-bottom:none;font-size:14px;padding:4px;' type='text' placeHolder='type your message'/>
 		<!-- Mic button: click to toggle on desktop, hold on mobile -->
 				<!-- Voice-note mic (existing) -->
-				<button id='mic_button' type='button' style='margin:0 6px;cursor:pointer;' title='Record voice note'><span class='btn-icon' aria-hidden='true'>🎙</span></button>
+				<button id='mic_button' class='composer_chip' type='button' style='margin:0 6px;cursor:pointer;' title='Record voice note'><span class='btn-icon' aria-hidden='true'>🎙</span><span class='composer_chip_text'>Audio</span></button>
 				<!-- Walkie / live-talk button (starts live WebRTC session) -->
-				<button id='walkie_button' type='button' style='margin:0 6px;cursor:pointer;' title='Start live talk'><span class='btn-icon' aria-hidden='true'>📻</span></button>
-		<span id='recording_indicator' style='display:none;color:red;margin-right:6px;'>● recording</span>
-		<input style='flex:1;cursor:pointer;' type='button' value='send' onclick='send_message(event)'/>
+				<button id='walkie_button' class='composer_chip' type='button' style='margin:0 6px;cursor:pointer;' title='Start live talk'><span class='btn-icon' aria-hidden='true'>📻</span><span class='composer_chip_text'>Live</span></button>
+		<span id='recording_indicator' class='recording_indicator' style='display:none;color:red;margin-right:6px;'>● recording</span>
+		<button id='send_button' class='send_button' style='flex:1;cursor:pointer;' type='button' onclick='send_message(event)' aria-label='Send message'><span class='btn-icon' aria-hidden='true'>&#10148;</span></button>
 	</div>
 	</div>";
 }

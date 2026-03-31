@@ -133,11 +133,12 @@ html, body {
 
 	#inner_left_panel{
 		
-		background-color: #050912;
-		position: relative; /* allow absolute-positioned controls inside */
-		flex:2;
-		min-height: 430px;
-		max-height: 548px;
+	background-color: #050912;
+    position: relative;
+    flex: 2;
+    min-height: 430px;
+    max-height: 548px;
+    width: 100%;
 
 
 	}
@@ -153,12 +154,83 @@ html, body {
 		color:black;
 	}
 
-/* Mobile: allow user to hide the left panel and let messages take full width */
+/* Mobile base layout: keep the newer single-panel mobile flow */
 @media (max-width: 500px){
-	body.left-hidden #container > #inner_left_panel{ display: none !important; }
-	body.left-hidden #container > #inner_right_panel{ flex: 1 1 100% !important; }
-	/* show the hide button only on mobile */
-	#inner_left_panel .hide_btn{ display:inline-block; }
+	body.left-hidden #container > #inner_right_panel{ flex:1 1 100% !important; }
+	#inner_left_panel .hide_btn{ display:none !important; }
+	#mobile_header_title{ display:none !important; }
+
+	html,
+	body{
+		margin:0 !important;
+		padding:0 !important;
+		width:100% !important;
+		height:100% !important;
+		background:linear-gradient(180deg, #f9fbff 0%, #eef4ff 100%) !important;
+		overflow-x:hidden !important;
+	}
+	#wrapper{
+		min-height:100vh;
+		height:100vh;
+		width:100vw !important;
+		max-width:100vw !important;
+		margin:0 !important;
+		padding:0 !important;
+		box-sizing:border-box !important;
+		display:flex;
+	}
+	#right_panel{
+		display:flex;
+		flex:1;
+		flex-direction:column;
+		min-width:0;
+		height:100vh;
+		background:transparent !important;
+	}
+	#header{
+		flex:0 0 auto;
+		z-index:5;
+		background:transparent !important;
+		box-shadow:none !important;
+	}
+	#container{
+		flex:1 1 auto;
+		display:flex;
+		width:100% !important;
+		min-width:0 !important;
+		min-height:0 !important;
+		height:auto;
+		background:transparent !important;
+	}
+	#container > #inner_left_panel{
+		display:block !important;
+		width:100% !important;
+		height:100% !important;
+		min-height:0 !important;
+		overflow:auto !important;
+	}
+	#container > #inner_right_panel{
+		display:none !important;
+		width:100% !important;
+		height:100% !important;
+		background:transparent !important;
+	}
+	body.messages-closed #container > #inner_left_panel{
+		display:block !important;
+	}
+	input,
+	button,
+	textarea{
+		font-size:16px;
+	}
+	.btn-icon{
+		pointer-events:none;
+		user-select:none;
+		-webkit-user-select:none;
+		-moz-user-select:none;
+	}
+	#live_talk_indicator{ right:12px; bottom:90px; }
+	#remote_audio_indicator{ right:12px; bottom:140px; }
 }
 
 /* hide button styling (keeps subtle and small) */
@@ -176,6 +248,26 @@ html, body {
 	z-index: 999;
 }
 #inner_left_panel .hide_btn:active{ transform: translateY(1px); }
+
+@media (max-width: 420px) {
+	#header{
+		display:none;
+		font-size:28px;
+	}
+	#inner_left_panel{
+		position:relative;
+		flex:1 1 auto;
+		width:100%;
+		min-height:0;
+		max-height:none;
+		background:linear-gradient(180deg, #f9fbff 0%, #eef4ff 100%);
+	}
+	input,
+	button,
+	textarea{
+		font-size:15px;
+	}
+}
 
 
 	#radio_contacts:checked ~ #inner_right_panel{
@@ -357,152 +449,6 @@ html, body {
 
 		display:none;
 	}
-/* Responsive/mobile tweaks */
-@media (max-width: 500px) {
-	/* compact mobile layout: keep a narrow left rail visible and make right panel touch-friendly */
-	#wrapper{ max-width:100%; display:flex; flex-direction:row; padding:0 6px; }
-	/* show a compact left rail but keep text visible (truncated) so nothing is hidden on mobile */
-	#left_panel{ display:block; flex:0 0 88px; width:88px; min-width:72px; max-width:110px; overflow:hidden; }
-	#left_panel #user_info{ padding:6px; }
-	/* reduce textual elements in the left rail but keep them visible and truncated */
-	#left_panel label{ text-indent:0; height:44px; padding:6px 8px; border:none; display:flex; align-items:center; gap:8px; }
-	#left_panel label img{ width:22px; height:22px; flex:0 0 22px; display:block; }
-	#left_panel label .nav_text{ display:inline-block; font-size:12px; color:#fff; max-width:56px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
-	/* hide label text on mobile - show icon only; restore text when overlay menu is opened */
-	#left_panel label{ font-size:0; line-height:0; }
-	#left_panel label img{ display:block; margin:0 auto; }
-	body.mobile-open #left_panel label{ font-size:13px; line-height:1.2; display:flex; align-items:center; gap:8px; }
-	/* show reduced username/email in compact rail (small, truncated) */
-	#username, #email{ display:block; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:88px; }
-	/* main content stretches to remaining width */
-	#right_panel{ flex:1; width:auto; }
-	#header{ height:52px; font-size:30px; 
-        padding-top: 16%;
-        padding-bottom: 2px; }
-	#profile_image{ width:40px !important; height:40px !important; position: absolute;
-        bottom: 32%;
-        left: 7%;}
-	#inner_right_panel{ flex:1; min-height: 60vh; max-height: none; }
-	/* make inputs and buttons touch friendly */
-	input, button, textarea{ font-size:16px; }
-	.peer_btn, #walkie_button, #mic_button{ padding:10px 14px; min-height:44px; min-width:44px; border-radius:8px; }
-
-	/* make icon elements inside buttons non-interactive and not selectable
-	   so only the actual button element receives pointer events */
-	.btn-icon{
-		pointer-events: none;
-		user-select: none;
-		-webkit-user-select: none;
-		-moz-user-select: none;
-	}
-	#live_talk_indicator{ right:12px; bottom:90px; }
-	#remote_audio_indicator{ right:12px; bottom:140px; }
-	/* make message area responsive */
-	#message_right{
-    width: 80%!important;
-    margin-right: 10%!important;}
-	#message_left{width:80%; min-width: auto; margin-left:15%; }
-	/* image viewer scaling */
-	.image_on{ left:0; right:0; width:100%; height:auto; top:60px; }
-
-	/* show mobile menu button */
-	#mobile_menu_btn{ display:block; position:absolute; left:8px; top:10px; z-index:10005; background:transparent; border:none; color:white; font-size:22px; }
-	/* when mobile menu toggled, show left panel as overlay (full view) */
-	body.mobile-open #left_panel{ display:block; position:fixed; left:0; top:56px; bottom:0; width:72%; max-width:360px; z-index:10004; background:#071126; overflow:auto; padding-top:8px; text-indent:0; }
-	body.mobile-open #username, body.mobile-open #email{ display:block; }
-
-	/* if messages view is open on mobile, hide the inner left panel to maximize message area */
-	#messages_holder_parent{ height: 100%!important;}
-	/* Use a more specific selector to reliably override inline/display rules when messages are open */
-	body.messages-closed #container > #inner_left_panel{ display:block !important; }
-
-}
-/* Settings-specific mobile tweaks: smaller icon text above image and smaller buttons
-   so the settings block fits on small screens without hiding controls. */
-@media (max-width: 500px) {
-	/* Make helper text above the change-photo image smaller and tighter */
-	#inner_left_panel span, #inner_left_panel .help_text {
-		font-size: 11px !important;
-		line-height: 1.1 !important;
-		margin-bottom: 6px !important;
-		display: block !important;
-	}
-
-	/* Shrink the visible Change Image label/button */
-	#inner_left_panel label[for="change_image_input"],
-	#inner_left_panel #change_image_button,
-	#inner_left_panel input[type="file"] + label {
-		font-size: 12px !important;
-		padding: 6px 8px !important;
-		border-radius: 6px !important;
-	}
-
-	/* Reduce profile image/thumb in settings to save vertical space (apply only when Settings tab is active) */
-	body.settings-open #inner_left_panel img#profile_image,
-	body.settings-open #inner_left_panel img[id^="profile"] {
-		/* mobile settings: larger portrait area as requested */
-		width: 73px !important;
-        height: 86px !important;
-        margin: 8px !important;
-        margin-top: -6px !important;
-        display: block !important;
-        position: static!important;
-	}
-
-	/* Make form inputs in settings a little smaller to fit */
-	#inner_left_panel input[type="text"],
-	#inner_left_panel input[type="password"],
-	#inner_left_panel input[type="email"]{
-		font-size: 14px !important;
-		padding: 6px 8px !important;
-	}
-}
-@media (max-width: 420px) {
-	#header{ font-size:28px; }
-	input, button, textarea{ font-size:15px; }
-}
-
-
-/* On very small screens, place message input above a horizontal row of buttons */
-@media (max-width: 500px) {
-	/* target the message controls container emitted by `message_controls()` in PHP */
-	div[style*="display:flex;width:100%;height:40px;"] {
-		display: flex !important;
-		flex-direction: row !important;
-		flex-wrap: wrap !important;
-		align-items: center !important;
-		gap: 6px;
-		height: auto !important;
-		padding: 6px 8px !important;
-	}
-	/* make the text input take the full row */
-	div[style*="display:flex;width:100%;height:40px;"] input#message_text {
-		order: 0;
-		flex: 1 0 100% !important;
-		width: 100% !important;
-		box-sizing: border-box;
-		padding: 8px !important;
-		font-size: 15px !important;
-	}
-	/* buttons row: keep buttons compact and let them flow on the next line */
-	div[style*="display:flex;width:100%;height:40px;"] label[for="message_file"],
-	div[style*="display:flex;width:100%;height:40px;"] #mic_button,
-	div[style*="display:flex;width:100%;height:40px;"] #walkie_button,
-	div[style*="display:flex;width:100%;height:40px;"] input[type="button"] {
-		order: 1;
-		flex: 0 0 auto !important;
-		display: inline-flex !important;
-		align-items: center !important;
-		justify-content: center !important;
-		padding: 8px 12px !important;
-		margin: 0 6px 6px 0 !important;
-		min-width: 44px !important;
-		border-radius: 6px !important;
-	}
-	/* recording indicator stays full width under buttons */
-	div[style*="display:flex;width:100%;height:40px;"] #recording_indicator{ order:2; width:100%; text-align:center; }
-}
 /* all the background design*/
 
 /* Chat list styles (left panel) */
@@ -513,6 +459,949 @@ html, body {
 .chat_meta{ display:flex; flex-direction:column; }
 .chat_name{ font-weight:600; font-size:14px; color:#fff; }
 .chat_last{ font-size:12px; color:#cfcfcf; }
+
+.thread_delete_action{
+	display:inline-block;
+	color:purple;
+	cursor:pointer;
+	margin-left:33%;
+}
+
+.message_composer{
+	align-items:center;
+	gap:8px;
+}
+
+.message_composer .composer_chip{
+	display:inline-flex;
+	align-items:center;
+	justify-content:center;
+	gap:6px;
+	min-height:40px;
+	padding:0 12px;
+	border:1px solid #d9e2f1;
+	border-radius:12px;
+	background:#ffffff;
+	color:#30405f;
+}
+
+.message_composer .composer_chip_text{
+	font-size:12px;
+	line-height:1;
+}
+
+.message_composer .composer_attach img{
+	width:18px !important;
+	margin:0 !important;
+}
+
+.message_composer #send_button{
+	display:inline-flex;
+	align-items:center;
+	justify-content:center;
+	min-width:44px;
+	min-height:44px;
+	padding:0 12px;
+	border:1px solid #d9e2f1;
+	border-radius:12px;
+	background:#ffffff;
+	color:#30405f;
+}
+
+.message_composer #send_button .btn-icon{
+	font-size:18px;
+	line-height:1;
+}
+
+.recording_indicator{
+	font-size:12px;
+}
+
+@media (max-width: 500px) {
+	#inner_left_panel.mobile-chat-thread{
+		display:flex !important;
+		flex-direction:column !important;
+		height:100% !important;
+		overflow:hidden !important;
+		padding:12px !important;
+		padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+		box-sizing:border-box !important;
+		background:linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%) !important;
+		color:#1b2944 !important;
+	}
+	#inner_left_panel.mobile-chat-thread .hide_btn{
+		display:none !important;
+	}
+	#inner_left_panel.mobile-chat-thread .mobile_chat_header_shell{
+		background:#ffffff;
+		border-radius:24px;
+		padding:11px 8px;
+		box-shadow:0 16px 36px rgba(75, 109, 170, 0.14);
+		margin-bottom:12px;
+		margin-left:-9px;
+	}
+	#inner_left_panel.mobile-chat-thread .mobile_chat_backbar{
+		display:flex;
+		align-items:center;
+		gap:12px;
+		margin-bottom:0;
+	}
+	#inner_left_panel.mobile-chat-thread .mobile_chat_back_btn{
+		width:42px;
+		height:42px;
+		padding:0;
+		border:none;
+		background:#f1f5ff;
+		color:#6480b2;
+		border-radius:50%;
+		font-family:myFont;
+		font-size:24px;
+		line-height:1;
+		cursor:pointer;
+		flex:0 0 42px;
+	}
+	#inner_left_panel.mobile-chat-thread #active_contact{
+		display:flex;
+		align-items:center;
+		gap:12px;
+		flex:1;
+		min-height:0;
+		height:auto;
+		margin:0;
+		padding:0;
+		border:none;
+		background:transparent;
+		color:#1b2944;
+		overflow:visible;
+	}
+	#inner_left_panel.mobile-chat-thread #active_contact img{
+		width:52px;
+		height:52px;
+		float:none;
+		margin:0;
+		border-radius:50%;
+		object-fit:cover;
+		box-shadow:0 10px 22px rgba(64, 110, 194, 0.18);
+	}
+	#inner_left_panel.mobile-chat-thread .mobile_chat_title_block{
+		display:flex;
+		flex-direction:column;
+		min-width:0;
+	}
+	#inner_left_panel.mobile-chat-thread .mobile_chat_title{
+		font-size:13px;
+		line-height:1.1;
+		font-weight:600;
+		color:#182742;
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+	}
+	#inner_left_panel.mobile-chat-thread .mobile_chat_subtitle{
+		margin-top:4px;
+		font-size:12px !important;
+		line-height:1.2 !important;
+		color:#5f7eb6 !important;
+		display:flex !important;
+		align-items:center;
+		gap:6px;
+	}
+	#inner_left_panel.mobile-chat-thread .mobile_chat_subtitle::before{
+		content:'';
+		width:8px;
+		height:8px;
+		border-radius:50%;
+		background:#54d879;
+		flex:0 0 8px;
+	}
+	#inner_left_panel.mobile-chat-thread > #messages_holder_parent{
+		display:flex !important;
+		flex-direction:column !important;
+		flex:1 1 auto !important;
+		min-height:0 !important;
+		height:auto !important;
+		max-height:none !important;
+		overflow:hidden !important;
+		padding:0 !important;
+		background:transparent !important;
+		row-gap:10px;
+	}
+	#inner_left_panel.mobile-chat-thread > #messages_holder_parent > #messages_holder{
+		flex:1 1 0 !important;
+		min-height:363px !important;
+		height:211px !important;
+		max-height:209px !important;
+		overflow-y:auto !important;
+		overflow-x:hidden !important;
+		overscroll-behavior:contain;
+		padding:8px 12px 8px 29px !important;
+	}
+	#inner_left_panel.mobile-chat-thread .thread_delete_action{
+		display:inline-Ilex !important;
+		align-items:center;
+		flex:0 0 auto;
+		align-self:center;
+		margin:0 !important;
+		font-size:12px !important;
+		line-height:1 !important;
+		color:#7b7eea !important;
+		background:rgba(123, 126, 234, 0.09);
+		border-radius:999px;
+		padding:8px 14px;
+	}
+	#inner_left_panel.mobile-chat-thread .message_left,
+	#inner_left_panel.mobile-chat-thread #message_left{
+		display:block !important;
+		position:relative !important;
+		background:#ffffff !important;
+		color:#24304a !important;
+		padding:16px 18px 18px !important;
+		border-radius:22px 22px 22px 10px !important;
+		max-width:80% !important;
+		width:-moz-fit-content;
+		width:fit-content;
+		box-shadow:0 14px 28px rgba(78, 104, 148, 0.10) !important;
+		margin:10px 28px 16px 18px !important;
+		clear:both;
+		line-height:1.45;
+	}
+	#inner_left_panel.mobile-chat-thread .message_right,
+	#inner_left_panel.mobile-chat-thread #message_right{
+		display:block !important;
+		position:relative !important;
+		background:linear-gradient(180deg, #62abff 0%, #377ff5 100%) !important;
+		color:#fff !important;
+		padding:16px 18px 18px !important;
+		border-radius:22px 22px 10px 22px !important;
+		max-width:80% !important;
+		width:-moz-fit-content;
+		width:fit-content;
+		box-shadow:0 16px 30px rgba(45, 104, 214, 0.24) !important;
+		margin:10px 18px 16px auto !important;
+		clear:both;
+		line-height:1.45;
+	}
+	#inner_left_panel.mobile-chat-thread #message_left > div{
+		display:none !important;
+	}
+	#inner_left_panel.mobile-chat-thread #message_right > div{
+		width:auto !important;
+		height:auto !important;
+		background:transparent !important;
+		border:none !important;
+		position:absolute !important;
+		right:14px !important;
+		bottom:8px !important;
+		top:auto !important;
+		z-index:2;
+	}
+	#inner_left_panel.mobile-chat-thread .message_left img.msg_avatar,
+	#inner_left_panel.mobile-chat-thread #message_left img#prof_img{
+		width:28px !important;
+		height:28px !important;
+		border-radius:50% !important;
+		float:none !important;
+		margin:0 !important;
+		position:absolute !important;
+		left:-14px !important;
+		bottom:8px !important;
+		object-fit:cover !important;
+		border:3px solid #ffffff !important;
+		box-shadow:0 6px 14px rgba(82, 98, 128, 0.18);
+	}
+	#inner_left_panel.mobile-chat-thread .message_right img.msg_avatar,
+	#inner_left_panel.mobile-chat-thread #message_right img#prof_img{
+		width:28px !important;
+		height:28px !important;
+		border-radius:50% !important;
+		float:none !important;
+		margin:0 !important;
+		position:absolute !important;
+		right:-14px !important;
+		bottom:8px !important;
+		object-fit:cover !important;
+		border:3px solid #ffffff !important;
+		box-shadow:0 6px 14px rgba(37, 86, 184, 0.22);
+	}
+	#inner_left_panel.mobile-chat-thread .message_left b,
+	#inner_left_panel.mobile-chat-thread .message_right b,
+	#inner_left_panel.mobile-chat-thread #message_left b,
+	#inner_left_panel.mobile-chat-thread #message_right b{
+		display:none !important;
+	}
+	#inner_left_panel.mobile-chat-thread #message_right > div img{
+		position:static !important;
+		width:16px !important;
+		height:16px !important;
+		margin:0 !important;
+		border:none !important;
+		opacity:0.74;
+	}
+	#inner_left_panel.mobile-chat-thread #message_left img#trash,
+	#inner_left_panel.mobile-chat-thread #message_right img#trash{
+		width:14px !important;
+		height:14px !important;
+		opacity:0.32;
+		top:10px !important;
+	}
+	#inner_left_panel.mobile-chat-thread #message_left img#trash{
+		left:auto !important;
+		right:-18px !important;
+	}
+	#inner_left_panel.mobile-chat-thread #message_right img#trash{
+		right:auto !important;
+		left:-18px !important;
+	}
+	#inner_left_panel.mobile-chat-thread audio{
+		width:100% !important;
+		margin-top:10px;
+		border-radius:999px;
+	}
+	#inner_left_panel.mobile-chat-thread .message_composer{
+		display:grid !important;
+		grid-template-columns:repeat(3, minmax(0, 1fr));
+		align-items:center !important;
+		gap:10px !important;
+		flex:0 0 auto !important;
+		height:auto !important;
+		width:95%;
+		box-sizing:border-box;
+		padding:14px !important;
+		padding-bottom:calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+		margin-top:auto;
+		position:sticky;
+		bottom:0;
+		z-index:3;
+		background:rgba(255,255,255,0.98);
+		border-radius:26px;
+		box-shadow:0 18px 38px rgba(79, 111, 166, 0.16);
+	}
+	#inner_left_panel.mobile-chat-thread .message_composer .composer_chip{
+		order:1;
+		width:100%;
+		min-width:0 !important;
+		min-height:40px !important;
+		padding:0 3px !important;
+		border:1px solid #e2ebfb !important;
+		border-radius:999px !important;
+		background:#f4f7ff !important;
+		color:#5572a8 !important;
+		box-shadow:none !important;
+	}
+	#inner_left_panel.mobile-chat-thread .message_composer .composer_attach img{
+		width:18px !important;
+		margin:0 !important;
+		opacity:0.9 !important;
+	}
+	#inner_left_panel.mobile-chat-thread .message_composer .composer_chip_text{
+		font-size:12px !important;
+		line-height:1 !important;
+		display:inline !important;
+		margin:0 !important;
+		color:inherit !important;
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+	}
+	#inner_left_panel.mobile-chat-thread #recording_indicator{
+		order:2;
+		grid-column:1 / -1;
+		width:100%;
+		margin:0 !important;
+		font-size:12px !important;
+		line-height:1.2 !important;
+		text-align:left;
+		color:#2b75f1 !important;
+	}
+	#inner_left_panel.mobile-chat-thread #message_text{
+		order:3;
+		grid-column:1 / span 2;
+		width:100% !important;
+		min-width:0 !important;
+		min-height:54px !important;
+		padding:0 18px !important;
+		border:none !important;
+		border-radius:999px !important;
+		background:#f4f7fd !important;
+		box-shadow:inset 0 0 0 1px #e3ebf8;
+		color:#20314f !important;
+	}
+	#inner_left_panel.mobile-chat-thread #message_text::placeholder{
+		color:#98a8c4;
+	}
+	#inner_left_panel.mobile-chat-thread #send_button{
+		order:4;
+		grid-column:3;
+		justify-self:end;
+		align-self:center;
+		flex:0 0 54px !important;
+		width:35px;
+		height:43px;
+		min-width:39px !important;
+		min-height:34px !important;
+		padding:0 !important;
+		border:none !important;
+		border-radius:50% !important;
+		background:linear-gradient(180deg, #62abff 0%, #377ff5 100%) !important;
+		color:#ffffff !important;
+		box-shadow:0 16px 28px rgba(45, 104, 214, 0.24);
+	}
+	#inner_left_panel.mobile-chat-thread #send_button .btn-icon{
+		font-size:22px;
+		line-height:1;
+	}
+}
+
+@media (max-width: 500px) {
+	#inner_left_panel.mobile-chat-list{
+		height:100% !important;
+		box-sizing:border-box !important;
+		overflow-y:auto !important;
+		padding:16px 14px 76px !important;
+		background:linear-gradient(180deg, #f9fbff 0%, #eef4ff 100%) !important;
+		color:#1d2941 !important;
+	}
+	#inner_left_panel.mobile-chat-list .hide_btn{
+		display:none !important;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_shell{
+		min-height:100%;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_header{
+		margin-bottom:18px;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_title{
+		font-size:34px;
+		line-height:1;
+		font-weight:700;
+		letter-spacing:-0.03em;
+		color:#16233c;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_count{
+		margin-top:8px;
+		font-size:13px;
+		line-height:1.3;
+		color:#6c7d9a;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_quick_label,
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_section_label{
+		margin-bottom:10px;
+		font-size:12px;
+		line-height:1.2;
+		font-weight:600;
+		text-transform:uppercase;
+		letter-spacing:0.08em;
+		color:#7c8ba7;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_quick_strip{
+		display:flex;
+		gap:12px;
+		overflow-x:auto;
+		padding:2px 2px 8px;
+		margin:0 0 18px;
+		scrollbar-width:none;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_quick_strip::-webkit-scrollbar{
+		display:none;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_story{
+		flex:0 0 80px;
+		display:flex;
+		flex-direction:column;
+		align-items:center;
+		gap:8px;
+		padding:10px 8px;
+		border:none;
+		border-radius:20px;
+		background:#ffffff;
+		box-shadow:0 12px 24px rgba(74, 108, 168, 0.10);
+		color:#24314a;
+		text-align:center;
+		cursor:pointer;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_story img,
+	#inner_left_panel.mobile-chat-list .mobile_chat_story_avatar{
+		width:54px;
+		height:54px;
+		border-radius:18px;
+		object-fit:cover;
+		box-shadow:0 10px 18px rgba(74, 108, 168, 0.14);
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_story_avatar{
+		display:flex;
+		align-items:center;
+		justify-content:center;
+		background:linear-gradient(180deg, #dce8ff 0%, #c7dbff 100%);
+		color:#4774c4;
+		font-size:22px;
+		font-weight:700;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_story_name{
+		width:100%;
+		font-size:12px;
+		line-height:1.15;
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_rows{
+		display:flex;
+		flex-direction:column;
+		gap:12px;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_item{
+		width:100%;
+		display:grid;
+		grid-template-columns:56px minmax(0, 1fr) auto;
+		align-items:center;
+		gap:12px;
+		padding:12px 14px;
+		border:none;
+		border-radius:22px;
+		background:#ffffff;
+		box-shadow:0 14px 28px rgba(74, 108, 168, 0.10);
+		color:#20304a;
+		text-align:left;
+		cursor:pointer;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_item img,
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_avatar{
+		width:56px;
+		height:56px;
+		border-radius:50%;
+		object-fit:cover;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_avatar{
+		display:flex;
+		align-items:center;
+		justify-content:center;
+		background:linear-gradient(180deg, #dce8ff 0%, #c7dbff 100%);
+		color:#4774c4;
+		font-size:22px;
+		font-weight:700;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_body{
+		min-width:0;
+		display:flex;
+		flex-direction:column;
+		gap:4px;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_name{
+		font-size:18px;
+		line-height:1.15;
+		font-weight:700;
+		color:#1b2941;
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_preview{
+		font-size:14px;
+		line-height:1.35;
+		color:#6f809e;
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_go{
+		align-self:center;
+		display:inline-flex;
+		align-items:center;
+		justify-content:center;
+		width:30px;
+		height:30px;
+		border-radius:50%;
+		background:#eef4ff;
+		color:#4f77c7;
+		font-size:18px;
+		line-height:1;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_empty{
+		padding:24px 18px;
+		border-radius:24px;
+		background:#ffffff;
+		box-shadow:0 14px 28px rgba(74, 108, 168, 0.10);
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_empty_title{
+		font-size:20px;
+		line-height:1.15;
+		font-weight:700;
+		color:#1b2941;
+	}
+	#inner_left_panel.mobile-chat-list .mobile_chat_list_empty_copy{
+		margin-top:8px;
+		font-size:14px;
+		line-height:1.45;
+		color:#6f809e;
+	}
+}
+
+@media (max-width: 500px) {
+	body.contacts-open #inner_left_panel,
+	body.settings-open #inner_left_panel{
+		background:linear-gradient(180deg, #f9fbff 0%, #eef4ff 100%) !important;
+		padding:16px 14px 22px !important;
+		box-sizing:border-box !important;
+		color:#1d2941 !important;
+	}
+	body.contacts-open #inner_left_panel .contacts_shell{
+		display:flex;
+		flex-direction:column;
+		gap:14px;
+		min-height:100%;
+	}
+	body.contacts-open #inner_left_panel .contacts_search_input{
+		width:100% !important;
+		box-sizing:border-box;
+		padding:14px 16px !important;
+		margin:0 !important;
+		border:none !important;
+		border-radius:20px !important;
+		background:#ffffff !important;
+		color:#1b2941 !important;
+		font-size:15px !important;
+		box-shadow:0 14px 28px rgba(74, 108, 168, 0.10);
+		outline:none;
+	}
+	body.contacts-open #inner_left_panel .contacts_search_input::placeholder{
+		color:#7f91b0;
+	}
+	body.contacts-open #inner_left_panel .contacts_list{
+		display:flex;
+		flex-direction:column;
+		gap:12px;
+	}
+	body.contacts-open #inner_left_panel .contacts_empty_state{
+		padding:18px 16px !important;
+		border-radius:22px;
+		background:#ffffff;
+		color:#6f809e !important;
+		line-height:1.45;
+		box-shadow:0 14px 28px rgba(74, 108, 168, 0.10);
+	}
+	body.contacts-open #inner_left_panel .contact_row{
+		display:grid !important;
+		grid-template-columns:56px minmax(0, 1fr) auto;
+		align-items:center;
+		gap:12px;
+		position:relative;
+		padding:14px !important;
+		margin:0 !important;
+		border:none !important;
+		border-radius:22px;
+		background:#ffffff;
+		box-shadow:0 14px 28px rgba(74, 108, 168, 0.10);
+	}
+	body.contacts-open #inner_left_panel .contact_row_avatar{
+		width:56px !important;
+		height:56px !important;
+		margin:0 !important;
+		border-radius:18px !important;
+		object-fit:cover;
+		box-shadow:0 10px 18px rgba(74, 108, 168, 0.14);
+	}
+	body.contacts-open #inner_left_panel .contact_row_body{
+		display:flex !important;
+		flex-direction:column;
+		gap:4px;
+		min-width:0;
+		max-width:none !important;
+	}
+	body.contacts-open #inner_left_panel .contact_row_name{
+		display:block;
+		font-size:16px;
+		line-height:1.2;
+		font-weight:700;
+		color:#1b2941;
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+	}
+	body.contacts-open #inner_left_panel .contact_row_meta{
+		display:block;
+		font-size:13px !important;
+		line-height:1.35;
+		color:#6f809e !important;
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+	}
+	body.contacts-open #inner_left_panel .contact_row_actions{
+		float:none !important;
+		display:flex;
+		align-items:center;
+		justify-content:flex-end;
+	}
+	body.contacts-open #inner_left_panel .contact_row_action{
+		margin:0 !important;
+		padding:10px 12px;
+		border:none;
+		border-radius:14px;
+		font-size:13px;
+		font-weight:700;
+		cursor:pointer;
+		box-shadow:inset 0 1px 0 rgba(255,255,255,0.65);
+	}
+	body.contacts-open #inner_left_panel .contact_row_action_add{
+		background:linear-gradient(180deg, #62abff 0%, #377ff5 100%);
+		color:#ffffff;
+	}
+	body.contacts-open #inner_left_panel .contact_row_action_delete{
+		background:#eef4ff;
+		color:#4f77c7;
+	}
+	body.contacts-open #inner_left_panel .contact_row_badge{
+		left:auto !important;
+		right:10px;
+		top:10px;
+		width:22px !important;
+		height:22px !important;
+		line-height:22px !important;
+		background:#377ff5 !important;
+		box-shadow:0 8px 16px rgba(55, 127, 245, 0.24);
+	}
+	body.settings-open #inner_left_panel .settings_shell{
+		display:flex !important;
+		flex-direction:column !important;
+		gap:14px;
+	}
+	body.settings-open #inner_left_panel .settings_error{
+		padding:12px 14px !important;
+		margin-bottom:12px;
+		border-radius:18px;
+		background:#ffefe7 !important;
+		color:#c55c38 !important;
+		box-shadow:0 12px 24px rgba(197, 92, 56, 0.12);
+	}
+	body.settings-open #inner_left_panel .settings_media,
+	body.settings-open #inner_left_panel .settings_form{
+		width:100% !important;
+		max-width:none !important;
+		box-sizing:border-box;
+		border-radius:24px;
+		background:#ffffff;
+		box-shadow:0 14px 28px rgba(74, 108, 168, 0.10);
+	}
+	body.settings-open #inner_left_panel .settings_media{
+		display:flex;
+		flex-direction:column;
+		align-items:center;
+		text-align:center;
+		padding:18px 16px;
+	}
+	body.settings-open #inner_left_panel .settings_hint{
+		margin-bottom:12px;
+		font-size:12px !important;
+		line-height:1.35 !important;
+		color:#7b8ba8;
+		display:block !important;
+	}
+	body.settings-open #inner_left_panel .settings_profile_image{
+		width:112px !important;
+		height:112px !important;
+		margin:0 0 14px !important;
+		border-radius:28px !important;
+		object-fit:cover;
+		border:4px solid #ffffff !important;
+		box-shadow:0 16px 28px rgba(74, 108, 168, 0.16);
+		position:static !important;
+	}
+	body.settings-open #inner_left_panel .settings_change_button{
+		display:inline-flex !important;
+		align-items:center;
+		justify-content:center;
+		padding:12px 16px !important;
+		border-radius:16px !important;
+		background:linear-gradient(180deg,#f4f8ff 0%, #e8efff 100%) !important;
+		border:1px solid #d9e4f8;
+		color:#4f77c7;
+		font-weight:700;
+		box-shadow:inset 0 1px 0 rgba(255,255,255,0.72);
+	}
+	body.settings-open #inner_left_panel .settings_form{
+		margin:0 auto !important;
+		padding:18px 16px !important;
+		display:flex;
+		flex-direction:column;
+		gap:10px;
+	}
+	body.settings-open #inner_left_panel .settings_form .settings_input{
+		width:100% !important;
+		margin:0 !important;
+		box-sizing:border-box;
+		padding:14px 16px !important;
+		border:1px solid #d9e4f8 !important;
+		border-radius:16px !important;
+		background:#f7faff !important;
+		color:#1d2941 !important;
+		font-size:15px !important;
+	}
+	body.settings-open #inner_left_panel .settings_gender_group{
+		display:grid;
+		gap:10px;
+		margin:0 !important;
+		padding:0 !important;
+	}
+	body.settings-open #inner_left_panel .settings_group_label{
+		font-size:12px;
+		line-height:1.2;
+		font-weight:700;
+		letter-spacing:0.08em;
+		text-transform:uppercase;
+		color:#7c8ba7;
+	}
+	body.settings-open #inner_left_panel .settings_gender_option{
+		display:flex;
+		align-items:center;
+		gap:10px;
+		padding:12px 14px;
+		border-radius:16px;
+		border:1px solid #d9e4f8;
+		background:#f7faff;
+		color:#30405f;
+	}
+	body.settings-open #inner_left_panel .settings_gender_option input[type=radio]{
+		margin:0;
+		accent-color:#3f84f5;
+	}
+	body.settings-open #inner_left_panel .settings_submit{
+		width:100% !important;
+		margin:4px 0 0 !important;
+		padding:14px 16px !important;
+		border:none !important;
+		border-radius:18px !important;
+		background:linear-gradient(180deg, #62abff 0%, #377ff5 100%) !important;
+		color:#ffffff !important;
+		font-size:16px !important;
+		font-weight:700;
+		box-shadow:0 16px 28px rgba(55, 127, 245, 0.24);
+	}
+}
+
+@media (max-width: 500px) {
+	#left_panel{
+		position:relative !important;
+		flex:0 0 88px !important;
+		width:88px !important;
+		min-width:88px !important;
+		max-width:88px !important;
+		min-height:100vh !important;
+		padding:14px 8px 18px !important;
+		box-sizing:border-box !important;
+		display:flex !important;
+		align-self:stretch !important;
+		background:linear-gradient(180deg,#dfe4ed 0%, #d4dbe7 40%, #b6becb 100%) !important;
+		border-right:1px solid rgba(255,255,255,0.58) !important;
+		box-shadow:inset -1px 0 0 rgba(255,255,255,0.40), 8px 0 18px rgba(90, 105, 138, 0.08) !important;
+		overflow:hidden !important;
+	}
+	#left_panel::before{
+		content:"";
+		position:absolute;
+		inset:0;
+		background:linear-gradient(180deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.04) 52%, rgba(125,136,156,0.14) 100%);
+		pointer-events:none;
+	}
+	#left_panel #user_info{
+		width:100%;
+		min-height:100%;
+		padding:0 !important;
+		display:flex;
+		flex-direction:column;
+		align-items:center;
+		gap:14px;
+		position:relative;
+		z-index:1;
+	}
+	#left_panel #user_info br{
+		display:none;
+	}
+	#left_panel #username{
+		display:block;
+		margin:0;
+		padding:9px 13px;
+		max-width:100%;
+		border-radius:18px;
+		background:rgba(255,255,255,0.22);
+		box-shadow:inset 0 1px 0 rgba(255,255,255,0.32);
+		color:#f7fbff;
+		font-size:12px;
+		line-height:1;
+		font-weight:700;
+		letter-spacing:0.04em;
+		text-transform:lowercase;
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+	}
+	#left_panel #email{
+		display:none !important;
+	}
+	#left_panel #user_info > div:last-child{
+		width:calc(100% + 16px);
+		margin-left:-8px;
+		margin-top:0;
+		padding:14px 0 16px;
+		display:flex;
+		flex-direction:column;
+		align-items:center;
+		gap:14px;
+		background:linear-gradient(180deg, rgba(249,252,255,0.50) 0%, rgba(238,244,255,0.36) 100%);
+		border-top:1px solid rgba(255,255,255,0.30);
+		border-bottom:1px solid rgba(255,255,255,0.20);
+		box-shadow:inset 0 1px 0 rgba(255,255,255,0.26);
+	}
+	#left_panel label{
+		width:60px !important;
+		height:60px !important;
+		padding:0 !important;
+		margin:0 !important;
+		border:none !important;
+		border-radius:18px !important;
+		display:flex !important;
+		align-items:center !important;
+		justify-content:center !important;
+		font-size:0 !important;
+		line-height:0 !important;
+		background:linear-gradient(180deg,#ffffff 0%, #edf3ff 100%) !important;
+		box-shadow:0 12px 24px rgba(106, 124, 164, 0.16), inset 0 1px 0 rgba(255,255,255,0.94) !important;
+	}
+	#left_panel label:hover{
+		background:linear-gradient(180deg,#ffffff 0%, #f4f8ff 100%) !important;
+		transform:none !important;
+	}
+	#left_panel label.active{
+		background:linear-gradient(180deg,#73b2ff 0%, #4b89f4 100%) !important;
+		box-shadow:0 16px 28px rgba(64, 116, 218, 0.28), inset 0 1px 0 rgba(255,255,255,0.24) !important;
+	}
+	#left_panel label.active:after{
+		display:none !important;
+	}
+	#left_panel label img{
+		float:none !important;
+		width:27px !important;
+		height:27px !important;
+		margin:0 !important;
+		display:block !important;
+	}
+	#left_panel label .nav_text{
+		display:none !important;
+	}
+	#left_panel #profile_image{
+		width:60px !important;
+		height:60px !important;
+		margin-top:auto !important;
+		margin-bottom:0 !important;
+		position:static !important;
+		left:auto !important;
+		bottom:auto !important;
+		border:4px solid rgba(255,255,255,0.96) !important;
+		border-radius:50% !important;
+		background:#ffffff;
+		object-fit:cover;
+		box-shadow:0 16px 28px rgba(101, 114, 145, 0.18);
+	}
+}
 
 </style>
 <!-- Desktop-only light theme (min-width:601px) - overrides dark styles for desktop only -->
@@ -693,35 +1582,15 @@ html, body {
 		window.showSignalingState = window.showSignalingState || function(){ console.warn('showSignalingState: signaling helper not initialized yet'); };
 		window.startLocalStream = window.startLocalStream || function(){ return Promise.reject(new Error('startLocalStream: not initialized yet')); };
 
-		// Mobile menu toggle: toggles left panel overlay when on small screens
-		try{
-			document.addEventListener('click', function(ev){
-				var btn = document.getElementById('mobile_menu_btn');
-				var left = document.getElementById('left_panel');
-				if(!btn || !left) return;
-				if(ev.target === btn || btn.contains(ev.target)){
-					document.body.classList.toggle('mobile-open');
-					return;
-				}
-				// if click outside left_panel and button, close menu
-				if(document.body.classList.contains('mobile-open')){
-					if(!left.contains(ev.target)){
-						document.body.classList.remove('mobile-open');
-					}
-				}
-			});
-		}catch(e){console.warn('mobile menu init failed', e);} 
-
 	// Monitor for messages view and toggle a mobile-only class; initialize after DOM is ready
 	(function(){
 		function initMessagesMonitor(){
 			try{
 				var innerLeft = document.getElementById('inner_left_panel');
 				function updateMessagesOpen(){
-					// detect either the client-rendered messages wrapper or the server-inserted one
-					var m = document.getElementById('messages_holder_parent') || document.getElementById('messages_holder');
-					var radioChat = document.getElementById('radio_chat');
-					var chatOpen = (radioChat && radioChat.checked) || !!m;
+					var rightPanelMessages = document.querySelector('#inner_right_panel #messages_holder_parent, #inner_right_panel #messages_holder');
+					var leftPanelThreadOpen = !!document.querySelector('#inner_left_panel.mobile-chat-thread #messages_holder_parent, #inner_left_panel.mobile-chat-thread #messages_holder');
+					var chatOpen = !!rightPanelMessages;
 					// check the message input - if it's visible or focused we should hide the left panel on mobile
 					var msgInput = document.getElementById('message_text');
 					var inputVisible = false;
@@ -740,20 +1609,28 @@ html, body {
 					}catch(err){ /* defensive */ }
 					var hideLeftBecauseInput = inputVisible || inputFocused;
 					// mobile breakpoint aligned with CSS (<=500px)
-					// Note: we keep the 'messages-open' body class for other UI logic
-					// but we no longer hide the inner left panel via inline styles here.
+					// We only add 'messages-open' when an actual chat is open (chatOpen === true).
+					// Previously typing/focus could also trigger it and hide the chat list — that
+					// made the chats disappear. Keep typing-related behavior separate (left-hidden)
+					// so the chat list remains visible when no chat is open.
 					var isMobile = (window.innerWidth <= 500);
-					if(isMobile && (chatOpen || hideLeftBecauseInput)){
-						// chat is open on small screens: keep classes for other UI logic but do NOT hide
+					if(isMobile && chatOpen){
+						// a chat is open on small screens: mark messages-open so CSS hides inner left panel
 						document.body.classList.add('messages-open');
 						document.body.classList.remove('messages-closed');
-						// ensure left panel remains visible regardless of viewport size
 						try{ if(innerLeft) innerLeft.style.display = ''; }catch(err){}
 					} else {
-						// chat not open: keep classes but ensure left panel remains visible
+						// no chat open: ensure the chat list remains visible
 						document.body.classList.remove('messages-open');
 						document.body.classList.add('messages-closed');
 						try{ if(innerLeft) innerLeft.style.display = ''; }catch(err){}
+						// if the user is typing but no chat is open, prefer using the left-hidden class
+						// instead of messages-open. Do not toggle messages-open here.
+						if(!leftPanelThreadOpen && hideLeftBecauseInput && isMobile){
+							document.body.classList.add('left-hidden');
+						} else {
+							document.body.classList.remove('left-hidden');
+						}
 					}
 				}
 				// initial run
@@ -781,164 +1658,6 @@ html, body {
 	})();
 
 
-	</script>
-
-	<!-- small chat-list helper: fetch and render chat list into #inner_left_panel -->
-	<script>
-	(function(){
-		// cached last successful chat list so we can fall back when network/API returns empty
-		let __cachedChats = null;
-
-		async function fetchChats(retries = 3, delayMs = 200){
-			// Use the JSON POST API to request chats (same path as get_data) to avoid
-			// inconsistent GET behavior from api.php when no body is supplied.
-			const payload = { data_type: 'chats', find: {} };
-			for(let attempt = 1; attempt <= retries; attempt++){
-				try{
-					const res = await fetch('api.php', {
-						method: 'POST',
-						credentials: 'same-origin',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify(payload)
-					});
-					if(!res.ok) throw new Error('fetch failed: '+res.status);
-					const txt = await res.text();
-					if(!txt || txt.trim() === '') throw new Error('empty response');
-					try{
-						const parsed = JSON.parse(txt);
-						// update cache and return
-						__cachedChats = parsed;
-						return parsed;
-					}catch(jsonErr){
-						console.warn('fetchChats: invalid JSON, response text=', txt.slice(0,200));
-						throw jsonErr;
-					}
-				}catch(err){
-					console.warn(`fetchChats attempt ${attempt} failed:`, err && err.message ? err.message : err);
-					if(attempt < retries){
-						// backoff before retrying
-						await new Promise(r => setTimeout(r, delayMs * attempt));
-						continue;
-					}
-					// all retries exhausted — fall back to cached data if available
-					if(__cachedChats && Object.keys(__cachedChats).length){
-						console.info('fetchChats: falling back to cached chats');
-						return __cachedChats;
-					}
-					// no cached chats — return null
-					return null;
-				}
-			}
-			return null;
-		}
-
-		function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-	// timestamp of last manual left-panel render (ms since epoch). Used to avoid
-	// server-initiated updates overwriting a user-triggered view immediately after click.
-	window.__lastLeftUpdate = window.__lastLeftUpdate || 0;
-	// how long we hold off server-driven left-panel updates after a manual render (ms)
-	window.__LEFT_PANEL_HOLD_MS = window.__LEFT_PANEL_HOLD_MS || 7000; // 7s
-
-		function renderChatList(chats){
-			const pane = document.getElementById('inner_left_panel');
-			if(!pane) return;
-			pane.innerHTML = '';
-			const list = document.createElement('div'); list.className = 'chats_list';
-			(chats||[]).forEach(c => {
-				const item = document.createElement('div'); item.className = 'chat_item'; item.dataset.chatId = c.id;
-				item.innerHTML = '<div class="chat_avatar"></div>' +
-					'<div class="chat_meta"><div class="chat_name">'+escapeHtml(c.name)+'</div><div class="chat_last">'+escapeHtml(c.last||'')+'</div></div>';
-				item.addEventListener('click', function(){ openChat(this.dataset.chatId); });
-				list.appendChild(item);
-			});
-			pane.appendChild(list);
-			try{ window.__lastLeftUpdate = Date.now(); }catch(e){}
-
-			// add a small hide/show button into the left panel so mobile users can collapse it
-			// (rendered here so it survives when renderChatList clears innerHTML)
-			try{
-				let hideBtn = pane.querySelector('.hide_btn');
-				if(!hideBtn){
-					hideBtn = document.createElement('button');
-					hideBtn.className = 'hide_btn';
-					hideBtn.id = 'inner_left_hide_btn';
-					hideBtn.textContent = 'hide';
-					hideBtn.addEventListener('click', function(ev){
-						ev.preventDefault();
-						document.body.classList.toggle('left-hidden');
-						this.textContent = document.body.classList.contains('left-hidden') ? 'show' : 'hide';
-					});
-					pane.appendChild(hideBtn);
-				}
-			}catch(e){ console.warn('adding hide button failed', e); }
-
-			// ensure hide button persists even when server replaces inner_left_panel HTML
-			try{
-				(function ensureHideBtn(){
-					const pane = document.getElementById('inner_left_panel');
-					if(!pane) return;
-					function addBtnIfMissing(){
-						if(pane.querySelector('.hide_btn')) return;
-						const btn = document.createElement('button');
-						btn.className = 'hide_btn';
-						btn.id = 'inner_left_hide_btn';
-						btn.textContent = document.body.classList.contains('left-hidden') ? 'show' : 'hide';
-						btn.addEventListener('click', function(ev){ ev.preventDefault(); document.body.classList.toggle('left-hidden'); this.textContent = document.body.classList.contains('left-hidden') ? 'show' : 'hide'; });
-						// append near end but before any dynamically added controls
-						pane.appendChild(btn);
-					}
-					// initial add
-					addBtnIfMissing();
-					// observe changes and re-add when innerHTML is replaced
-					const mo = new MutationObserver(function(mutations){
-						// small debounce: if children changed, ensure button exists
-						let changed = false;
-						for(const m of mutations){ if(m.type === 'childList') { changed = true; break; } }
-						if(changed) setTimeout(addBtnIfMissing, 20);
-					});
-					mo.observe(pane, { childList: true, subtree: false });
-				})();
-			}catch(e){ console.warn('ensureHideBtn failed', e); }
-		}
-
-		async function openChat(chatId){
-			// load messages for the selected chat
-			let messages;
-			try{
-				const res = await fetch('api.php?action=get_messages&chat_id='+encodeURIComponent(chatId), { credentials: 'same-origin' });
-				if(!res.ok) throw new Error('no');
-				messages = await res.json();
-			}catch(e){
-				// fallback sample messages
-				messages = [ { from: 'them', text: 'Hello from '+chatId, ts: Date.now()-60000 }, { from: 'me', text: 'Hi!', ts: Date.now() } ];
-			}
-			renderMessages(messages, chatId);
-					// on small screens, mark messages-open so CSS can adapt, but avoid setting inline styles that hide the panel
-					if(window.innerWidth <= 500){
-						document.body.classList.add('messages-open');
-					}
-		}
-
-		function renderMessages(messages, chatId){
-			const target = document.getElementById('inner_right_panel'); if(!target) return;
-			target.innerHTML = '';
-			const header = document.createElement('div'); header.style.padding = '12px'; header.style.background = '#eef'; header.textContent = 'Chat: '+chatId; target.appendChild(header);
-			const wrap = document.createElement('div'); wrap.id = 'messages_holder_parent'; wrap.style.padding = '12px';
-			(messages||[]).forEach(m => {
-				const d = document.createElement('div'); d.className = m.from === 'me' ? 'message_right' : 'message_left';
-				d.style.margin = '6px 0'; d.style.padding = '8px'; d.style.borderRadius = '6px';
-				d.style.maxWidth = '80%';
-				if(m.from === 'me'){ d.style.marginLeft = 'auto'; d.style.background = '#eef;'; d.style.color = '#111'; }
-				else { d.style.background = '#cce'; d.style.color = '#111'; }
-				d.textContent = m.text;
-				wrap.appendChild(d);
-			});
-			target.appendChild(wrap);
-		}
-
-		// chat label is wired elsewhere (get_chats) — avoid duplicate click handlers that can race
-	})();
 	</script>
 
 	<!-- format of the user panel -->
@@ -971,8 +1690,7 @@ html, body {
 			<div id="loader_holder" class="loader_off"><img style="width:70px;" src="ui/icons/load.gif"></div>
 				
 				<div id="image_viewer" class="image_off" onclick="close_image(event)"></div>
-						<button id="mobile_menu_btn" aria-label="Menu" style="display:none;">☰</button>
-						Walkie Talkie
+						<span id="mobile_header_title">Walkie Talkie</span>
 			</div>
 			<div id="container" style="display: flex;">
 			
@@ -996,27 +1714,6 @@ html, body {
 
 
 <script type="text/javascript">
-
-	// ensure the inner left panel always has the hide/show control even when server replaces HTML
-	document.addEventListener('DOMContentLoaded', function(){
-		try{
-			const pane = document.getElementById('inner_left_panel');
-			if(!pane) return;
-			function addBtnIfMissing(){
-				if(pane.querySelector('.hide_btn')) return;
-				const btn = document.createElement('button');
-				btn.className = 'hide_btn'; btn.id = 'inner_left_hide_btn';
-				btn.textContent = document.body.classList.contains('left-hidden') ? 'show' : 'hide';
-				btn.addEventListener('click', function(ev){ ev.preventDefault(); document.body.classList.toggle('left-hidden'); this.textContent = document.body.classList.contains('left-hidden') ? 'show' : 'hide'; });
-				pane.appendChild(btn);
-			}
-			addBtnIfMissing();
-			const mo = new MutationObserver(function(muts){
-				for(const m of muts){ if(m.type === 'childList'){ setTimeout(addBtnIfMissing,20); break; } }
-			});
-			mo.observe(pane, { childList: true, subtree: false });
-		}catch(e){ console.warn('left hide init failed', e); }
-	});
 
 	// wire up contacts search/add UI that is returned as server HTML
 	document.addEventListener('DOMContentLoaded', function(){
@@ -1558,18 +2255,21 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 	if(label_chat) label_chat.addEventListener('click', function(){ setLeftActive('label_chat'); try{ get_chats(); }catch(e){} });
 	if(label_settings) label_settings.addEventListener('click', function(){ setLeftActive('label_settings'); try{ get_settings(); }catch(e){} });
 
-	// keep a body-level class in sync with the settings radio so we can scope CSS to the Settings tab
-	var radio_settings = _("radio_settings");
-	function __updateSettingsBodyClass(){
+	// keep body-level classes in sync with the active mobile tab so CSS can target the right panel state
+	var radio_chat_tab = _("radio_chat");
+	var radio_contacts_tab = _("radio_contacts");
+	var radio_settings_tab = _("radio_settings");
+	function updateMobilePanelBodyClasses(){
 		try{
-			if(radio_settings && radio_settings.checked) document.body.classList.add('settings-open'); else document.body.classList.remove('settings-open');
+			if(radio_settings_tab && radio_settings_tab.checked) document.body.classList.add('settings-open'); else document.body.classList.remove('settings-open');
+			if(radio_contacts_tab && radio_contacts_tab.checked) document.body.classList.add('contacts-open'); else document.body.classList.remove('contacts-open');
 		}catch(e){}
 	}
-	if(radio_settings){
-		radio_settings.addEventListener('change', __updateSettingsBodyClass);
-		// set initial state
-		setTimeout(__updateSettingsBodyClass, 50);
-	}
+	[radio_chat_tab, radio_contacts_tab, radio_settings_tab].forEach(function(radio){
+		if(radio) radio.addEventListener('change', updateMobilePanelBodyClasses);
+	});
+	window.updateMobilePanelBodyClasses = updateMobilePanelBodyClasses;
+	setTimeout(updateMobilePanelBodyClasses, 50);
 	
 
 	var logout = _("logout");
@@ -1602,6 +2302,235 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 
 		xml.open("POST","api.php",true);
 		xml.send(data);
+	}
+
+	function is_mobile_chat_layout()
+	{
+		return window.innerWidth <= 500;
+	}
+
+	function set_mobile_chat_return_view(viewName)
+	{
+		if(is_mobile_chat_layout()){
+			window.__mobileChatReturnView = viewName;
+		}
+	}
+
+	function queue_forced_left_update(typeName)
+	{
+		window.__forceNextLeftUpdate = typeName;
+	}
+
+	function consume_forced_left_update(typeName)
+	{
+		if(window.__forceNextLeftUpdate == typeName){
+			window.__forceNextLeftUpdate = "";
+			return true;
+		}
+		return false;
+	}
+
+	function reset_mobile_chat_panel()
+	{
+		var inner_left_panel = _("inner_left_panel");
+		if(inner_left_panel){
+			inner_left_panel.classList.remove("mobile-chat-list");
+			inner_left_panel.classList.remove("mobile-chat-thread");
+		}
+		document.body.classList.remove("left-chat-open");
+		document.body.classList.remove("messages-open");
+		document.body.classList.add("messages-closed");
+	}
+
+	function escape_mobile_chat_html(value)
+	{
+		return String(value || "")
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#39;");
+	}
+
+	function build_mobile_chat_header_markup(userHtml)
+	{
+		var title = "Chat";
+		var avatar = "";
+
+		try{
+			var tmp = document.createElement("div");
+			tmp.innerHTML = userHtml || "";
+
+			var activeContact = tmp.querySelector("#active_contact");
+			if(activeContact){
+				var avatarImg = activeContact.querySelector("img");
+				if(avatarImg){
+					avatar = String(avatarImg.getAttribute("src") || "");
+				}
+
+				var nameClone = activeContact.cloneNode(true);
+				var cloneImg = nameClone.querySelector("img");
+				if(cloneImg) cloneImg.remove();
+
+				var cleanedName = String(nameClone.textContent || "").replace(/\s+/g, " ").trim();
+				if(cleanedName){
+					title = cleanedName;
+				}
+			}else{
+				var plainTitle = String(tmp.textContent || "").replace(/\s+/g, " ").trim();
+				if(plainTitle){
+					title = plainTitle;
+				}
+			}
+		}catch(e){}
+
+		var avatarHtml = avatar ? "<img src='" + escape_mobile_chat_html(avatar) + "' alt=''>" : "";
+
+		return "<div class='mobile_chat_header_shell'><div class='mobile_chat_backbar'><button type='button' id='mobile_chat_back_btn' class='mobile_chat_back_btn' aria-label='Back'>&#8249;</button><div id='active_contact'>" + avatarHtml + "<div class='mobile_chat_title_block'><div class='mobile_chat_title'>" + escape_mobile_chat_html(title) + "</div><div class='mobile_chat_subtitle'>Walkie Talkie chat</div></div></div></div></div>";
+	}
+
+	function build_mobile_chat_avatar_markup(imageSrc, name, avatarClassName)
+	{
+		if(imageSrc){
+			return "<img src='" + escape_mobile_chat_html(imageSrc) + "' alt=''>";
+		}
+		var firstLetter = String(name || "C").trim().charAt(0).toUpperCase() || "C";
+		return "<div class='" + escape_mobile_chat_html(avatarClassName) + "'>" + escape_mobile_chat_html(firstLetter) + "</div>";
+	}
+
+	function build_mobile_chat_list_markup(userHtml)
+	{
+		var entries = [];
+
+		try{
+			var tmp = document.createElement("div");
+			tmp.innerHTML = userHtml || "";
+
+			Array.prototype.slice.call(tmp.querySelectorAll("#active_contact")).forEach(function(el){
+				var userid = String(el.getAttribute("data-userid") || el.getAttribute("userid") || "").trim();
+				var avatarImg = el.querySelector("img");
+				var avatar = avatarImg ? String(avatarImg.getAttribute("src") || "").trim() : "";
+				var previewNode = el.querySelector("span");
+				var preview = previewNode ? String(previewNode.textContent || "").replace(/\s+/g, " ").trim() : "";
+
+				var nameClone = el.cloneNode(true);
+				Array.prototype.slice.call(nameClone.querySelectorAll("img, span")).forEach(function(node){ node.remove(); });
+				var name = String(nameClone.textContent || "").replace(/\s+/g, " ").trim();
+
+				if(!name && !preview && !userid) return;
+
+				entries.push({
+					userid: userid,
+					name: name || "Chat",
+					preview: preview || "Tap to open chat",
+					avatar: avatar
+				});
+			});
+		}catch(e){}
+
+		var quickMarkup = entries.slice(0, 5).map(function(entry){
+			return "<button type='button' class='mobile_chat_story' data-userid='" + escape_mobile_chat_html(entry.userid) + "' userid='" + escape_mobile_chat_html(entry.userid) + "'>" +
+				build_mobile_chat_avatar_markup(entry.avatar, entry.name, "mobile_chat_story_avatar") +
+				"<span class='mobile_chat_story_name'>" + escape_mobile_chat_html(entry.name) + "</span>" +
+			"</button>";
+		}).join("");
+
+		var rowsMarkup = entries.map(function(entry){
+			return "<button type='button' class='mobile_chat_list_item' data-userid='" + escape_mobile_chat_html(entry.userid) + "' userid='" + escape_mobile_chat_html(entry.userid) + "'>" +
+				build_mobile_chat_avatar_markup(entry.avatar, entry.name, "mobile_chat_list_avatar") +
+				"<span class='mobile_chat_list_body'>" +
+					"<span class='mobile_chat_list_name'>" + escape_mobile_chat_html(entry.name) + "</span>" +
+					"<span class='mobile_chat_list_preview'>" + escape_mobile_chat_html(entry.preview) + "</span>" +
+				"</span>" +
+				"<span class='mobile_chat_list_go' aria-hidden='true'>&#8250;</span>" +
+			"</button>";
+		}).join("");
+
+		if(!rowsMarkup){
+			rowsMarkup = "<div class='mobile_chat_list_empty'><div class='mobile_chat_list_empty_title'>No chats yet</div><div class='mobile_chat_list_empty_copy'>Start a conversation from contacts and it will show up here.</div></div>";
+		}
+
+		return "<div class='mobile_chat_list_shell'>" +
+			"<div class='mobile_chat_list_header'>" +
+				"<div class='mobile_chat_list_title'>Chats</div>" +
+				"<div class='mobile_chat_list_count'>" + escape_mobile_chat_html(String(entries.length)) + " conversations</div>" +
+			"</div>" +
+			(quickMarkup ? "<div class='mobile_chat_quick_label'>Quick Access</div><div class='mobile_chat_quick_strip'>" + quickMarkup + "</div>" : "") +
+			"<div class='mobile_chat_list_section_label'>Recent Conversations</div>" +
+			"<div class='mobile_chat_list_rows'>" + rowsMarkup + "</div>" +
+		"</div>";
+	}
+
+	function render_mobile_chat_list(userHtml)
+	{
+		var inner_left_panel = _("inner_left_panel");
+		var inner_right_panel = _("inner_right_panel");
+		if(!inner_left_panel) return;
+
+		reset_mobile_chat_panel();
+		inner_left_panel.classList.add("mobile-chat-list");
+		inner_left_panel.innerHTML = build_mobile_chat_list_markup(userHtml);
+		if(inner_right_panel){
+			inner_right_panel.innerHTML = "";
+		}
+
+		try{ window.__lastLeftUpdate = Date.now(); }catch(e){}
+	}
+
+	function return_from_mobile_chat_thread()
+	{
+		var targetView = window.__mobileChatReturnView || "chat";
+		CURRENT_CHAT_USER = "";
+		reset_mobile_chat_panel();
+
+		if(targetView == "contacts"){
+			var radio_contacts = _("radio_contacts");
+			if(radio_contacts) radio_contacts.checked = true;
+			try{ if(typeof updateMobilePanelBodyClasses === "function") updateMobilePanelBodyClasses(); }catch(e){}
+			queue_forced_left_update("contacts");
+			get_data({}, "contacts");
+			return;
+		}
+
+		if(targetView == "settings"){
+			var radio_settings = _("radio_settings");
+			if(radio_settings) radio_settings.checked = true;
+			try{ if(typeof updateMobilePanelBodyClasses === "function") updateMobilePanelBodyClasses(); }catch(e){}
+			queue_forced_left_update("settings");
+			get_data({}, "settings");
+			return;
+		}
+
+		var radio_chat = _("radio_chat");
+		if(radio_chat) radio_chat.checked = true;
+		try{ if(typeof updateMobilePanelBodyClasses === "function") updateMobilePanelBodyClasses(); }catch(e){}
+		queue_forced_left_update("chats");
+		get_data({}, "chats");
+	}
+
+	function render_mobile_chat_thread(userHtml, messagesHtml)
+	{
+		var inner_left_panel = _("inner_left_panel");
+		var inner_right_panel = _("inner_right_panel");
+		if(!inner_left_panel) return;
+
+		reset_mobile_chat_panel();
+		inner_left_panel.classList.add("mobile-chat-thread");
+		document.body.classList.add("left-chat-open");
+		inner_left_panel.innerHTML = build_mobile_chat_header_markup(userHtml) + (messagesHtml || "");
+		if(inner_right_panel){
+			inner_right_panel.innerHTML = "";
+		}
+
+		var backBtn = document.getElementById("mobile_chat_back_btn");
+		if(backBtn){
+			backBtn.onclick = function(e){
+				if(e && e.preventDefault) e.preventDefault();
+				return_from_mobile_chat_thread();
+			};
+		}
+
+		try{ window.__lastLeftUpdate = Date.now(); }catch(e){}
 	}
 
 	function handle_result(result,type){
@@ -1685,24 +2614,6 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 							try{ if(window.signalingClient && typeof window.signalingClient.connect === 'function') window.signalingClient.connect(); }catch(e){}
 							break;
 
-						// helper: remove any elements that include the "Now Chatting" heading
-						function sanitizeLeftPanelHTML(html){
-							try{
-								if(!html) return html;
-								var tmp = document.createElement('div'); tmp.innerHTML = html;
-								// only strip on small screens where we want the compact view
-								if(window.innerWidth <= 500){
-									var nodes = Array.prototype.slice.call(tmp.querySelectorAll('*'));
-									nodes.forEach(function(el){
-										if(el && el.textContent && /Now\s*Chatting/i.test(el.textContent)){
-											el.parentNode && el.parentNode.removeChild(el);
-										}
-									});
-								}
-								return tmp.innerHTML;
-							}catch(e){ console.warn('sanitizeLeftPanelHTML failed', e); return html; }
-						}
-
 							// detect whether a chunk of HTML contains a chat list (used to avoid overwrites)
 							function htmlContainsChats(html){
 								try{
@@ -1732,12 +2643,17 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 
 							case "contacts":
 							var inner_left_panel = _("inner_left_panel");
+							var forceContactsLeftUpdate = consume_forced_left_update("contacts");
 
+									if(is_mobile_chat_layout()){
+										reset_mobile_chat_panel();
+										if(inner_right_panel) inner_right_panel.innerHTML = "";
+									}
 
 									if(inner_right_panel) try{ inner_right_panel.style.overflow = "hidden"; }catch(e){}
 								// avoid overwriting a recent manual left-panel render (e.g. user clicked Chat)
 								try{
-									if(shouldApplyLeftUpdate(obj.message)){
+									if(forceContactsLeftUpdate || shouldApplyLeftUpdate(obj.message)){
 										if(inner_left_panel) inner_left_panel.innerHTML = obj.message;
 									} else {
 										console.info('Skipping server left-panel update (contacts) because user recently opened chats and payload contains no chat items');
@@ -1762,8 +2678,6 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 								try{ if(typeof attachMicHandlers === 'function') attachMicHandlers(); }catch(err){}
 								// attach live-talk handlers (WebRTC)
 								try{ if(typeof attachLiveMicHandlers === 'function') attachLiveMicHandlers(); }catch(err){}
-								// attach live-talk handlers (WebRTC)
-								try{ if(typeof attachLiveMicHandlers === 'function') attachLiveMicHandlers(); }catch(err){}
 							}
 
 							break;
@@ -1772,19 +2686,38 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 							case "chats":
 								SEEN_STATUS = false;
 								var inner_left_panel = _("inner_left_panel");
+								var hasChatMessages = !!(obj.messages && String(obj.messages).trim());
+								var forceChatsLeftUpdate = consume_forced_left_update("chats");
 
-								try{
-									if(shouldApplyLeftUpdate(obj.user)){
-										if(inner_left_panel) inner_left_panel.innerHTML = (window.innerWidth <= 500) ? sanitizeLeftPanelHTML(obj.user) : obj.user;
-									} else {
-										console.info('Skipping server left-panel update (chats) because user recently opened chats and payload contains no chat items');
+								if(is_mobile_chat_layout()){
+									if(hasChatMessages){
+										render_mobile_chat_thread(obj.user, obj.messages);
+										try{ _fixMessageImageURLs(inner_left_panel); }catch(e){}
+									}else{
+										reset_mobile_chat_panel();
+										try{
+											if(forceChatsLeftUpdate || shouldApplyLeftUpdate(obj.user)){
+												render_mobile_chat_list(obj.user);
+											} else {
+												console.info('Skipping server left-panel update (chats) because user recently opened chats and payload contains no chat items');
+											}
+										}catch(e){ render_mobile_chat_list(obj.user); }
+										if(inner_right_panel) inner_right_panel.innerHTML = "";
 									}
-								}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = (window.innerWidth <= 500) ? sanitizeLeftPanelHTML(obj.user) : obj.user; }
-								if(inner_right_panel) {
-									inner_right_panel.innerHTML = obj.messages;
-									// the server may output relative paths for uploaded files like "uploads/xxx.jpg";
-									// normalize those to absolute URLs so images load reliably in the browser.
-									try{ _fixMessageImageURLs(inner_right_panel); }catch(e){}
+								}else{
+									try{
+										if(forceChatsLeftUpdate || shouldApplyLeftUpdate(obj.user)){
+											if(inner_left_panel) inner_left_panel.innerHTML = obj.user;
+										} else {
+											console.info('Skipping server left-panel update (chats) because user recently opened chats and payload contains no chat items');
+										}
+									}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = obj.user; }
+									if(inner_right_panel) {
+										inner_right_panel.innerHTML = obj.messages;
+										// the server may output relative paths for uploaded files like "uploads/xxx.jpg";
+										// normalize those to absolute URLs so images load reliably in the browser.
+										try{ _fixMessageImageURLs(inner_right_panel); }catch(e){}
+									}
 								}
 
 								var messages_holder = _("messages_holder");
@@ -1798,14 +2731,20 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 
 								// attach mic handlers (walkie-talkie)
 								try{ if(typeof attachMicHandlers === 'function') attachMicHandlers(); }catch(err){}
+								try{ if(typeof attachLiveMicHandlers === 'function') attachLiveMicHandlers(); }catch(err){}
 
 
 									break;
 
 							case "settings":
 								var inner_left_panel = _("inner_left_panel");
+								var forceSettingsLeftUpdate = consume_forced_left_update("settings");
+								if(is_mobile_chat_layout()){
+									reset_mobile_chat_panel();
+									if(inner_right_panel) inner_right_panel.innerHTML = "";
+								}
 								try{
-									if(shouldApplyLeftUpdate(obj.message)){
+									if(forceSettingsLeftUpdate || shouldApplyLeftUpdate(obj.message)){
 										if(inner_left_panel) inner_left_panel.innerHTML = obj.message;
 									} else {
 										console.info('Skipping server left-panel update (settings) because user recently opened chats and payload contains no chat items');
@@ -1849,6 +2788,17 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 
 	function get_contacts(e)
 	{
+		set_mobile_chat_return_view("contacts");
+		queue_forced_left_update("contacts");
+		try{
+			var radio_contacts = _("radio_contacts");
+			if(radio_contacts) radio_contacts.checked = true;
+			if(typeof updateMobilePanelBodyClasses === "function") updateMobilePanelBodyClasses();
+		}catch(err){}
+		if(is_mobile_chat_layout()){
+			CURRENT_CHAT_USER = "";
+			reset_mobile_chat_panel();
+		}
 
 		get_data({},"contacts");
 
@@ -1856,12 +2806,34 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 
 	function get_chats(e)
 	{
+		set_mobile_chat_return_view("chat");
+		queue_forced_left_update("chats");
+		try{
+			var radio_chat = _("radio_chat");
+			if(radio_chat) radio_chat.checked = true;
+			if(typeof updateMobilePanelBodyClasses === "function") updateMobilePanelBodyClasses();
+		}catch(err){}
+		if(is_mobile_chat_layout()){
+			CURRENT_CHAT_USER = "";
+			reset_mobile_chat_panel();
+		}
 
 		get_data({},"chats");
 	}
 
 	function get_settings(e)
 	{
+		set_mobile_chat_return_view("settings");
+		queue_forced_left_update("settings");
+		try{
+			var radio_settings = _("radio_settings");
+			if(radio_settings) radio_settings.checked = true;
+			if(typeof updateMobilePanelBodyClasses === "function") updateMobilePanelBodyClasses();
+		}catch(err){}
+		if(is_mobile_chat_layout()){
+			CURRENT_CHAT_USER = "";
+			reset_mobile_chat_panel();
+		}
 
 		get_data({},"settings");
 
@@ -2081,7 +3053,7 @@ document.addEventListener('visibilitychange', function(){
    				handle_result(xml.responseText);
    				var save_settings_button = _("save_settings_button");
    				save_settings_button.disabled = false;
-   				save_settings_button.value = "Signup";
+   				save_settings_button.value = "Save Settings";
 
 				}
 
@@ -2223,7 +3195,20 @@ document.addEventListener('visibilitychange', function(){
             console.log('start_chat selected CURRENT_CHAT_USER =', CURRENT_CHAT_USER);
 
             var radio_chat = _("radio_chat");
+            if(is_mobile_chat_layout()){
+                var radio_contacts = _("radio_contacts");
+                var radio_settings = _("radio_settings");
+                if(radio_contacts && radio_contacts.checked){
+                    set_mobile_chat_return_view("contacts");
+                }else if(radio_settings && radio_settings.checked){
+                    set_mobile_chat_return_view("settings");
+                }else{
+                    set_mobile_chat_return_view("chat");
+                }
+            }
+            queue_forced_left_update("chats");
             if(radio_chat) radio_chat.checked = true;
+            try{ if(typeof updateMobilePanelBodyClasses === "function") updateMobilePanelBodyClasses(); }catch(e){}
             get_data({ userid: CURRENT_CHAT_USER }, "chats");
         }
 
