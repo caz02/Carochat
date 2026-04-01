@@ -785,6 +785,26 @@ html, body {
 		margin-top:10px;
 		border-radius:999px;
 	}
+	#inner_left_panel.mobile-chat-thread #message_left .message_media,
+	#inner_left_panel.mobile-chat-thread #message_right .message_media{
+		display:block;
+		max-width:min(220px, 60vw) !important;
+		width:min(220px, 60vw) !important;
+		height:auto !important;
+		margin-top:10px;
+	}
+	#inner_left_panel.mobile-chat-thread #message_left .message_image,
+	#inner_left_panel.mobile-chat-thread #message_right .message_image{
+		border-radius:16px;
+		cursor:pointer;
+		box-shadow:0 10px 18px rgba(80, 105, 150, 0.14);
+	}
+	#inner_left_panel.mobile-chat-thread #message_left .message_audio,
+	#inner_left_panel.mobile-chat-thread #message_right .message_audio{
+		max-width:min(240px, 64vw) !important;
+		width:min(240px, 64vw) !important;
+		border-radius:999px;
+	}
 	#inner_left_panel.mobile-chat-thread .message_composer{
 		display:grid !important;
 		grid-template-columns:repeat(3, minmax(0, 1fr));
@@ -1365,14 +1385,14 @@ html, body {
 	#left_panel #email{
 		display:none !important;
 	}
-	#left_panel #user_info > div:last-child{
-		width:calc(100% + 16px);
-		margin-left:-8px;
-		margin-top:0;
-		padding:14px 0 16px;
-		display:flex;
-		flex-direction:column;
-		align-items:center;
+		#left_panel #user_info > div:last-child{
+			width:calc(100% + 29px);
+			margin-left:-8px;
+			margin-top:-5px;
+			padding:5px 0 16px;
+			display:flex;
+			flex-direction:column;
+			align-items:center;
 		gap:14px;
 		background:linear-gradient(180deg, rgba(249,252,255,0.50) 0%, rgba(238,244,255,0.36) 100%);
 		border-top:1px solid rgba(255,255,255,0.30);
@@ -1435,173 +1455,583 @@ html, body {
 <!-- Desktop-only light theme (min-width:601px) - overrides dark styles for desktop only -->
 <style type="text/css">
 @media (min-width: 601px) {
-	body{ background: #f5f7fb; color: #222; }
+	:root{
+		--desktop-shell-bg:#eef3fb;
+		--desktop-surface:#ffffff;
+		--desktop-surface-soft:rgba(255,255,255,0.82);
+		--desktop-border:#dbe5f4;
+		--desktop-shadow:0 24px 44px rgba(60, 86, 138, 0.12);
+		--desktop-text:#1c2942;
+		--desktop-muted:#7484a3;
+		--desktop-accent:#5b70e2;
+		--desktop-accent-soft:#edf2ff;
+		--desktop-thread-tint:#f7faff;
+		--desktop-thread-left:#ffffff;
+		--desktop-thread-right:#40315f;
+	}
 
-	/* Left rail */
-	#left_panel{ background: #ffffff; color:#222; border-right: 1px solid #e6e9ef; }
-	#left_panel label{ background: transparent; color:#333; border-bottom: 1px solid #f0f2f6; }
-	#left_panel label:hover{ background: #f6f8fb; }
-	#left_panel label .nav_text{ color:#333; }
-	#profile_image{ border: none; }
+	html,
+	body{
+		height:100%;
+	}
+	body{
+		background:
+			radial-gradient(circle at top left, rgba(110, 139, 232, 0.16), transparent 34%),
+			linear-gradient(180deg, #f8fbff 0%, var(--desktop-shell-bg) 100%);
+		color:var(--desktop-text);
+	}
 
-	/* Desktop: make the left rail a narrow icon-only column */
+	#wrapper{
+		min-height:100vh;
+		height:100vh;
+		padding:18px;
+		box-sizing:border-box;
+		display:flex;
+		gap:18px;
+		align-items:stretch;
+	}
+
 	#left_panel{
-		flex: 0 0 72px;
-		width:72px;
-		min-width:100px;
-		max-width: 100px;
-		background: #ffffff;
-		border-right: 1px solid #eef2f7;
-		padding: 12px 6px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: flex-start;
+		flex:0 0 92px;
+		width:92px;
+		min-width:92px;
+		max-width:92px;
+		padding:12px 10px;
+		box-sizing:border-box;
+		border:none;
+		border-radius:28px;
+		background:linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(243,247,255,0.96) 100%);
+		box-shadow:var(--desktop-shadow);
+		display:flex;
+		flex-direction:column;
+		align-items:center;
 	}
-	#left_panel #user_info{ display:block; text-align:center; width:100%; }
-	#left_panel #profile_image{ width:40px !important; height:40px !important; border-radius:8px; margin: 6px 0; border:none; }
-	#left_panel label{ width:100%; height:56px; display:flex; align-items:center; justify-content:center; background:transparent; border:none; padding:6px 0; margin:6px 0; }
-	#left_panel label img{ width:28px; height:28px; display:block; margin:0 auto; }
-	#left_panel label .nav_text{ display:none; }
-	#left_panel label.active{ background: rgba(99, 102, 241, 0.06); border-radius: 8px; position: relative; }
-	#left_panel label.active:after{ content: ''; position: absolute; right: -6px; top: 12px; bottom: 12px; width: 6px; background: linear-gradient(180deg,#6d28d9,#7c3aed); border-radius: 4px; }
-
-	/* Header */
-	#header{ background: linear-gradient(180deg,#ffffff,#f2f7ff); color: #0b3d91; box-shadow: 0 2px 6px rgba(7,22,50,0.06); }
-	#header > div{ color: #0b3d91; }
-
-	/* Panels */
-	#inner_left_panel{ background: #ffffff; }
-	#inner_right_panel{ background: #ffffff; color:#222; }
-
-	/* Chats list */
-	.chats_list{ background: transparent; }
-	.chat_item{ background: transparent; border-radius:6px; cursor:pointer; color:#111; }
-	.chat_item:hover{ background: #f6f8fb; }
-	.chat_name{ color:#111; }
-	.chat_last{ color:#6b7280; }
-	/* Desktop: stack contacts vertically and center them, pin delete buttons to the right */
-	.chats_list{ display:flex; flex-direction:column; gap:10px; align-items:center; justify-content:center; height:100%; padding:12px; }
-	.chat_item{ display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; padding:6px 18px; min-width:120px; }
-	.chat_avatar{ width:68px; height:68px; border-radius:8px; flex:0 0 auto; }
-	.chat_meta{ display:none; }
-	/* if server emits a delete button inside chat_item, anchor it to the far right */
-	.chat_item .delete_btn, .chat_item input[type="button"], .chat_item button.delete {
-		position: absolute;
-		right: -12px;
-		top: 50%;
-		transform: translateY(-50%);
-		background: transparent;
-		border: 1px solid #e2e8f0;
-		padding: 6px 8px;
-		border-radius: 4px;
-		cursor: pointer;
+	#left_panel #user_info{
+		width:100%;
+		display:flex;
+		flex-direction:column;
+		align-items:center;
+		gap:14px;
+		padding:0 !important;
 	}
-	/* keep a comfortable visual rhythm when many avatars are stacked */
-	.chats_list::-webkit-scrollbar{ width:8px; }
-	.chats_list{ overflow-y:auto; }
-
-	/* Message bubbles */
-	#message_left{  background: #2f3843; color: white; box-shadow: none; border-top-left-radius: 8px; border-bottom-left-radius: 8px; border-top-right-radius: 8px; }
-	#message_right{ background: #f3f4f6; color: #111; box-shadow: none; border-bottom-right-radius: 8px; border-top-left-radius: 8px; }
-
-	/* Message controls & inputs */
-	div[style*="display:flex;width:100%;height:40px;"]{ background: transparent; }
-	#message_text{ border: 1px solid #e2e8f0; background: #fff; color:#111; padding:8px; border-radius:6px; }
-	input, button, textarea{ background: #fff; color:#111; border: 1px solid #e6edf5; }
-
-	/* Misc */
-	#messages_holder_parent{ background: #fff; }
-	#active_contact{ background: #ffffff; border: 1px solid #eef2f7; }
-	#recording_indicator{ color:#d23f3f; }
-
-	/* Ensure icons remain visible */
-	img{ filter: none; }
-	/* Fill full viewport height and vertically-center content like the provided screenshot */
-	html, body { height: 100%; }
-	#wrapper { min-height: 100vh; height: 100vh; display:flex; align-items:stretch; }
-	#inner_left_panel, #inner_right_panel {
-		height: calc(100vh - 90px);
-        min-height: calc(99vh - 103px);
-        overflow: auto;
+	#left_panel #user_info br,
+	#left_panel #email{
+		display:none !important;
 	}
-	.chats_list {
-		justify-content: center;
-		align-items: center;
-		height: 100%;
+	#left_panel #username{
+		max-width:100%;
+		padding:0 6px;
+		font-size:12px;
+		line-height:1.2;
+		font-weight:700;
+		color:var(--desktop-text);
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
 	}
-	/* make each contact a centered vertical block so avatars stack in a column */
-	#contact {
-		width: auto;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 6px;
-		margin: 8px 6px;
+	#left_panel #user_info > div:last-child{
+		width:100%;
+		margin-top:10px;
+		display:flex;
+		flex-direction:column;
+		align-items:center;
+		gap:12px;
 	}
-	#contact img { width: 68px; height: 68px; border-radius: 8px; }
-	/* Slightly bigger, more prominent header */
-	#header { font-size: 48px; padding-top: 8px; padding-bottom: 8px; }
-
-	/* Desktop message bubble adjustments to match screenshot 2: separate avatar, no username text, compact bubbles */
-	/* Target both server-rendered IDs (#message_left / #message_right) and client-rendered classes (.message_left/.message_right) */
-	#inner_right_panel .message_row, #inner_right_panel .message_left, #inner_right_panel .message_right, #inner_right_panel #message_left {
-		display: block;
-		position: relative;
-		margin: 10px 0;
-		margin-left:10%;
+	#left_panel #profile_image{
+		width:56px !important;
+		height:56px !important;
+		margin:0 !important;
+		border:none;
+		border-radius:18px !important;
+		object-fit:cover;
+		box-shadow:0 14px 28px rgba(83, 101, 146, 0.18);
+	}
+	#left_panel label{
+		width:60px;
+		height:60px;
+		padding:0;
+		margin:0;
+		border:none;
+		border-radius:20px;
+		background:linear-gradient(180deg,#ffffff 0%, #edf3ff 100%);
+		display:flex;
+		align-items:center;
+		justify-content:center;
+		box-shadow:0 14px 24px rgba(106, 124, 164, 0.14);
+	}
+	#left_panel label:hover{
+		background:linear-gradient(180deg,#ffffff 0%, #f4f8ff 100%);
+	}
+	#left_panel label.active{
+		background:linear-gradient(180deg,#73b2ff 0%, #4b89f4 100%);
+		box-shadow:0 18px 30px rgba(64, 116, 218, 0.24);
+		position:relative;
+	}
+	#left_panel label.active:after{
+		display:none;
+	}
+	#left_panel label img{
+		width:26px;
+		height:26px;
+		margin:0;
+		display:block;
+	}
+	#left_panel label .nav_text{
+		display:none !important;
 	}
 
-	
-
-	/* Make bubbles fit content and not stretch full width */
-	#inner_right_panel .message_left, #inner_right_panel #message_left {
-		display: inline-block;
-		background: #eef6ff;
-		color: #111;
-		padding: 10px 12px;
-		border-radius: 12px;
-		max-width: 64%;
-		width: -moz-fit-content;
-		width: fit-content;
-		box-shadow: none;
-		clear: both;
+	#right_panel{
+		flex:1 1 auto;
+		min-width:0;
+		display:flex;
+		flex-direction:column;
+	}
+	#header{
+		height:0;
+		padding:0;
+		font-size:0;
+		background:transparent;
+		box-shadow:none;
+		overflow:visible;
+	}
+	#mobile_header_title{
+		display:none !important;
+	}
+	#loader_holder.loader_on{
+		position:fixed;
+		top:22px;
+		right:22px;
+		width:auto;
+		z-index:9999;
+	}
+	#container{
+		display:grid !important;
+		grid-template-columns:minmax(300px, 356px) minmax(0, 1fr);
+		gap:18px;
+		width:100%;
+		height:100%;
+		min-height:0;
+		padding:18px;
+		box-sizing:border-box;
+		border:1px solid rgba(219, 229, 244, 0.92);
+		border-radius:34px;
+		background:
+			linear-gradient(145deg, rgba(255,255,255,0.96), rgba(245,249,255,0.92));
+		box-shadow:var(--desktop-shadow);
+	}
+	#inner_left_panel,
+	#inner_right_panel{
+		min-height:0;
+		max-height:none;
+		border:1px solid var(--desktop-border);
+		border-radius:28px;
+		background:var(--desktop-surface-soft);
+		box-shadow:0 10px 24px rgba(108, 131, 172, 0.08);
+	}
+	#inner_left_panel{
+		display:flex;
+		flex-direction:column;
+		padding:22px 18px;
+		box-sizing:border-box;
+		overflow:auto;
+		background:
+			linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(246, 249, 255, 0.94) 100%);
+	}
+	#inner_right_panel{
+		position:relative;
+		display:flex;
+		flex-direction:column;
+		overflow:hidden;
+		background:
+			linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(246,250,255,0.98) 100%);
+		color:var(--desktop-text);
+	}
+	body.contacts-open #container,
+	body.settings-open #container{
+		grid-template-columns:minmax(380px, clamp(400px, 36vw, 560px));
+		justify-content:start;
+	}
+	body.contacts-open #inner_right_panel,
+	body.settings-open #inner_right_panel{
+		display:none !important;
+	}
+	body.contacts-open #inner_left_panel,
+	body.settings-open #inner_left_panel{
+		width:100%;
+		max-width:clamp(400px, 36vw, 560px);
+	}
+	body.contacts-open #inner_left_panel{
+		padding:24px 20px;
+	}
+	body.settings-open #inner_left_panel{
+		padding:24px 20px;
 	}
 
-	#inner_right_panel .message_right, #inner_right_panel #message_right {
-		display: inline-block;
-		background: #3b2b5b;
-		color: #fff;
-		padding: 10px 12px;
-		border-radius: 12px;
-		max-width: 64%;
-		width: -moz-fit-content;
-		width: fit-content;
-		box-shadow: none;
-		clear: both;
-		float: right;
-		margin-right:10%;
+	.desktop_chat_sidebar_shell{
+		display:flex;
+		flex:1 1 auto;
+		flex-direction:column;
+		min-height:0;
+	}
+	.desktop_chat_sidebar_eyebrow{
+		font-size:11px;
+		font-weight:700;
+		letter-spacing:0.12em;
+		text-transform:uppercase;
+		color:#8c9ab4;
+	}
+	.desktop_chat_sidebar_title{
+		margin-top:8px;
+		font-size:30px;
+		line-height:1;
+		font-weight:700;
+		color:var(--desktop-text);
+	}
+	.desktop_chat_sidebar_list{
+		margin-top:20px;
+		display:flex;
+		flex-direction:column;
+		gap:10px;
+		min-height:0;
+		overflow:auto;
+		padding-right:4px;
+	}
+	.desktop_chat_sidebar_list::-webkit-scrollbar,
+	#messages_holder::-webkit-scrollbar{
+		width:8px;
+	}
+	.desktop_chat_sidebar_list::-webkit-scrollbar-thumb,
+	#messages_holder::-webkit-scrollbar-thumb{
+		background:rgba(103, 121, 160, 0.28);
+		border-radius:999px;
+	}
+	.desktop_chat_sidebar_item{
+		display:flex;
+		align-items:center;
+		gap:14px;
+		padding:14px;
+		border:1px solid rgba(223, 232, 247, 0.96);
+		border-radius:22px;
+		background:rgba(255,255,255,0.94);
+		box-shadow:0 12px 24px rgba(110, 133, 171, 0.08);
+		transition:transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+	}
+	.desktop_chat_sidebar_item:hover{
+		transform:translateY(-1px);
+		box-shadow:0 16px 30px rgba(110, 133, 171, 0.12);
+	}
+	.desktop_chat_sidebar_item.is-current-chat{
+		border-color:rgba(97, 121, 226, 0.32);
+		background:linear-gradient(180deg, #f6f8ff 0%, #edf2ff 100%);
+		box-shadow:0 18px 32px rgba(98, 118, 190, 0.16);
+	}
+	.desktop_chat_sidebar_item img{
+		width:56px;
+		height:56px;
+		border-radius:18px;
+		object-fit:cover;
+		flex:0 0 56px;
+		box-shadow:0 10px 18px rgba(85, 99, 140, 0.14);
+	}
+	.desktop_chat_sidebar_body{
+		min-width:0;
+		display:flex;
+		flex-direction:column;
+		gap:4px;
+	}
+	.desktop_chat_sidebar_name{
+		font-size:15px;
+		font-weight:700;
+		color:var(--desktop-text);
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+	}
+	.desktop_chat_sidebar_preview{
+		font-size:12px;
+		line-height:1.35;
+		color:var(--desktop-muted);
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+	}
+	.desktop_chat_sidebar_empty{
+		padding:18px 16px;
+		border:1px dashed rgba(163, 176, 204, 0.55);
+		border-radius:22px;
+		background:rgba(255,255,255,0.7);
+		color:var(--desktop-muted);
+		line-height:1.5;
 	}
 
-	/* Hide usernames injected by server-side templates */
-	#inner_right_panel #message_left b, #inner_right_panel #message_right b,
-	#inner_right_panel .message_left b, #inner_right_panel .message_right b { display: none !important; }
+	.desktop_chat_context{
+		display:none;
+	}
+	.desktop_thread_header{
+		display:flex;
+		align-items:center;
+		gap:14px;
+		padding:22px 24px 18px;
+		border-bottom:1px solid rgba(222, 231, 244, 0.92);
+		background:rgba(255,255,255,0.78);
+		backdrop-filter:blur(12px);
+	}
+	.desktop_thread_header_media{
+		display:flex;
+		flex:0 0 auto;
+		align-items:center;
+	}
+	.desktop_thread_header_avatar{
+		width:58px;
+		height:58px;
+		border-radius:18px;
+		object-fit:cover;
+		box-shadow:0 16px 28px rgba(97, 116, 162, 0.18);
+	}
+	.desktop_thread_header_body{
+		min-width:0;
+	}
+	.desktop_thread_header_title{
+		font-size:22px;
+		line-height:1.1;
+		font-weight:700;
+		color:var(--desktop-text);
+		white-space:nowrap;
+		overflow:hidden;
+		text-overflow:ellipsis;
+	}
+	.desktop_thread_header_meta{
+		margin-top:5px;
+		font-size:12px;
+		letter-spacing:0.04em;
+		text-transform:uppercase;
+		color:var(--desktop-muted);
+	}
+	.desktop_thread_empty{
+		flex:1 1 auto;
+		display:flex;
+		align-items:center;
+		justify-content:center;
+		padding:32px;
+	}
+	.desktop_thread_empty_card{
+		max-width:320px;
+		padding:24px 26px;
+		border:1px solid rgba(222, 231, 244, 0.92);
+		border-radius:26px;
+		background:rgba(255,255,255,0.84);
+		text-align:center;
+		box-shadow:0 18px 32px rgba(93, 111, 150, 0.12);
+	}
+	.desktop_thread_empty_title{
+		font-size:20px;
+		font-weight:700;
+		color:var(--desktop-text);
+	}
+	.desktop_thread_empty_copy{
+		margin-top:8px;
+		line-height:1.5;
+		color:var(--desktop-muted);
+	}
 
-	/* Avatar styling: absolutely position the avatar outside the bubble so it appears separated */
+	#messages_holder_parent{
+		display:flex;
+		flex:1 1 auto;
+		flex-direction:column;
+		min-height:0;
+		height:100% !important;
+		padding:16px 18px 18px;
+		box-sizing:border-box;
+		background:transparent;
+	}
+	#messages_holder{
+		position:relative;
+		flex:1 1 auto;
+		min-height:0;
+		height:auto !important;
+		padding:22px 22px 28px;
+		box-sizing:border-box;
+		overflow-y:auto !important;
+		border:1px solid rgba(232, 238, 248, 0.96);
+		border-radius:26px;
+		background:
+			radial-gradient(circle at top right, rgba(112, 140, 217, 0.12), transparent 30%),
+			linear-gradient(180deg, rgba(250,252,255,0.92) 0%, rgba(244,248,255,0.96) 100%);
+	}
+	.thread_delete_action{
+		align-self:flex-end;
+		margin:10px 6px 0 0;
+		color:#8d53c2;
+		font-size:13px;
+	}
+	.message_composer{
+		display:grid !important;
+		grid-template-columns:auto minmax(0, 1fr) auto auto auto;
+		align-items:center;
+		gap:10px;
+		height:55px;
+		margin-top:12px;
+		padding:12px;
+		border:1px solid rgba(223, 232, 247, 0.96);
+		border-radius:26px;
+		background:rgba(255,255,255,0.92);
+		box-shadow:0 18px 30px rgba(101, 120, 158, 0.12);
+	}
+	#message_text{
+		min-width:0;
+		height:48px;
+		padding:0 16px;
+		border:none;
+		border-radius:16px;
+		background:#f4f8ff;
+		color:var(--desktop-text);
+		font-size:15px;
+	}
+	#message_text::placeholder{
+		color:#8b9ab6;
+	}
+	.message_composer .composer_chip,
+	.message_composer #send_button{
+		min-height:46px;
+		border:none;
+		border-radius:16px;
+		background:#f4f8ff;
+		color:var(--desktop-text);
+		box-shadow:none;
+	}
+	.message_composer #send_button{
+		background:linear-gradient(180deg, #6daeff 0%, #4b87f3 100%);
+		color:#ffffff;
+	}
+	#recording_indicator{
+		color:#d23f3f;
+	}
+
+	#inner_right_panel #message_left,
+	#inner_right_panel #message_right{
+		position:relative;
+		display:block;
+		width:auto;
+		width:-moz-fit-content;
+		width:fit-content;
+		min-width:0;
+		max-width:min(65%, 560px);
+		margin:0 0 16px;
+		padding:14px 18px;
+		border-radius:22px;
+		box-shadow:0 14px 26px rgba(93, 111, 150, 0.09);
+		clear:both;
+		float:none;
+	}
+	#inner_right_panel #message_left{
+		margin-left:56px;
+		margin-right:auto;
+		background:var(--desktop-thread-left);
+		color:var(--desktop-text);
+		border-top-left-radius:8px;
+	}
+	#inner_right_panel #message_right{
+		margin-right:56px;
+		margin-left:auto;
+		background:linear-gradient(180deg, #4a396c 0%, var(--desktop-thread-right) 100%);
+		color:#ffffff;
+		border-top-right-radius:8px;
+		padding-right:40px;
+	}
+	#inner_right_panel #message_left b,
+	#inner_right_panel #message_right b{
+		display:none !important;
+	}
+	#inner_right_panel #message_left > div{
+		display:none;
+	}
+	#inner_right_panel #message_right > div{
+		width:auto;
+		height:auto;
+		top:auto;
+		right:14px;
+		bottom:12px;
+		left:auto;
+		background:transparent;
+		border:none;
+	}
+	#inner_right_panel #message_right div img{
+		position:static;
+		width:18px;
+		height:12px;
+		margin:0;
+		border:none;
+	}
 	#inner_right_panel #message_left img#prof_img,
-	#inner_right_panel .message_left img.msg_avatar { position: absolute; left: -52px; top: 6px; width:40px; height:40px; border-radius:50%; object-fit:cover; }
-
-	#inner_right_panel #message_right img#prof_img,
-	#inner_right_panel .message_right img.msg_avatar { position: absolute; right: -52px; top: 6px; width:40px; height:40px; border-radius:50%; object-fit:cover; }
-
-	/* Ensure message container has some left/right padding so bubbles aren't overlapped by avatars */
-	#messages_holder_parent { padding-left: 64px; padding-right: 64px; }
-
-	/* Small tweak for trash icon within compact bubbles */
-	#inner_right_panel img#trash, #inner_right_panel .message_right img#trash, #inner_right_panel .message_left img#trash { top: 6px; }
-
+	#inner_right_panel #message_right img#prof_img{
+		position:absolute;
+		top:auto;
+		bottom:0;
+		width:40px;
+		height:40px;
+		border-radius:14px;
+		object-fit:cover;
+		border:2px solid rgba(255,255,255,0.94);
+		box-shadow:0 12px 20px rgba(91, 106, 146, 0.18);
 	}
+	#inner_right_panel #message_left img#prof_img{
+		left:-52px;
+	}
+	#inner_right_panel #message_right img#prof_img{
+		right:-52px;
+	}
+	#inner_right_panel #message_left img#trash,
+	#inner_right_panel #message_right img#trash{
+		top:12px;
+		opacity:0.42;
+	}
+	#inner_right_panel #message_left img#trash{
+		left:calc(100% + 10px);
+	}
+	#inner_right_panel #message_right img#trash{
+		right:calc(100% + 10px);
+	}
+	#inner_right_panel #message_left audio,
+	#inner_right_panel #message_right audio{
+		display:block;
+		width:min(320px, 100%) !important;
+		margin-top:10px;
+	}
+	#inner_right_panel #message_left .message_media,
+	#inner_right_panel #message_right .message_media{
+		display:block;
+		max-width:min(320px, 34vw) !important;
+		width:min(320px, 34vw) !important;
+		height:auto !important;
+		margin-top:10px;
+	}
+	#inner_right_panel #message_left .message_image,
+	#inner_right_panel #message_right .message_image{
+		border-radius:16px;
+		cursor:pointer;
+		box-shadow:0 12px 22px rgba(93, 111, 150, 0.12);
+	}
+	#inner_right_panel #message_left .message_audio,
+	#inner_right_panel #message_right .message_audio{
+		max-width:min(320px, 36vw) !important;
+		width:min(320px, 36vw) !important;
+	}
+	#inner_right_panel #message_left > img:not(#prof_img):not(#trash),
+	#inner_right_panel #message_right > img:not(#prof_img):not(#trash){
+		display:block;
+		max-width:min(320px, 34vw) !important;
+		width:min(320px, 34vw) !important;
+		height:auto !important;
+		margin-top:10px;
+		border-radius:16px;
+	}
+
+	input,
+	button,
+	textarea{
+		font-family:myFont;
+	}
+}
 </style>
 <body>
 	<script>
@@ -2434,10 +2864,61 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 			.replace(/'/g, "&#39;");
 	}
 
-	function build_mobile_chat_header_markup(userHtml)
+	function normalize_chat_contact_text(value)
 	{
-		var title = "Chat";
-		var avatar = "";
+		return String(value || "").replace(/\s+/g, " ").trim();
+	}
+
+	function extract_chat_contact_data_from_element(activeContact)
+	{
+		var data = {
+			userid: "",
+			title: "Chat",
+			preview: "",
+			avatar: ""
+		};
+
+		try{
+			if(!activeContact) return data;
+
+			data.userid = String(activeContact.getAttribute("data-userid") || activeContact.getAttribute("userid") || "").trim();
+
+			var avatarImg = activeContact.querySelector("img");
+			if(avatarImg){
+				data.avatar = String(avatarImg.getAttribute("src") || "").trim();
+			}
+
+			var previewNode = activeContact.querySelector(".desktop_chat_sidebar_preview, .mobile_chat_list_preview, span");
+			if(previewNode){
+				data.preview = normalize_chat_contact_text(previewNode.textContent || "");
+			}
+
+			var nameNode = activeContact.querySelector(".desktop_chat_context_name, .desktop_chat_sidebar_name, .mobile_chat_list_name");
+			if(nameNode){
+				data.title = normalize_chat_contact_text(nameNode.textContent || "") || data.title;
+			}else{
+				var nameClone = activeContact.cloneNode(true);
+				Array.prototype.slice.call(nameClone.querySelectorAll("img, .desktop_chat_sidebar_preview, .mobile_chat_list_preview, span")).forEach(function(node){
+					node.remove();
+				});
+				var cleanedName = normalize_chat_contact_text(nameClone.textContent || "");
+				if(cleanedName){
+					data.title = cleanedName;
+				}
+			}
+		}catch(e){}
+
+		return data;
+	}
+
+	function extract_chat_contact_data(userHtml)
+	{
+		var data = {
+			userid: "",
+			title: "Chat",
+			preview: "",
+			avatar: ""
+		};
 
 		try{
 			var tmp = document.createElement("div");
@@ -2445,30 +2926,24 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 
 			var activeContact = tmp.querySelector("#active_contact");
 			if(activeContact){
-				var avatarImg = activeContact.querySelector("img");
-				if(avatarImg){
-					avatar = String(avatarImg.getAttribute("src") || "");
-				}
+				return extract_chat_contact_data_from_element(activeContact);
+			}
 
-				var nameClone = activeContact.cloneNode(true);
-				var cloneImg = nameClone.querySelector("img");
-				if(cloneImg) cloneImg.remove();
-
-				var cleanedName = String(nameClone.textContent || "").replace(/\s+/g, " ").trim();
-				if(cleanedName){
-					title = cleanedName;
-				}
-			}else{
-				var plainTitle = String(tmp.textContent || "").replace(/\s+/g, " ").trim();
-				if(plainTitle){
-					title = plainTitle;
-				}
+			var plainTitle = normalize_chat_contact_text(tmp.textContent || "");
+			if(plainTitle){
+				data.title = plainTitle;
 			}
 		}catch(e){}
 
-		var avatarHtml = avatar ? "<img src='" + escape_mobile_chat_html(avatar) + "' alt=''>" : "";
+		return data;
+	}
 
-		return "<div class='mobile_chat_header_shell'><div class='mobile_chat_backbar'><button type='button' id='mobile_chat_back_btn' class='mobile_chat_back_btn' aria-label='Back'>&#8249;</button><div id='active_contact'>" + avatarHtml + "<div class='mobile_chat_title_block'><div class='mobile_chat_title'>" + escape_mobile_chat_html(title) + "</div><div class='mobile_chat_subtitle'>Walkie Talkie chat</div></div></div></div></div>";
+	function build_mobile_chat_header_markup(userHtml)
+	{
+		var data = extract_chat_contact_data(userHtml);
+		var avatarHtml = data.avatar ? "<img src='" + escape_mobile_chat_html(data.avatar) + "' alt=''>" : "";
+
+		return "<div class='mobile_chat_header_shell'><div class='mobile_chat_backbar'><button type='button' id='mobile_chat_back_btn' class='mobile_chat_back_btn' aria-label='Back'>&#8249;</button><div id='active_contact'>" + avatarHtml + "<div class='mobile_chat_title_block'><div class='mobile_chat_title'>" + escape_mobile_chat_html(data.title) + "</div><div class='mobile_chat_subtitle'>Walkie Talkie chat</div></div></div></div></div>";
 	}
 
 	function build_mobile_chat_avatar_markup(imageSrc, name, avatarClassName)
@@ -2489,23 +2964,14 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 			tmp.innerHTML = userHtml || "";
 
 			Array.prototype.slice.call(tmp.querySelectorAll("#active_contact")).forEach(function(el){
-				var userid = String(el.getAttribute("data-userid") || el.getAttribute("userid") || "").trim();
-				var avatarImg = el.querySelector("img");
-				var avatar = avatarImg ? String(avatarImg.getAttribute("src") || "").trim() : "";
-				var previewNode = el.querySelector("span");
-				var preview = previewNode ? String(previewNode.textContent || "").replace(/\s+/g, " ").trim() : "";
-
-				var nameClone = el.cloneNode(true);
-				Array.prototype.slice.call(nameClone.querySelectorAll("img, span")).forEach(function(node){ node.remove(); });
-				var name = String(nameClone.textContent || "").replace(/\s+/g, " ").trim();
-
-				if(!name && !preview && !userid) return;
+				var item = extract_chat_contact_data_from_element(el);
+				if(!item.title && !item.preview && !item.userid) return;
 
 				entries.push({
-					userid: userid,
-					name: name || "Chat",
-					preview: preview || "Tap to open chat",
-					avatar: avatar
+					userid: item.userid,
+					name: item.title || "Chat",
+					preview: item.preview || "Tap to open chat",
+					avatar: item.avatar
 				});
 			});
 		}catch(e){}
@@ -2540,7 +3006,48 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 			(quickMarkup ? "<div class='mobile_chat_quick_label'>Quick Access</div><div class='mobile_chat_quick_strip'>" + quickMarkup + "</div>" : "") +
 			"<div class='mobile_chat_list_section_label'>Recent Conversations</div>" +
 			"<div class='mobile_chat_list_rows'>" + rowsMarkup + "</div>" +
-		"</div>";
+			"</div>";
+	}
+
+	function is_desktop_app_layout()
+	{
+		return window.innerWidth >= 601;
+	}
+
+	function build_desktop_thread_header_markup(userHtml)
+	{
+		var data = extract_chat_contact_data(userHtml);
+		var avatarHtml = data.avatar ? "<img class='desktop_thread_header_avatar' src='" + escape_mobile_chat_html(data.avatar) + "' alt=''>" : "";
+
+		return "<div class='desktop_thread_header'><div class='desktop_thread_header_media'>" + avatarHtml + "</div><div class='desktop_thread_header_body'><div class='desktop_thread_header_title'>" + escape_mobile_chat_html(data.title || "Chat") + "</div><div class='desktop_thread_header_meta'>Walkie Talkie chat</div></div></div>";
+	}
+
+	function build_desktop_empty_thread_markup()
+	{
+		return "<div class='desktop_thread_empty'><div class='desktop_thread_empty_card'><div class='desktop_thread_empty_title'>Pick a conversation</div><div class='desktop_thread_empty_copy'>Open a recent chat from the left column to view messages, send replies, or start live talk.</div></div></div>";
+	}
+
+	function build_desktop_thread_markup(userHtml, messagesHtml)
+	{
+		var trimmedMessages = String(messagesHtml || "").trim();
+		if(!trimmedMessages){
+			return build_desktop_empty_thread_markup();
+		}
+		return build_desktop_thread_header_markup(userHtml) + trimmedMessages;
+	}
+
+	function sync_desktop_chat_selection()
+	{
+		if(!is_desktop_app_layout()) return;
+
+		Array.prototype.slice.call(document.querySelectorAll("#inner_left_panel #active_contact[data-userid]")).forEach(function(el){
+			var userid = String(el.getAttribute("data-userid") || el.getAttribute("userid") || "").trim();
+			if(userid && String(CURRENT_CHAT_USER || "") === userid){
+				el.classList.add("is-current-chat");
+			}else{
+				el.classList.remove("is-current-chat");
+			}
+		});
 	}
 
 	function render_mobile_chat_list(userHtml)
@@ -2743,7 +3250,7 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 									if(!html) return false;
 									var tmp = document.createElement('div'); tmp.innerHTML = html;
 									// check for common markers: container with class 'chats_list' or items with class 'chat_item'
-									if(tmp.querySelector && (tmp.querySelector('.chats_list') || tmp.querySelector('.chat_item'))) return true;
+									if(tmp.querySelector && (tmp.querySelector('.chats_list') || tmp.querySelector('.chat_item') || tmp.querySelector('.desktop_chat_sidebar_shell') || tmp.querySelector('.desktop_chat_sidebar_item'))) return true;
 									// also check for visible headings that indicate presence of chats
 									var text = (tmp.textContent||'').toLowerCase();
 									if(text.indexOf('previous chats') !== -1 || text.indexOf('previous:') !== -1) return true;
@@ -2787,6 +3294,7 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 							case "chats_refresh":
 							SEEN_STATUS = false;
 							var messages_holder = _("messages_holder");
+							if(inner_right_panel && is_desktop_app_layout()) try{ inner_right_panel.style.overflow = "hidden"; }catch(e){}
 							if(messages_holder){
 								messages_holder.innerHTML = obj.messages;
 								// fix any relative image URLs produced by the server so the browser will fetch them
@@ -2811,6 +3319,7 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 								var inner_left_panel = _("inner_left_panel");
 								var hasChatMessages = !!(obj.messages && String(obj.messages).trim());
 								var forceChatsLeftUpdate = consume_forced_left_update("chats");
+								var desktopSidebarHtml = obj.sidebar || window.__desktopChatsSidebarHtml || "";
 
 								if(is_mobile_chat_layout()){
 									if(hasChatMessages){
@@ -2828,19 +3337,42 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 										if(inner_right_panel) inner_right_panel.innerHTML = "";
 									}
 								}else{
+									if(hasChatMessages){
+										if(obj.sidebar){
+											window.__desktopChatsSidebarHtml = obj.sidebar;
+											desktopSidebarHtml = obj.sidebar;
+										}
 										try{
-											if(forceChatsLeftUpdate || shouldApplyLeftUpdate(obj.user)){
-												if(inner_left_panel) inner_left_panel.innerHTML = obj.user;
+											if(desktopSidebarHtml && (forceChatsLeftUpdate || shouldApplyLeftUpdate(desktopSidebarHtml))){
+												if(inner_left_panel) inner_left_panel.innerHTML = desktopSidebarHtml;
+											} else if(!desktopSidebarHtml){
+												log_left_panel_debug('Skipping desktop chat sidebar update because no sidebar HTML was returned');
 											} else {
 												log_left_panel_debug('Skipping server left-panel update (chats) because user recently opened chats and payload contains no chat items');
 											}
-										}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = obj.user; }
+										}catch(e){ if(inner_left_panel && desktopSidebarHtml) inner_left_panel.innerHTML = desktopSidebarHtml; }
+									}else{
+										CURRENT_CHAT_USER = "";
+										if(obj.user){
+											window.__desktopChatsSidebarHtml = obj.user;
+											desktopSidebarHtml = obj.user;
+										}
+										try{
+											if(forceChatsLeftUpdate || shouldApplyLeftUpdate(desktopSidebarHtml)){
+												if(inner_left_panel) inner_left_panel.innerHTML = desktopSidebarHtml;
+											} else {
+												log_left_panel_debug('Skipping server left-panel update (chats) because user recently opened chats and payload contains no chat items');
+											}
+										}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = desktopSidebarHtml; }
+									}
 									if(inner_right_panel) {
-										inner_right_panel.innerHTML = obj.messages;
+										inner_right_panel.innerHTML = build_desktop_thread_markup(obj.user, obj.messages);
 										// the server may output relative paths for uploaded files like "uploads/xxx.jpg";
 										// normalize those to absolute URLs so images load reliably in the browser.
 										try{ _fixMessageImageURLs(inner_right_panel); }catch(e){}
+										try{ inner_right_panel.style.overflow = "hidden"; }catch(e){}
 									}
+									sync_desktop_chat_selection();
 								}
 
 								var messages_holder = _("messages_holder");
@@ -2905,11 +3437,16 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 
 
 	get_data({},"user_info");
-	get_data({},"contacts");
-
-
-	var radio_contacts = _("radio_contacts");
-	radio_contacts.checked = true;
+	if(is_mobile_chat_layout()){
+		get_data({},"contacts");
+		var radio_contacts = _("radio_contacts");
+		radio_contacts.checked = true;
+	}else{
+		get_data({},"chats");
+		var radio_chat = _("radio_chat");
+		if(radio_chat) radio_chat.checked = true;
+		setLeftActive("label_chat");
+	}
 
 	function get_contacts(e)
 	{
@@ -2933,15 +3470,16 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 	{
 		set_mobile_chat_return_view("chat");
 		queue_forced_left_update("chats");
+		CURRENT_CHAT_USER = "";
 		try{
 			var radio_chat = _("radio_chat");
 			if(radio_chat) radio_chat.checked = true;
 			if(typeof updateMobilePanelBodyClasses === "function") updateMobilePanelBodyClasses();
 		}catch(err){}
 		if(is_mobile_chat_layout()){
-			CURRENT_CHAT_USER = "";
 			reset_mobile_chat_panel();
 		}
+		sync_desktop_chat_selection();
 
 		get_data({},"chats");
 	}
@@ -3320,10 +3858,11 @@ document.addEventListener('visibilitychange', function(){
                 return;
             }
 
-            CURRENT_CHAT_USER = userid;
-            console.log('start_chat selected CURRENT_CHAT_USER =', CURRENT_CHAT_USER);
+	            CURRENT_CHAT_USER = userid;
+	            console.log('start_chat selected CURRENT_CHAT_USER =', CURRENT_CHAT_USER);
+	            sync_desktop_chat_selection();
 
-            var radio_chat = _("radio_chat");
+	            var radio_chat = _("radio_chat");
             if(is_mobile_chat_layout()){
                 var radio_contacts = _("radio_contacts");
                 var radio_settings = _("radio_settings");

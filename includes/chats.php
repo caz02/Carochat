@@ -27,24 +27,18 @@
 		// ensure IDs are strings to avoid numeric precision issues in JS
 		try{ $row->userid = strval($row->userid); }catch(Exception $e){}
 		
-			$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-			if(!empty($row->image) && is_string($row->image) && file_exists($row->image)){
-				$image = $row->image;
-			}
+			$image = carochat_resolve_user_image($row);
 
 			
 			$row->image = $image;
 
 			$mydata = "";
+			$sidebar = carochat_get_recent_chat_sidebar($DB, strval($_SESSION['userid']));
 			if(!$refresh){
 
 			$display_userid = '';
 			try{ $display_userid = isset($row->userid) ? strval($row->userid) : ''; }catch(Exception $e){ $display_userid = ''; }
-			$mydata = "Now Chatting with:<br>
-						<div id='active_contact' data-userid='".$display_userid."'>
-							<img src='$image'>
-							$row->username
-						</div>";
+			$mydata = carochat_build_chat_header_markup($display_userid, $image, $row->username);
 			}
 
 			$messages = "";
@@ -103,6 +97,7 @@
 			}
 
 		$info->user = $mydata;
+		$info->sidebar = $sidebar;
 		$info->messages = $messages;
 	
 			$info->data_type = "chats";
@@ -112,53 +107,9 @@
 		echo json_encode($info);
 	
 	}else{
-
-//read from db
-	$a['userid'] = $_SESSION['userid'];
-
-	// safer latest-per-conversation query: select the most recent row per msgid
-	$sql = "\nselect m.*\nfrom messages m\ninner join (\n\tselect max(id) as max_id\n\tfrom messages\n\twhere sender = :userid or receiver = :userid\n\tgroup by msgid\n) latest on latest.max_id = m.id\norder by m.id desc\nlimit 10\n";
-	$result2 = $DB->read($sql,$a);
-
-		$mydata = "Previous Chats:<br>";
-
-		if(is_array($result2)){
-
-				$result2 = array_reverse($result2);			
-					foreach ($result2 as $data) {
-						# code...
-
-						$other_user = $data->sender;
-						if($data->sender == $_SESSION['userid'])
-						{
-
-							$other_user = $data->receiver;
-						
-						}
-	
-						$myuser = $DB->get_user($other_user);
-						try{ if($myuser && isset($myuser->userid)) $myuser->userid = strval($myuser->userid); }catch(Exception $e){}
-
-						// ensure contact userid is a string when embedding into HTML attributes
-						try{ $contact_userid = isset($myuser->userid) ? strval($myuser->userid) : ''; }catch(Exception $e){ $contact_userid = ''; }
-
-						$image = ($myuser->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-						if(!empty($myuser->image) && is_string($myuser->image) && file_exists($myuser->image)){
-							$image = $myuser->image;
-						}
-							
-							$mydata .= "
-									<div id='active_contact' data-userid='".$contact_userid."' style='cursor:pointer'>
-										<img src='$image'>
-										$myuser->username<br>
-										<span style='font-size:11px;'>$data->message</span>
-									</div>";
-
-		}
-
-	}
-
+		$mydata = carochat_get_recent_chat_sidebar($DB, strval($_SESSION['userid']));
 		$info->user = $mydata;
+		$info->sidebar = $mydata;
 		$info->messages = "";
 		$info->data_type = "chats";
 		

@@ -86,6 +86,28 @@ if(isset($DATA_OBJ->data_type) && $DATA_OBJ->data_type == "signup")
 }
 
 
+function carochat_build_message_media_markup($filePath)
+{
+	if(empty($filePath) || !is_string($filePath)){
+		return "";
+	}
+
+	$cleanPath = trim($filePath);
+	if($cleanPath === ""){
+		return "";
+	}
+
+	$ext = strtolower(pathinfo($cleanPath, PATHINFO_EXTENSION));
+	$audioExts = array('webm','ogg','mp3','m4a','wav');
+	$mediaSrc = $cleanPath . '?_=' . time();
+
+	if(in_array($ext, $audioExts)){
+		return "<audio class='message_media message_audio' controls preload='metadata'><source src='$mediaSrc' type='audio/".$ext."'>Your browser does not support audio playback</audio><br>";
+	}
+
+	return "<img class='message_media message_image' src='$mediaSrc' alt='Attachment' onclick='image_show(event)' /> <br>";
+}
+
 function message_left($data,$row)
 {
 	// keep names consistent with other parts of the app (male.jpg / girl.jpg)
@@ -93,26 +115,18 @@ function message_left($data,$row)
 	if(!empty($row->image) && is_string($row->image) && file_exists($row->image)){
 		$image = $row->image;
 	}
+	$messageText = isset($data->message) ? trim(strval($data->message)) : "";
 	
 	$a = "
 	<div id='message_left'>
 	<div></div>
-		<img  id='prof_img' src='$image'>
-		$data->message<br><br>";
+		<img  id='prof_img' src='$image'>";
 
-		if(!empty($data->files) && is_string($data->files) && file_exists($data->files)){
-			$ext = strtolower(pathinfo($data->files, PATHINFO_EXTENSION));
-			$audioExts = array('webm','ogg','mp3','m4a','wav');
-			if(in_array($ext,$audioExts)){
-					// append a cache-busting query so updated audio is always loaded
-					$audioSrc = $data->files . '?_=' . time();
-					$a .= "<audio controls style='width:100%'><source src='$audioSrc' type='audio/".$ext."'>Your browser does not support audio playback</audio><br>";
-			}else{
-					// append a cache-busting query so updated images are always loaded
-					$imgSrc = $data->files . '?_=' . time();
-					$a .= "<img src='$imgSrc' style='width:100%;cursor:pointer;' onclick='image_show(event)' /> <br>";
-			}
+		if($messageText !== ""){
+			$a .= $data->message . "<br><br>";
 		}
+
+		$a .= carochat_build_message_media_markup(isset($data->files) ? $data->files : "");
 		$a .= "<img id='trash' src='ui/icons/trash.png' onclick='delete_message(event)' msgid='$data->id' />
 	</div> ";
 
@@ -125,6 +139,7 @@ function message_right($data,$row)
 	if(!empty($row->image) && is_string($row->image) && file_exists($row->image)){
 		$image = $row->image;
 	}
+	$messageText = isset($data->message) ? trim(strval($data->message)) : "";
 	
 	$a = "
 	<div id='message_right'>
@@ -139,20 +154,13 @@ function message_right($data,$row)
 
 	$a .= "</div>
 
-		<img id='prof_img' src='$image' style='float:right'>
-		$data->message<br><br>";
+		<img id='prof_img' src='$image' style='float:right'>";
 
-		if(!empty($data->files) && is_string($data->files) && file_exists($data->files)){
-			$ext = strtolower(pathinfo($data->files, PATHINFO_EXTENSION));
-			$audioExts = array('webm','ogg','mp3','m4a','wav');
-			if(in_array($ext,$audioExts)){
-					$audioSrc = $data->files . '?_=' . time();
-					$a .= "<audio controls style='width:100%'><source src='$audioSrc' type='audio/".$ext."'>Your browser does not support audio playback</audio><br>";
-			}else{
-					$imgSrc = $data->files . '?_=' . time();
-					$a .= "<img src='$imgSrc' style='width:100%;cursor:pointer;' onclick='image_show(event)' /> <br>";
-			}
+		if($messageText !== ""){
+			$a .= $data->message . "<br><br>";
 		}
+
+		$a .= carochat_build_message_media_markup(isset($data->files) ? $data->files : "");
 		$a .= "<img id='trash' src='ui/icons/trash.png' onclick='delete_message(event)' msgid='$data->id' />
 	</div>";
 
@@ -166,7 +174,7 @@ function message_controls()
 	return "
 	</div>
 	<span class='thread_delete_action' onclick='delete_thread(event)'>Delete this thread</span>
-	<div class='message_composer' style='display:flex;width:100%;height:40px;'>
+	<div class='message_composer' style='display:flex;width:100%;height:59px;'>
 		<label class='composer_chip composer_attach' for='message_file'><img src='ui/icons/attach.png' style='opacity:0.8;width:30px;margin:5px;cursor:pointer;' ><span class='composer_chip_text'>Files</span></label>
 		<input type='file' id='message_file' name='file' style='display:none' onchange='send_image(this.files)' />
 		<input id='message_text' onkeydown='enter_pressed(event)' style='flex:6;border:solid thin #ccc;border-bottom:none;font-size:14px;padding:4px;' type='text' placeHolder='type your message'/>
@@ -179,4 +187,115 @@ function message_controls()
 		<button id='send_button' class='send_button' style='flex:1;cursor:pointer;' type='button' onclick='send_message(event)' aria-label='Send message'><span class='btn-icon' aria-hidden='true'>&#10148;</span></button>
 	</div>
 	</div>";
+}
+
+function carochat_resolve_user_image($row)
+{
+	$image = (isset($row->gender) && $row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
+	if(!empty($row->image) && is_string($row->image) && file_exists($row->image)){
+		$image = $row->image;
+	}
+	return $image;
+}
+
+function carochat_escape_html($value)
+{
+	return htmlspecialchars(strval($value ?? ""), ENT_QUOTES, "UTF-8");
+}
+
+function carochat_build_chat_header_markup($userid, $image, $username)
+{
+	return "
+	<div class='desktop_chat_context'>
+		<div class='desktop_chat_context_label'>Now chatting with</div>
+		<div id='active_contact' class='desktop_chat_context_card' data-userid='".carochat_escape_html($userid)."'>
+			<img src='".carochat_escape_html($image)."' alt=''>
+			<div class='desktop_chat_context_body'>
+				<div class='desktop_chat_context_name'>".carochat_escape_html($username)."</div>
+			</div>
+		</div>
+	</div>";
+}
+
+function carochat_build_chat_sidebar_item($userid, $image, $username, $preview)
+{
+	$preview = trim(strval($preview ?? ""));
+	if($preview === ""){
+		$preview = "Open conversation";
+	}
+	if(strlen($preview) > 74){
+		$preview = substr($preview, 0, 71) . "...";
+	}
+
+	return "
+	<div id='active_contact' class='desktop_chat_sidebar_item' data-userid='".carochat_escape_html($userid)."' style='cursor:pointer;'>
+		<img src='".carochat_escape_html($image)."' alt=''>
+		<div class='desktop_chat_sidebar_body'>
+			<div class='desktop_chat_sidebar_name'>".carochat_escape_html($username)."</div>
+			<div class='desktop_chat_sidebar_preview'>".carochat_escape_html($preview)."</div>
+		</div>
+	</div>";
+}
+
+function carochat_build_chat_sidebar_markup($itemsMarkup)
+{
+	$content = trim(strval($itemsMarkup ?? ""));
+	if($content === ""){
+		$content = "<div class='desktop_chat_sidebar_empty'>Your recent conversations will appear here.</div>";
+	}
+
+	return "
+	<div class='desktop_chat_sidebar_shell'>
+		<div class='desktop_chat_sidebar_eyebrow'>Inbox</div>
+		<div class='desktop_chat_sidebar_title'>Messages</div>
+		<div class='desktop_chat_sidebar_list'>".$content."</div>
+	</div>";
+}
+
+function carochat_get_recent_chat_sidebar($DB, $userid)
+{
+	$a = [];
+	$a['userid'] = strval($userid);
+
+	$sql = "
+	select m.*
+	from messages m
+	inner join (
+		select max(id) as max_id
+		from messages
+		where sender = :userid or receiver = :userid
+		group by msgid
+	) latest on latest.max_id = m.id
+	order by m.id desc
+	limit 10
+	";
+	$result2 = $DB->read($sql, $a);
+
+	$items = "";
+
+	if(is_array($result2)){
+		$result2 = array_reverse($result2);
+		foreach($result2 as $data){
+			$other_user = $data->sender;
+			if($data->sender == $userid){
+				$other_user = $data->receiver;
+			}
+
+			$myuser = $DB->get_user($other_user);
+			if(!$myuser){
+				continue;
+			}
+
+			try{ if(isset($myuser->userid)) $myuser->userid = strval($myuser->userid); }catch(Exception $e){}
+			$image = carochat_resolve_user_image($myuser);
+			$items .= carochat_build_chat_sidebar_item(
+				isset($myuser->userid) ? $myuser->userid : "",
+				$image,
+				isset($myuser->username) ? $myuser->username : "Chat",
+				isset($data->message) ? $data->message : ""
+			);
+		}
+	}
+
+	return carochat_build_chat_sidebar_markup($items);
 }

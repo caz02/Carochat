@@ -471,3 +471,55 @@ How I verified it
 Files touched
 
 - `index.html` — stale-response guards, active-view checks, body-state fixes, mobile reset cleanup, chat-opening loading state, and debug-log gating.
+
+---
+
+2026-04-01 — desktop chat shell refresh and desktop-only single-panel contacts/settings
+
+Summary
+
+I used this session to improve the desktop layout without changing the mobile experience. The goal was to make desktop feel cleaner and closer to the visual reference while keeping the app's existing styling direction intact.
+
+What I changed
+
+1. Refreshed the desktop chat shell
+
+- Reworked the desktop-only layout in `index.html` so the main app sits inside a softer framed container instead of the older flat split view.
+- Removed the visible desktop header bar and kept the utility pieces (loader/image viewer) working without that top title strip.
+- Kept the left icon rail visually close to the existing app rather than redesigning it from scratch.
+
+2. Improved the desktop chat/sidebar structure
+
+- Converted the desktop chat list into a more readable sidebar with clearer conversation cards, previews, and active-chat highlighting.
+- Moved the active chat identity into the thread pane itself so the right side has its own conversation header instead of depending on the left panel.
+- Added server-side helpers to return both:
+  - the active thread header payload
+  - the recent-conversations sidebar payload
+- This lets desktop keep a proper message list on the left even when a thread is open.
+
+3. Cleaned up the desktop thread pane
+
+- Restyled desktop message bubbles, spacing, and composer so the conversation area feels more deliberate and less sparse.
+- Added a desktop empty state when no thread is selected.
+- Kept the mobile rendering path untouched; desktop uses its own wrapper logic around the existing server-rendered messages.
+
+4. Added desktop-only single-panel mode for Contacts and Settings
+
+- Updated the desktop state rules so when `Contacts` or `Settings` is active, the chat pane is hidden entirely.
+- In those states, `#inner_left_panel` expands into a wider single-panel layout instead of sharing space with `#inner_right_panel`.
+- I capped that width to roughly a third of the main content area (`clamp(...)`) so it feels intentional and not full-bleed.
+- Chat view still returns to the two-panel desktop layout automatically when `Chats` is selected again.
+
+How I verified it
+
+- Ran `php -l api.php`
+- Ran `php -l includes/chats.php`
+- Ran `php -l includes/send_messages.php`
+- Parsed inline scripts from `index.html` with Node to catch syntax issues after the JS/CSS changes.
+
+Files touched
+
+- `index.html` — desktop-only layout/styling refresh, desktop thread wrapper logic, active-chat highlighting, and the contacts/settings single-panel rules.
+- `api.php` — added reusable helpers for desktop chat header/sidebar markup.
+- `includes/chats.php` — returns sidebar HTML alongside active-thread data.
+- `includes/send_messages.php` — keeps desktop sidebar data in sync after sending messages.

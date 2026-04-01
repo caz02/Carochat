@@ -64,18 +64,11 @@
 		//user found
 		$row = $result[0];
 		
-			$image = ($row->gender == "Male") ? "ui/images/male.jpg" : "ui/images/girl.jpg";
-			if(!empty($row->image) && is_string($row->image) && file_exists($row->image)){
-				$image = $row->image;
-			}
+			$image = carochat_resolve_user_image($row);
 
 			$row->image = $image;
 
-			$mydata = "Now Chatting with:<br>
-			<div id='active_contact'>
-				<img src='$image'>
-				$row->username
-			</div>";
+			$mydata = carochat_build_chat_header_markup($arr['userid'], $image, $row->username);
 
 			$messages = "
 					<div id ='messages_holder_parent' style='height:650px;'>						
@@ -110,6 +103,7 @@
 
 
 		$info->user = $mydata;
+		$info->sidebar = carochat_get_recent_chat_sidebar($DB, strval($_SESSION['userid']));
 		$info->messages = $messages;
 		$info->data_type = "chats";
 

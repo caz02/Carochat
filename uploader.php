@@ -107,8 +107,6 @@ if(isset($_FILES['file']) && $_FILES['file']['name'] != ""){
 		$info->data_type = $data_type;
 		// include the destination path so the client can update UI immediately if needed
 		$info->file = $destination;
-		echo json_encode($info);
-		$__uploader_response_sent = true;
 	}
 
 	// if the file was present but failed type/extension checks, return an error
