@@ -614,6 +614,34 @@ html, body {
 		background:#54d879;
 		flex:0 0 8px;
 	}
+	#inner_left_panel.mobile-chat-thread .mobile_chat_loading_shell{
+		display:flex;
+		flex:1 1 auto;
+		align-items:center;
+		justify-content:center;
+		padding:18px 4px;
+	}
+	#inner_left_panel.mobile-chat-thread .mobile_chat_loading_card{
+		width:100%;
+		padding:22px 20px;
+		border-radius:24px;
+		background:#ffffff;
+		box-shadow:0 16px 36px rgba(75, 109, 170, 0.14);
+		color:#1b2944;
+		text-align:left;
+	}
+	#inner_left_panel.mobile-chat-thread .mobile_chat_loading_title{
+		font-size:19px;
+		line-height:1.15;
+		font-weight:700;
+		color:#182742;
+	}
+	#inner_left_panel.mobile-chat-thread .mobile_chat_loading_copy{
+		margin-top:8px;
+		font-size:14px;
+		line-height:1.45;
+		color:#6b7e9e;
+	}
 	#inner_left_panel.mobile-chat-thread > #messages_holder_parent{
 		display:flex !important;
 		flex-direction:column !important;
@@ -1586,11 +1614,11 @@ html, body {
 	(function(){
 		function initMessagesMonitor(){
 			try{
-				var innerLeft = document.getElementById('inner_left_panel');
-				function updateMessagesOpen(){
-					var rightPanelMessages = document.querySelector('#inner_right_panel #messages_holder_parent, #inner_right_panel #messages_holder');
-					var leftPanelThreadOpen = !!document.querySelector('#inner_left_panel.mobile-chat-thread #messages_holder_parent, #inner_left_panel.mobile-chat-thread #messages_holder');
-					var chatOpen = !!rightPanelMessages;
+					var innerLeft = document.getElementById('inner_left_panel');
+					function updateMessagesOpen(){
+						var rightPanelMessages = document.querySelector('#inner_right_panel #messages_holder_parent, #inner_right_panel #messages_holder');
+						var leftPanelThreadOpen = !!document.querySelector('#inner_left_panel.mobile-chat-thread #messages_holder_parent, #inner_left_panel.mobile-chat-thread #messages_holder');
+						var chatOpen = !!rightPanelMessages || leftPanelThreadOpen;
 					// check the message input - if it's visible or focused we should hide the left panel on mobile
 					var msgInput = document.getElementById('message_text');
 					var inputVisible = false;
@@ -1614,12 +1642,13 @@ html, body {
 					// made the chats disappear. Keep typing-related behavior separate (left-hidden)
 					// so the chat list remains visible when no chat is open.
 					var isMobile = (window.innerWidth <= 500);
-					if(isMobile && chatOpen){
-						// a chat is open on small screens: mark messages-open so CSS hides inner left panel
-						document.body.classList.add('messages-open');
-						document.body.classList.remove('messages-closed');
-						try{ if(innerLeft) innerLeft.style.display = ''; }catch(err){}
-					} else {
+						if(isMobile && chatOpen){
+							// a chat is open on small screens: mark messages-open so CSS hides inner left panel
+							document.body.classList.add('messages-open');
+							document.body.classList.remove('messages-closed');
+							document.body.classList.remove('left-hidden');
+							try{ if(innerLeft) innerLeft.style.display = ''; }catch(err){}
+						} else {
 						// no chat open: ensure the chat list remains visible
 						document.body.classList.remove('messages-open');
 						document.body.classList.add('messages-closed');
@@ -2276,10 +2305,59 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 	logout.addEventListener("click",logout_user);
 	
 
+	function is_left_panel_data_type(typeName)
+	{
+		return typeName == "contacts" || typeName == "chats" || typeName == "settings";
+	}
+
+	function get_active_left_panel_type()
+	{
+		var radio_settings = _("radio_settings");
+		var radio_contacts = _("radio_contacts");
+		var radio_chat = _("radio_chat");
+
+		if(radio_settings && radio_settings.checked){
+			return "settings";
+		}
+
+		if(radio_contacts && radio_contacts.checked){
+			return "contacts";
+		}
+
+		if(radio_chat && radio_chat.checked){
+			return "chats";
+		}
+
+		return "";
+	}
+
+	function log_left_panel_debug()
+	{
+		try{
+			if(window.CAROCHAT_DEBUG_LEFT_PANEL && window.console && typeof window.console.info === "function"){
+				window.console.info.apply(window.console, arguments);
+			}
+		}catch(e){}
+	}
+
 
 	function get_data(find,type){
 
 		var xml = new XMLHttpRequest();
+		var requestMeta = {
+			type: type || "",
+			isLeftPanelRequest: false,
+			requestId: 0
+		};
+
+		try{
+			if(is_left_panel_data_type(type)){
+				window.__leftPanelRequestCounter = (window.__leftPanelRequestCounter || 0) + 1;
+				window.__latestLeftPanelRequestId = window.__leftPanelRequestCounter;
+				requestMeta.isLeftPanelRequest = true;
+				requestMeta.requestId = window.__leftPanelRequestCounter;
+			}
+		}catch(e){}
 		// ensure cookies (session) are sent for same-origin requests
 		xml.withCredentials = true;
 		var loader_holder = _("loader_holder");
@@ -2290,7 +2368,7 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 			if(xml.readyState == 4 && xml.status == 200){
 
 				loader_holder.className = "loader_off";
-				handle_result(xml.responseText,type);
+				handle_result(xml.responseText,type,requestMeta);
 			}
 
 		}
@@ -2336,8 +2414,12 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 		if(inner_left_panel){
 			inner_left_panel.classList.remove("mobile-chat-list");
 			inner_left_panel.classList.remove("mobile-chat-thread");
+			if(is_mobile_chat_layout()){
+				inner_left_panel.innerHTML = "";
+			}
 		}
 		document.body.classList.remove("left-chat-open");
+		document.body.classList.remove("left-hidden");
 		document.body.classList.remove("messages-open");
 		document.body.classList.add("messages-closed");
 	}
@@ -2469,12 +2551,33 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 
 		reset_mobile_chat_panel();
 		inner_left_panel.classList.add("mobile-chat-list");
+		document.body.classList.remove("messages-open");
+		document.body.classList.remove("left-hidden");
+		document.body.classList.add("messages-closed");
 		inner_left_panel.innerHTML = build_mobile_chat_list_markup(userHtml);
 		if(inner_right_panel){
 			inner_right_panel.innerHTML = "";
 		}
 
 		try{ window.__lastLeftUpdate = Date.now(); }catch(e){}
+	}
+
+	function render_mobile_chat_loading()
+	{
+		var inner_left_panel = _("inner_left_panel");
+		var inner_right_panel = _("inner_right_panel");
+		if(!inner_left_panel) return;
+
+		reset_mobile_chat_panel();
+		inner_left_panel.classList.add("mobile-chat-thread");
+		document.body.classList.add("left-chat-open");
+		document.body.classList.add("messages-open");
+		document.body.classList.remove("messages-closed");
+		document.body.classList.remove("left-hidden");
+		inner_left_panel.innerHTML = "<div class='mobile_chat_loading_shell'><div class='mobile_chat_loading_card'><div class='mobile_chat_loading_title'>Opening chat</div><div class='mobile_chat_loading_copy'>Loading the latest messages and composer.</div></div></div>";
+		if(inner_right_panel){
+			inner_right_panel.innerHTML = "";
+		}
 	}
 
 	function return_from_mobile_chat_thread()
@@ -2517,6 +2620,9 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 		reset_mobile_chat_panel();
 		inner_left_panel.classList.add("mobile-chat-thread");
 		document.body.classList.add("left-chat-open");
+		document.body.classList.add("messages-open");
+		document.body.classList.remove("messages-closed");
+		document.body.classList.remove("left-hidden");
 		inner_left_panel.innerHTML = build_mobile_chat_header_markup(userHtml) + (messagesHtml || "");
 		if(inner_right_panel){
 			inner_right_panel.innerHTML = "";
@@ -2533,7 +2639,7 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 		try{ window.__lastLeftUpdate = Date.now(); }catch(e){}
 	}
 
-	function handle_result(result,type){
+	function handle_result(result,type,requestMeta){
 
 			if(result.trim() != ""){
 
@@ -2550,15 +2656,32 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 				}
 
 				var obj;
-				try{
-					obj = JSON.parse(result);
-				}catch(e){
-					console.error('Invalid JSON from API:', e, result);
-					return;
-				}
-				if(typeof(obj.logged_in) != "undefined" && !obj.logged_in){
- 
-					window.location = "login.php";
+					try{
+						obj = JSON.parse(result);
+					}catch(e){
+						console.error('Invalid JSON from API:', e, result);
+						return;
+					}
+
+					try{
+							if(is_left_panel_data_type(obj.data_type)){
+								var latestLeftPanelRequestId = Number(window.__latestLeftPanelRequestId || 0);
+								var activeLeftPanelType = get_active_left_panel_type();
+
+								if(requestMeta && requestMeta.isLeftPanelRequest && requestMeta.requestId && latestLeftPanelRequestId && requestMeta.requestId < latestLeftPanelRequestId){
+									log_left_panel_debug('Ignoring stale left-panel response for', obj.data_type, 'request', requestMeta.requestId, 'latest is', latestLeftPanelRequestId);
+									return;
+								}
+
+								if(activeLeftPanelType && activeLeftPanelType != obj.data_type){
+									log_left_panel_debug('Ignoring left-panel response for inactive view', obj.data_type, 'active view is', activeLeftPanelType);
+									return;
+								}
+							}
+					}catch(e){ console.warn('left-panel response guard failed', e); }
+					if(typeof(obj.logged_in) != "undefined" && !obj.logged_in){
+	 
+						window.location = "login.php";
 				}else{
 
 						// Helper: ensure any relative <img> srcs inside server-rendered message HTML
@@ -2652,13 +2775,13 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 
 									if(inner_right_panel) try{ inner_right_panel.style.overflow = "hidden"; }catch(e){}
 								// avoid overwriting a recent manual left-panel render (e.g. user clicked Chat)
-								try{
-									if(forceContactsLeftUpdate || shouldApplyLeftUpdate(obj.message)){
-										if(inner_left_panel) inner_left_panel.innerHTML = obj.message;
-									} else {
-										console.info('Skipping server left-panel update (contacts) because user recently opened chats and payload contains no chat items');
-									}
-								}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = obj.message; }
+									try{
+										if(forceContactsLeftUpdate || shouldApplyLeftUpdate(obj.message)){
+											if(inner_left_panel) inner_left_panel.innerHTML = obj.message;
+										} else {
+											log_left_panel_debug('Skipping server left-panel update (contacts) because user recently opened chats and payload contains no chat items');
+										}
+									}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = obj.message; }
 								break;
 
 							case "chats_refresh":
@@ -2695,23 +2818,23 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 										try{ _fixMessageImageURLs(inner_left_panel); }catch(e){}
 									}else{
 										reset_mobile_chat_panel();
-										try{
-											if(forceChatsLeftUpdate || shouldApplyLeftUpdate(obj.user)){
-												render_mobile_chat_list(obj.user);
-											} else {
-												console.info('Skipping server left-panel update (chats) because user recently opened chats and payload contains no chat items');
-											}
-										}catch(e){ render_mobile_chat_list(obj.user); }
+											try{
+												if(forceChatsLeftUpdate || shouldApplyLeftUpdate(obj.user)){
+													render_mobile_chat_list(obj.user);
+												} else {
+													log_left_panel_debug('Skipping server left-panel update (chats) because user recently opened chats and payload contains no chat items');
+												}
+											}catch(e){ render_mobile_chat_list(obj.user); }
 										if(inner_right_panel) inner_right_panel.innerHTML = "";
 									}
 								}else{
-									try{
-										if(forceChatsLeftUpdate || shouldApplyLeftUpdate(obj.user)){
-											if(inner_left_panel) inner_left_panel.innerHTML = obj.user;
-										} else {
-											console.info('Skipping server left-panel update (chats) because user recently opened chats and payload contains no chat items');
-										}
-									}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = obj.user; }
+										try{
+											if(forceChatsLeftUpdate || shouldApplyLeftUpdate(obj.user)){
+												if(inner_left_panel) inner_left_panel.innerHTML = obj.user;
+											} else {
+												log_left_panel_debug('Skipping server left-panel update (chats) because user recently opened chats and payload contains no chat items');
+											}
+										}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = obj.user; }
 									if(inner_right_panel) {
 										inner_right_panel.innerHTML = obj.messages;
 										// the server may output relative paths for uploaded files like "uploads/xxx.jpg";
@@ -2743,25 +2866,27 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 									reset_mobile_chat_panel();
 									if(inner_right_panel) inner_right_panel.innerHTML = "";
 								}
-								try{
-									if(forceSettingsLeftUpdate || shouldApplyLeftUpdate(obj.message)){
-										if(inner_left_panel) inner_left_panel.innerHTML = obj.message;
-									} else {
-										console.info('Skipping server left-panel update (settings) because user recently opened chats and payload contains no chat items');
-									}
-								}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = obj.message; }
+									try{
+										if(forceSettingsLeftUpdate || shouldApplyLeftUpdate(obj.message)){
+											if(inner_left_panel) inner_left_panel.innerHTML = obj.message;
+										} else {
+											log_left_panel_debug('Skipping server left-panel update (settings) because user recently opened chats and payload contains no chat items');
+										}
+									}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = obj.message; }
 							break;
 
 							case "send_image":
 							alert(obj.message);
 							break;
 
-						case "save_settings":
-  
-						alert(obj.message);
-						get_data({},"user_info");
-						get_settings(true);
-						break;
+							case "save_settings":
+	  
+							alert(obj.message);
+							get_data({},"user_info");
+							if(get_active_left_panel_type() == "settings"){
+								get_settings(true);
+							}
+							break;
 
 						}
 
@@ -2920,12 +3045,12 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 						var v = (contactSearch.value||'').trim();
 						if(v !== '' || document.activeElement === contactSearch) searchActive = true;
 					}
-					if(!searchActive){
-						get_data({}, "contacts");
-					} else {
-						// do not overwrite user's search results while typing/focused
-						console.info('Skipping contacts poll because contact search is active');
-					}
+						if(!searchActive){
+							get_data({}, "contacts");
+						} else {
+							// do not overwrite user's search results while typing/focused
+							log_left_panel_debug('Skipping contacts poll because contact search is active');
+						}
 				}catch(e){ console.warn('contacts poll check failed', e); get_data({}, "contacts"); }
 			}
 		}catch(e){ console.warn('periodic refresh failed', e); }
@@ -3127,8 +3252,12 @@ document.addEventListener('visibilitychange', function(){
 						}
 					}catch(e){ console.warn('uploader response not JSON', e); }
 					// refresh ui
-					get_data({}, "user_info");
-					try{ get_settings(true); }catch(e){}
+						get_data({}, "user_info");
+						try{
+							if(get_active_left_panel_type() == "settings"){
+								get_settings(true);
+							}
+						}catch(e){}
 					try{ if(change_image_button){ change_image_button.disabled = false; change_image_button.innerHTML = "Change Image"; } }catch(e){}
 				} else {
 					console.error('Image upload failed', xml.status, xml.responseText);
@@ -3206,11 +3335,14 @@ document.addEventListener('visibilitychange', function(){
                     set_mobile_chat_return_view("chat");
                 }
             }
-            queue_forced_left_update("chats");
-            if(radio_chat) radio_chat.checked = true;
-            try{ if(typeof updateMobilePanelBodyClasses === "function") updateMobilePanelBodyClasses(); }catch(e){}
-            get_data({ userid: CURRENT_CHAT_USER }, "chats");
-        }
+	            queue_forced_left_update("chats");
+	            if(radio_chat) radio_chat.checked = true;
+	            try{ if(typeof updateMobilePanelBodyClasses === "function") updateMobilePanelBodyClasses(); }catch(e){}
+	            if(is_mobile_chat_layout()){
+	                render_mobile_chat_loading();
+	            }
+	            get_data({ userid: CURRENT_CHAT_USER }, "chats");
+	        }
 
 		// Event delegation: handle clicks on elements that carry data-userid (contacts)
 		document.addEventListener('click', function(ev){

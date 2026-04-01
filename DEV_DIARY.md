@@ -414,3 +414,60 @@ Files touched (high level)
 - `api.php` — composer markup refresh for files/audio/live/send actions.
 - `includes/contacts.php` — better contact-row markup, empty states, and search fallback behavior.
 - `includes/settings.php` — escaped values, corrected response type, and cleaner settings markup.
+
+---
+
+2026-04-01 — mobile flash debugging, stale-response guards, and chat-open loading state
+
+Summary
+
+I spent this session tracking down the remaining mobile layout flashes that still appeared when moving from contacts/settings/search into a chat thread and when returning from mobile chat views.
+
+What I found
+
+- The earlier console spam (`Ignoring stale left-panel response ...`) confirmed that older left-panel requests were still arriving out of order, but those stale responses were mostly a symptom rather than the final visual cause.
+- The real visual flash came from mobile transitions briefly leaving old DOM on screen:
+  - an older `settings` / `contacts` / `search` response could still be in flight while the UI had already moved on
+  - the back/reset path removed mobile thread classes before replacement content arrived, so the old thread DOM briefly fell back to older layout rules
+  - clicking a mobile contact/search result left the search results visible until the chat request completed
+- The body-state monitor also treated some left-panel mobile threads as "closed", which could leave `messages-closed` applied at the wrong moment.
+
+What I changed (`index.html`)
+
+1. Guarded left-panel responses
+
+- Added request metadata for left-panel requests (`contacts`, `chats`, `settings`) and ignore stale responses if a newer request has already been issued.
+- Added an active-view check so a response for an inactive tab does not repaint the left panel after the user has already switched elsewhere.
+- Restricted settings refreshes after `save_settings` and profile-image updates so `get_settings(true)` only runs if Settings is still the active view.
+
+2. Fixed mobile thread/body-state transitions
+
+- Updated the mobile messages-state monitor so a left-panel mobile thread counts as an open chat, not just right-panel message markup.
+- Cleared `left-hidden` when a chat is actively open.
+- Made `render_mobile_chat_list()` and `render_mobile_chat_thread()` set `messages-open` / `messages-closed` immediately instead of waiting for the observer to catch up.
+
+3. Removed the old-DOM flash during back/navigation
+
+- Updated `reset_mobile_chat_panel()` so mobile clears the old `#inner_left_panel` HTML immediately when leaving a thread/list state.
+- This prevents the previous chat/search/settings markup from sitting on screen for one request cycle and falling back to the older mobile/desktop CSS rules.
+
+4. Added an explicit mobile chat-opening state
+
+- Added `render_mobile_chat_loading()` so tapping a mobile contact/search result immediately swaps the old results pane out for a neutral "Opening chat" card while the `chats` request is in flight.
+- Wired `start_chat()` to use that loading state on mobile before requesting the thread payload.
+- Added CSS for the temporary loading card inside the mobile thread shell so the UI stays visually consistent during the transition.
+
+5. Reduced console noise
+
+- Gated the left-panel debug logs behind `window.CAROCHAT_DEBUG_LEFT_PANEL` so normal use does not flood DevTools with stale-response and polling messages.
+- The guard logs can still be re-enabled when needed for debugging future race conditions.
+
+How I verified it
+
+- Reproduced the issue in Chrome DevTools mobile emulation (`iPhone SE`) while switching between Contacts, Settings, search results, and chat threads.
+- Used the console output to confirm the stale-response guard was firing and to distinguish between real repaint problems and harmless old requests arriving late.
+- Focused specifically on the search-result click path, since that was still showing the older mobile search layout after an item was selected.
+
+Files touched
+
+- `index.html` — stale-response guards, active-view checks, body-state fixes, mobile reset cleanup, chat-opening loading state, and debug-log gating.
