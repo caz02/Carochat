@@ -52,14 +52,16 @@ if(isset($_FILES['file']) && $_FILES['file']['name'] != ""){
 		'audio/mp3',
 		'audio/x-wav',
 		'audio/wav',
-		'audio/mp4'
+		'audio/mp4',
+		'audio/x-m4a',
+		'audio/aac'
 	];
 
 	$fileTypeOk = ($_FILES['file']['error'] == 0 && in_array($_FILES['file']['type'], $allowed));
 
 	// basic extension check as an additional guard
 	$ext = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
-	$extOk = in_array($ext, ['jpg','jpeg','png','webm','ogg','mp3','m4a','wav']);
+	$extOk = in_array($ext, ['jpg','jpeg','png','webm','ogg','mp3','m4a','wav','mp4','aac']);
 
 	// Fallback: some clients (certain Android devices, older browsers) may send a generic
 	// content-type (e.g. application/octet-stream) even for images. If the extension
@@ -140,6 +142,17 @@ if($data_type == "change_profile_image"){
 } else 
 if($data_type == "send_image"){
 
+	if($destination == ""){
+		if(!$__uploader_response_sent){
+			http_response_code(400);
+			$info->message = 'Image upload did not complete';
+			$info->data_type = $data_type;
+			echo json_encode($info);
+			$__uploader_response_sent = true;
+		}
+		return;
+	}
+
 	// receiver userid (the chat partner)
 	$userid = null;
 	if(isset($_POST['userid'])){
@@ -203,6 +216,17 @@ if($data_type == "send_image"){
 
 // handle audio sends
 if($data_type == "send_audio"){
+
+	if($destination == ""){
+		if(!$__uploader_response_sent){
+			http_response_code(400);
+			$info->message = 'Audio upload did not complete';
+			$info->data_type = $data_type;
+			echo json_encode($info);
+			$__uploader_response_sent = true;
+		}
+		return;
+	}
 
 	// initialize structure
 	$arr = [];

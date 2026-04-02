@@ -98,14 +98,42 @@ function carochat_build_message_media_markup($filePath)
 	}
 
 	$ext = strtolower(pathinfo($cleanPath, PATHINFO_EXTENSION));
-	$audioExts = array('webm','ogg','mp3','m4a','wav');
-	$mediaSrc = $cleanPath . '?_=' . time();
+	$audioExts = array('webm','ogg','mp3','m4a','wav','mp4');
+	$mediaSrc = $cleanPath;
 
 	if(in_array($ext, $audioExts)){
-		return "<audio class='message_media message_audio' controls preload='metadata'><source src='$mediaSrc' type='audio/".$ext."'>Your browser does not support audio playback</audio><br>";
+		$waveHeights = array(8, 14, 22, 12, 18, 28, 16, 10, 20, 30, 18, 12, 24);
+		$waveMarkup = "";
+		foreach($waveHeights as $index => $height){
+			$delay = $index * 70;
+			$waveMarkup .= "<span style='--bar-h: ".$height."px; --bar-delay: ".$delay."ms;'></span>";
+		}
+
+		$mimeMap = array(
+			'webm' => 'audio/webm',
+			'ogg' => 'audio/ogg',
+			'mp3' => 'audio/mpeg',
+			'wav' => 'audio/wav',
+			'm4a' => 'audio/mp4',
+			'mp4' => 'audio/mp4'
+		);
+		$audioMime = isset($mimeMap[$ext]) ? $mimeMap[$ext] : 'audio/mpeg';
+		return "
+		<div class='message_voice_note' onclick='toggle_voice_note(this)' onkeydown='handle_voice_note_key(event,this)' tabindex='0' role='button' aria-label='Play voice note'>
+			<button class='message_voice_note_toggle' type='button' onclick='event.stopPropagation(); toggle_voice_note(this)' aria-label='Play voice note'>
+				<span class='message_voice_note_toggle_icon' aria-hidden='true'></span>
+			</button>
+			<div class='message_voice_note_body'>
+				<div class='message_voice_note_meta'>
+					<span class='message_voice_note_duration'>0:00</span>
+				</div>
+				<div class='message_voice_note_wave' aria-hidden='true'>".$waveMarkup."</div>
+			</div>
+			<audio class='message_media message_audio message_audio_native' controls preload='metadata' playsinline onloadedmetadata='sync_voice_note_meta(this)' onplay='sync_voice_note_button(this)' onpause='sync_voice_note_button(this)' onended='sync_voice_note_button(this)' onerror='handle_message_media_error(event)'><source src='$mediaSrc' type='$audioMime'>Your browser does not support audio playback. <a href='$mediaSrc' target='_blank' rel='noopener'>Open audio</a>.</audio>
+		</div><br>";
 	}
 
-	return "<img class='message_media message_image' src='$mediaSrc' alt='Attachment' onclick='image_show(event)' /> <br>";
+	return "<img class='message_media message_image' src='$mediaSrc' alt='Attachment' onclick='image_show(event)' onerror='handle_message_media_error(event)' /> <br>";
 }
 
 function message_left($data,$row)
@@ -116,9 +144,14 @@ function message_left($data,$row)
 		$image = $row->image;
 	}
 	$messageText = isset($data->message) ? trim(strval($data->message)) : "";
+	$mediaMarkup = carochat_build_message_media_markup(isset($data->files) ? $data->files : "");
+	$messageClass = (strpos($mediaMarkup, "message_voice_note") !== false && $messageText === "") ? "message_voice_message" : "";
+	if($messageText === "" && $mediaMarkup === ""){
+		return "";
+	}
 	
 	$a = "
-	<div id='message_left'>
+	<div id='message_left' class='$messageClass'>
 	<div></div>
 		<img  id='prof_img' src='$image'>";
 
@@ -126,7 +159,7 @@ function message_left($data,$row)
 			$a .= $data->message . "<br><br>";
 		}
 
-		$a .= carochat_build_message_media_markup(isset($data->files) ? $data->files : "");
+		$a .= $mediaMarkup;
 		$a .= "<img id='trash' src='ui/icons/trash.png' onclick='delete_message(event)' msgid='$data->id' />
 	</div> ";
 
@@ -140,9 +173,14 @@ function message_right($data,$row)
 		$image = $row->image;
 	}
 	$messageText = isset($data->message) ? trim(strval($data->message)) : "";
+	$mediaMarkup = carochat_build_message_media_markup(isset($data->files) ? $data->files : "");
+	$messageClass = (strpos($mediaMarkup, "message_voice_note") !== false && $messageText === "") ? "message_voice_message" : "";
+	if($messageText === "" && $mediaMarkup === ""){
+		return "";
+	}
 	
 	$a = "
-	<div id='message_right'>
+	<div id='message_right' class='$messageClass'>
 
 	<div>";
 	
@@ -160,7 +198,7 @@ function message_right($data,$row)
 			$a .= $data->message . "<br><br>";
 		}
 
-		$a .= carochat_build_message_media_markup(isset($data->files) ? $data->files : "");
+		$a .= $mediaMarkup;
 		$a .= "<img id='trash' src='ui/icons/trash.png' onclick='delete_message(event)' msgid='$data->id' />
 	</div>";
 
@@ -180,7 +218,7 @@ function message_controls()
 		<input id='message_text' onkeydown='enter_pressed(event)' style='flex:6;border:solid thin #ccc;border-bottom:none;font-size:14px;padding:4px;' type='text' placeHolder='type your message'/>
 		<!-- Mic button: click to toggle on desktop, hold on mobile -->
 				<!-- Voice-note mic (existing) -->
-				<button id='mic_button' class='composer_chip' type='button' style='margin:0 6px;cursor:pointer;' title='Record voice note'><span class='btn-icon' aria-hidden='true'>🎙</span><span class='composer_chip_text'>Audio</span></button>
+				<button id='mic_button' class='composer_chip' type='button' style='margin:0 6px;cursor:pointer;' title='Hold to record voice note'><span class='btn-icon' aria-hidden='true'>🎙</span><span class='composer_chip_text'>Audio</span></button>
 				<!-- Walkie / live-talk button (starts live WebRTC session) -->
 				<button id='walkie_button' class='composer_chip' type='button' style='margin:0 6px;cursor:pointer;' title='Start live talk'><span class='btn-icon' aria-hidden='true'>📻</span><span class='composer_chip_text'>Live</span></button>
 		<span id='recording_indicator' class='recording_indicator' style='display:none;color:red;margin-right:6px;'>● recording</span>

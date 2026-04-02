@@ -75,6 +75,7 @@ if(is_array($mymgs)){
 }
 
 $action = isset($DATA_OBJ->find->action) ? $DATA_OBJ->find->action : null;
+$q = isset($DATA_OBJ->find->q) ? trim(strval($DATA_OBJ->find->q)) : '';
 
 // add contact
 if($action === 'add' && isset($DATA_OBJ->find->contactid)){
@@ -117,9 +118,12 @@ if($action === 'delete' && isset($DATA_OBJ->find->contactid)){
 	);
 }
 
+if(($action === 'add' || $action === 'delete') && $q !== ''){
+	$action = 'search';
+}
+
 // search users
 if($action === 'search'){
-	$q = isset($DATA_OBJ->find->q) ? trim($DATA_OBJ->find->q) : '';
 	if($q === ''){
 		$action = null;
 	}

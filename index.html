@@ -410,13 +410,9 @@ html, body {
 	#message_right div{
 
 		width: 20px;
-		height:20px;
-		background-color: #34474f;
-		border: solid 2px white;
-		border-radius: 50%;
+		height: 20px;
 		position: absolute;
-		right:-10px;
-		top:20px;
+		top: 3px;
 		z-index: 99999999999;
 	}
 
@@ -523,7 +519,7 @@ html, body {
 		flex-direction:column !important;
 		height:100% !important;
 		overflow:hidden !important;
-		padding:12px !important;
+		padding:6px !important;
 		padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px)) !important;
 		box-sizing:border-box !important;
 		background:linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%) !important;
@@ -804,6 +800,164 @@ html, body {
 		max-width:min(240px, 64vw) !important;
 		width:min(240px, 64vw) !important;
 		border-radius:999px;
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note{
+		position:relative;
+		display:flex;
+		align-items:center;
+		gap:12px;
+		width:auto;
+		max-width:100%;
+		min-width:168px;
+		margin-top:0;
+		cursor:pointer;
+		outline:none;
+		padding:0;
+		border-radius:0;
+		background:none;
+		box-shadow:none;
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note:focus-visible{
+		box-shadow:none;
+	}
+	#inner_left_panel.mobile-chat-thread #message_left.message_voice_message,
+	#inner_left_panel.mobile-chat-thread #message_right.message_voice_message{
+		padding-top:15px !important;
+		padding-bottom:15px !important;
+	}
+	#inner_left_panel.mobile-chat-thread #message_right.message_voice_message{
+		padding-right:22px !important;
+	}
+	#inner_left_panel.mobile-chat-thread #message_left.message_voice_message{
+		padding-left:22px !important;
+	}
+	#inner_left_panel.mobile-chat-thread #message_right.message_voice_message img#prof_img,
+	#inner_left_panel.mobile-chat-thread #message_left.message_voice_message img#prof_img{
+		bottom:12px !important;
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note_toggle{
+		display:inline-flex;
+		align-items:center;
+		justify-content:center;
+		flex:0 1 36px;
+		width:32px;
+		height:37px;
+		padding:4px;
+		border:none;
+		border-radius:50%;
+		background:#20304d;
+		color:#ffffff;
+		box-shadow:0 10px 16px rgba(24, 38, 65, 0.18);
+		cursor:pointer;
+		margin-left:-13px;
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note_toggle_icon{
+		position:relative;
+		display:block;
+		width:13px;
+		height:15px;
+		margin-left:2px;
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note_toggle_icon::before{
+		content:'';
+		position:absolute;
+		left:0;
+		top:50%;
+		transform:translateY(-50%);
+		width:0;
+		height:0;
+		border-top:8px solid transparent;
+		border-bottom:8px solid transparent;
+		border-left:13px solid currentColor;
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note.is-playing .message_voice_note_toggle_icon{
+		width:12px;
+		height:12px;
+		margin-left:0;
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note.is-playing .message_voice_note_toggle_icon::before{
+		width:4px;
+		height:12px;
+		border:none;
+		background:currentColor;
+		box-shadow:8px 0 0 currentColor;
+		transform:translateY(-50%);
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note_body{
+		display:flex;
+		flex-direction:column;
+		align-items:flex-start;
+		justify-content:center;
+		gap:5px;
+		flex:0 1 auto;
+		min-width:0;
+		max-width:calc(100% - 54px);
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note_wave{
+		display:flex;
+		align-items:flex-end;
+		gap:3px;
+		height:28px;
+		width:92px;
+		min-width:0;
+		left:43px;
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note_wave span{
+		display:block;
+		flex:0 0 4px;
+		width:4px;
+		height:var(--bar-h);
+		border-radius:999px;
+		background:rgba(255,255,255,0.92);
+		opacity:0.94;
+		transform-origin:center bottom;
+	}
+	#inner_left_panel.mobile-chat-thread #message_left .message_voice_note_wave span{
+		background:#22324f;
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note.is-playing .message_voice_note_wave span{
+		animation:voice_note_pulse 1.18s ease-in-out infinite;
+		animation-delay:var(--bar-delay);
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note_meta{
+		display:flex;
+		align-items:center;
+		justify-content:flex-start;
+		gap:6px;
+		min-width:0;
+	}
+	#inner_left_panel.mobile-chat-thread .message_voice_note_duration{
+		font-size:11px;
+		line-height:1.1;
+		font-weight:700;
+		color:inherit;
+		opacity:0.94;
+		letter-spacing:0.01em;
+		margin-left: 138px;
+        margin-top: 34px;
+
+	}
+	#inner_left_panel.mobile-chat-thread .message_audio_native{
+		position:absolute !important;
+		width:1px !important;
+		height:1px !important;
+		max-width:none !important;
+		margin:0 !important;
+		padding:0 !important;
+		opacity:0 !important;
+		pointer-events:none !important;
+		overflow:hidden !important;
+	}
+	#inner_left_panel.mobile-chat-thread .message_media_missing{
+		display:block;
+		max-width:min(220px, 60vw);
+		margin-top:10px;
+		padding:10px 12px;
+		border-radius:14px;
+		background:rgba(31, 47, 77, 0.08);
+		color:inherit;
+		font-size:12px;
+		line-height:1.35;
 	}
 	#inner_left_panel.mobile-chat-thread .message_composer{
 		display:grid !important;
@@ -2016,6 +2170,170 @@ html, body {
 		max-width:min(320px, 36vw) !important;
 		width:min(320px, 36vw) !important;
 	}
+	#inner_right_panel .message_voice_note{
+		position:relative;
+		display:flex;
+		align-items:center;
+		gap:14px;
+		width:auto;
+		max-width:100%;
+		min-width:202px;
+		margin-top:0;
+		cursor:pointer;
+		outline:none;
+		padding:0;
+		border-radius:0;
+		background:none;
+		box-shadow:none;
+	}
+	#inner_right_panel .message_voice_note:focus-visible{
+		box-shadow:none;
+	}
+	#inner_right_panel #message_left.message_voice_message,
+	#inner_right_panel #message_right.message_voice_message{
+		padding-top:19px;
+		padding-bottom:0;
+	}
+	#inner_right_panel #message_right.message_voice_message{
+		padding-right:45px;
+	}
+	#inner_right_panel #message_left.message_voice_message{
+		padding-left:46px;
+	}
+	#inner_right_panel #message_right.message_voice_message img#prof_img,
+	#inner_right_panel #message_left.message_voice_message img#prof_img{
+		bottom:50%;
+		transform:translateY(50%);
+	}
+	#inner_right_panel .message_voice_note_toggle{
+		display:inline-flex;
+		align-items:center;
+		justify-content:center;
+		flex:0 0 43px;
+		width:22px;
+		height:36px;
+		padding:0;
+		border:none;
+		border-radius:50%;
+		background:#20304d;
+		color:#ffffff;
+		box-shadow:0 12px 18px rgba(22, 33, 59, 0.22);
+		cursor:pointer;
+		right:22px;
+		margin-left:26px;
+		margin-top:10px;
+	}
+	#inner_right_panel .message_voice_note_toggle_icon{
+		position:relative;
+		display:block;
+		width:14px;
+		height:16px;
+		margin-left:3px;
+	}
+	#inner_right_panel .message_voice_note_toggle_icon::before{
+		content:'';
+		position:absolute;
+		left:0;
+		top:50%;
+		transform:translateY(-50%);
+		width:0;
+		height:0;
+		border-top:8px solid transparent;
+		border-bottom:8px solid transparent;
+		border-left:14px solid currentColor;
+	}
+	#inner_right_panel .message_voice_note.is-playing .message_voice_note_toggle_icon{
+		width:13px;
+		height:13px;
+		margin-left:0;
+	}
+	#inner_right_panel .message_voice_note.is-playing .message_voice_note_toggle_icon::before{
+		width:4px;
+		height:13px;
+		border:none;
+		background:currentColor;
+		box-shadow:8px 0 0 currentColor;
+		transform:translateY(-50%);
+	}
+	#inner_right_panel .message_voice_note_body{
+		display:flex;
+		flex-direction:column;
+		align-items:flex-start;
+		justify-content:center;
+		gap:6px;
+		flex:0 1 auto;
+		min-width:0;
+		max-width:calc(100% - 60px);
+	}
+	#inner_right_panel .message_voice_note_wave{
+		display:flex;
+		align-items:flex-end;
+		gap:3px;
+		height:30px;
+		width:124px;
+		min-width:0;
+		margin-left:95px;
+	}
+	#inner_right_panel .message_voice_note_wave span{
+		display:block;
+		flex:0 0 4px;
+		width:4px;
+		height:var(--bar-h);
+		border-radius:999px;
+		background:rgba(255,255,255,0.92);
+		opacity:0.94;
+		transform-origin:center bottom;
+	}
+	#inner_right_panel #message_left .message_voice_note_wave span{
+		background:#22324f;
+	}
+	#inner_right_panel .message_voice_note.is-playing .message_voice_note_wave span{
+		animation:voice_note_pulse 1.18s ease-in-out infinite;
+		animation-delay:var(--bar-delay);
+	}
+	#inner_right_panel .message_voice_note_meta{
+		display:flex;
+		align-items:center;
+		justify-content:flex-start;
+		gap:6px;
+		min-width:0;
+	}
+	#inner_right_panel .message_voice_note_duration{
+		font-size:12px;
+		line-height:1.1;
+		font-weight:700;
+		color:inherit;
+		opacity:0.94;
+		letter-spacing:0.01em;
+		left:93%;
+		margin-left:201px;
+	}
+	#inner_right_panel .message_audio_native{
+		position:absolute !important;
+		width:1px !important;
+		height:1px !important;
+		max-width:none !important;
+		margin:0 !important;
+		padding:0 !important;
+		opacity:0 !important;
+		pointer-events:none !important;
+		overflow:hidden !important;
+	}
+	@keyframes voice_note_pulse{
+		0%, 100%{ transform:scaleY(0.58); opacity:0.72; }
+		50%{ transform:scaleY(1); opacity:1; }
+	}
+	#inner_right_panel .message_media_missing{
+		display:block;
+		max-width:min(320px, 34vw);
+		margin-top:10px;
+		padding:10px 12px;
+		border-radius:14px;
+		background:rgba(28, 41, 66, 0.08);
+		color:inherit;
+		font-size:12px;
+		line-height:1.35;
+	}
 	#inner_right_panel #message_left > img:not(#prof_img):not(#trash),
 	#inner_right_panel #message_right > img:not(#prof_img):not(#trash){
 		display:block;
@@ -2179,10 +2497,10 @@ html, body {
 		try{
 			const pane = document.getElementById('inner_left_panel');
 			if(!pane) return;
-			function attachContactsHandlers(){
-				try{
-					const input = pane.querySelector('#contact_search');
-					if(input && !input._attached){
+				function attachContactsHandlers(){
+					try{
+						const input = pane.querySelector('#contact_search');
+						if(input && !input._attached){
 						input._attached = true;
 						input.addEventListener('input', function(e){
 							var q = this.value || '';
@@ -2190,16 +2508,28 @@ html, body {
 							var self = this;
 							this._t = setTimeout(function(){
 								try{ get_data({action:'search', q: q}, 'contacts'); }catch(err){ console.warn('contacts search failed', err); }
-							}, 250);
-						});
-					}
+								}, 250);
+							});
+						}
 
-					// expose add_contact globally so server-rendered buttons can call it
-					if(!window.add_contact){
-						window.add_contact = function(id){ try{ get_data({action:'add', contactid: id}, 'contacts'); }catch(err){ console.warn('add_contact failed', err); } };
-					}
-					// expose delete_contact globally so we can clear any open chat and then call the server
-					if(!window.delete_contact){
+						function getContactsActionPayload(action, id){
+							var payload = { action: action, contactid: id };
+							try{
+								var searchInput = pane.querySelector('#contact_search') || document.getElementById('contact_search');
+								var q = searchInput && typeof searchInput.value === 'string' ? searchInput.value.trim() : '';
+								if(q !== ''){
+									payload.q = q;
+								}
+							}catch(err){ console.warn('getContactsActionPayload failed', err); }
+							return payload;
+						}
+
+						window.add_contact = function(e, id){
+							try{ if(e){ e.stopPropagation(); e.preventDefault(); } }catch(ex){}
+							try{ get_data(getContactsActionPayload('add', id), 'contacts'); }catch(err){ console.warn('add_contact failed', err); }
+							return false;
+						};
+
 						window.delete_contact = function(e, id){
 							try{ if(e){ e.stopPropagation(); e.preventDefault(); } }catch(ex){}
 							try{
@@ -2212,13 +2542,11 @@ html, body {
 									try{ var r = document.getElementById('radio_contacts'); if(r) r.checked = true; }catch(err){}
 								}
 							}catch(err){ console.warn('delete_contact UI cleanup failed', err); }
-							// call server to perform delete and refresh contacts list
-							try{ get_data({action:'delete', contactid: id}, 'contacts'); }catch(err2){ console.warn('delete_contact failed', err2); }
+							try{ get_data(getContactsActionPayload('delete', id), 'contacts'); }catch(err2){ console.warn('delete_contact failed', err2); }
 							return false;
 						};
-					}
-				}catch(e){ console.warn('attachContactsHandlers error', e); }
-			}
+					}catch(e){ console.warn('attachContactsHandlers error', e); }
+				}
 
 			// initial attach
 			attachContactsHandlers();
@@ -3118,10 +3446,10 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 		get_data({}, "chats");
 	}
 
-	function render_mobile_chat_thread(userHtml, messagesHtml)
-	{
-		var inner_left_panel = _("inner_left_panel");
-		var inner_right_panel = _("inner_right_panel");
+		function render_mobile_chat_thread(userHtml, messagesHtml)
+		{
+			var inner_left_panel = _("inner_left_panel");
+			var inner_right_panel = _("inner_right_panel");
 		if(!inner_left_panel) return;
 
 		reset_mobile_chat_panel();
@@ -3135,16 +3463,17 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 			inner_right_panel.innerHTML = "";
 		}
 
-		var backBtn = document.getElementById("mobile_chat_back_btn");
-		if(backBtn){
-			backBtn.onclick = function(e){
-				if(e && e.preventDefault) e.preventDefault();
-				return_from_mobile_chat_thread();
-			};
-		}
+			var backBtn = document.getElementById("mobile_chat_back_btn");
+			if(backBtn){
+				backBtn.onclick = function(e){
+					if(e && e.preventDefault) e.preventDefault();
+					return_from_mobile_chat_thread();
+				};
+			}
 
-		try{ window.__lastLeftUpdate = Date.now(); }catch(e){}
-	}
+			try{ if(typeof init_voice_note_meta === "function") init_voice_note_meta(inner_left_panel); }catch(err){}
+			try{ window.__lastLeftUpdate = Date.now(); }catch(e){}
+		}
 
 	function handle_result(result,type,requestMeta){
 
@@ -3295,14 +3624,20 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 							SEEN_STATUS = false;
 							var messages_holder = _("messages_holder");
 							if(inner_right_panel && is_desktop_app_layout()) try{ inner_right_panel.style.overflow = "hidden"; }catch(e){}
-							if(messages_holder){
-								messages_holder.innerHTML = obj.messages;
-								// fix any relative image URLs produced by the server so the browser will fetch them
-								_tryFix: try{ _fixMessageImageURLs(messages_holder); }catch(e){}
-								setTimeout(function(){
-									if(messages_holder.scrollTo) messages_holder.scrollTo(0,messages_holder.scrollHeight);
-									var message_text = _("message_text");
-									if(message_text) message_text.focus();
+								if(messages_holder){
+									var nextRawMessages = String(obj.messages || "");
+									var previousRawMessages = String(messages_holder.getAttribute("data-raw-html") || "");
+									if(previousRawMessages !== nextRawMessages){
+										messages_holder.innerHTML = nextRawMessages;
+										messages_holder.setAttribute("data-raw-html", nextRawMessages);
+										// fix any relative image URLs produced by the server so the browser will fetch them
+										_tryFix: try{ _fixMessageImageURLs(messages_holder); }catch(e){}
+										try{ if(typeof init_voice_note_meta === "function") init_voice_note_meta(messages_holder); }catch(err){}
+									}
+									setTimeout(function(){
+										if(messages_holder.scrollTo) messages_holder.scrollTo(0,messages_holder.scrollHeight);
+										var message_text = _("message_text");
+										if(message_text) message_text.focus();
 								},100);
 
 								// attach mic handlers (walkie-talkie)
@@ -3365,18 +3700,20 @@ try{ var getCurrentUserId = window.getCurrentUserId || function(){ return window
 											}
 										}catch(e){ if(inner_left_panel) inner_left_panel.innerHTML = desktopSidebarHtml; }
 									}
-									if(inner_right_panel) {
-										inner_right_panel.innerHTML = build_desktop_thread_markup(obj.user, obj.messages);
-										// the server may output relative paths for uploaded files like "uploads/xxx.jpg";
-										// normalize those to absolute URLs so images load reliably in the browser.
-										try{ _fixMessageImageURLs(inner_right_panel); }catch(e){}
-										try{ inner_right_panel.style.overflow = "hidden"; }catch(e){}
+										if(inner_right_panel) {
+											inner_right_panel.innerHTML = build_desktop_thread_markup(obj.user, obj.messages);
+											// the server may output relative paths for uploaded files like "uploads/xxx.jpg";
+											// normalize those to absolute URLs so images load reliably in the browser.
+											try{ _fixMessageImageURLs(inner_right_panel); }catch(e){}
+											try{ if(typeof init_voice_note_meta === "function") init_voice_note_meta(inner_right_panel); }catch(err){}
+											try{ inner_right_panel.style.overflow = "hidden"; }catch(e){}
+										}
+										sync_desktop_chat_selection();
 									}
-									sync_desktop_chat_selection();
-								}
 
 								var messages_holder = _("messages_holder");
 								if(messages_holder){
+									try{ messages_holder.setAttribute("data-raw-html", String(obj.messages || "")); }catch(e){}
 									setTimeout(function(){
 										if(messages_holder.scrollTo) messages_holder.scrollTo(0,messages_holder.scrollHeight);
 										var message_text = _("message_text");
@@ -3964,16 +4301,18 @@ var MAX_RECORD_MS = 30000; // 30s default
 
 function attachMicHandlers(){
 	var mic = document.getElementById('mic_button');
-	var indicator = document.getElementById('recording_indicator');
 	if(!mic) return;
+	if(mic.dataset.micBound === '1') return;
+	mic.dataset.micBound = '1';
 
-	// remove previous handlers to avoid duplicates
-	mic.onclick = null; mic.onmousedown = null; mic.onmouseup = null; mic.ontouchstart = null; mic.ontouchend = null;
+	var activePointerId = null;
 
 	function startRecordingForUI(){
 		if(_isRecording) return;
-		var mt = document.getElementById('message_text');
-		if(mt && mt.value.trim() !== '') return; // only when text empty
+		if(!CURRENT_CHAT_USER){
+			alert('Open a chat to send audio.');
+			return;
+		}
 		startMicRecording();
 	}
 
@@ -3982,21 +4321,48 @@ function attachMicHandlers(){
 		stopMicRecording();
 	}
 
-	// Desktop: click toggles start/stop
-	mic.addEventListener('click', function(e){
-		if(_isRecording) stopRecordingForUI(); else startRecordingForUI();
+	function releaseRecordingForUI(e){
+		if(e && activePointerId !== null){
+			try{
+				if(typeof mic.releasePointerCapture === 'function' && mic.hasPointerCapture && mic.hasPointerCapture(activePointerId)){
+					mic.releasePointerCapture(activePointerId);
+				}
+			}catch(err){}
+		}
+		activePointerId = null;
+		stopRecordingForUI();
+	}
+
+	mic.addEventListener('pointerdown', function(e){
+		if(e.pointerType === 'mouse' && e.button !== 0) return;
+		e.preventDefault();
+		activePointerId = typeof e.pointerId === 'number' ? e.pointerId : null;
+		try{
+			if(activePointerId !== null && typeof mic.setPointerCapture === 'function'){
+				mic.setPointerCapture(activePointerId);
+			}
+		}catch(err){}
+		startRecordingForUI();
 	});
 
-	// Desktop mouse hold behavior (optional) - start on mousedown, stop on mouseup
-	mic.addEventListener('mousedown', function(e){
-		// only left button
-		if(e.which === 1) startRecordingForUI();
+	mic.addEventListener('pointerup', function(e){
+		e.preventDefault();
+		releaseRecordingForUI(e);
 	});
-	mic.addEventListener('mouseup', function(e){ stopRecordingForUI(); });
 
-	// Mobile: touchstart/touchend (hold)
-	mic.addEventListener('touchstart', function(e){ e.preventDefault(); startRecordingForUI(); });
-	mic.addEventListener('touchend', function(e){ e.preventDefault(); stopRecordingForUI(); });
+	mic.addEventListener('pointercancel', function(e){
+		e.preventDefault();
+		releaseRecordingForUI(e);
+	});
+
+	mic.addEventListener('lostpointercapture', function(e){
+		e.preventDefault();
+		releaseRecordingForUI(e);
+	});
+
+	mic.addEventListener('contextmenu', function(e){
+		e.preventDefault();
+	});
 }
 
 // Attach handlers for live WebRTC hold-to-talk (uses signalingClient.startLiveTalk/stopLiveTalk)
@@ -4154,7 +4520,7 @@ async function startMicRecording(){
 		// pick a supported mimeType when available to avoid browsers producing empty blobs
 		var recorderOptions = {};
 		try{
-			var preferred = ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg','audio/wav'];
+			var preferred = ['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus','audio/ogg','audio/wav'];
 			for(var i=0;i<preferred.length;i++){
 				var t = preferred[i];
 				if(typeof MediaRecorder !== 'undefined' && typeof MediaRecorder.isTypeSupported === 'function'){
@@ -4187,7 +4553,7 @@ async function startMicRecording(){
 				alert('Recording failed — no audio data captured. Try again.');
 				return;
 			}
-			uploadAudioBlob(blob);
+			uploadAudioBlob(blob, recorderOptions.mimeType || '');
 		};
 		_mediaRecorder.start();
 		_isRecording = true;
@@ -4207,12 +4573,14 @@ function stopMicRecording(){
 	_isRecording = false;
 }
 
-async function uploadAudioBlob(blob){
+async function uploadAudioBlob(blob, fallbackMimeType){
 	if(!CURRENT_CHAT_USER){ alert('Open a chat to send audio.'); return; }
+	var mimeType = String(blob && blob.type ? blob.type : (fallbackMimeType || '')).toLowerCase();
 	var ext = 'webm';
-	if(blob.type.indexOf('mpeg') !== -1 || blob.type.indexOf('mp3') !== -1) ext = 'mp3';
-	else if(blob.type.indexOf('wav') !== -1) ext = 'wav';
-	else if(blob.type.indexOf('ogg') !== -1) ext = 'ogg';
+	if(mimeType.indexOf('mpeg') !== -1 || mimeType.indexOf('mp3') !== -1) ext = 'mp3';
+	else if(mimeType.indexOf('wav') !== -1) ext = 'wav';
+	else if(mimeType.indexOf('ogg') !== -1) ext = 'ogg';
+	else if(mimeType.indexOf('mp4') !== -1 || mimeType.indexOf('m4a') !== -1 || mimeType.indexOf('aac') !== -1) ext = 'mp4';
 	var filename = 'audio_'+Date.now()+'.'+ext;
 	var form = new FormData();
 	form.append('file', blob, filename);
@@ -4224,6 +4592,7 @@ async function uploadAudioBlob(blob){
 			var txt = await resp.text();
 			try{ var json = JSON.parse(txt); }catch(e){ console.error('invalid json', txt); return; }
 			console.log('uploadAudioBlob uploader response', json);
+			console.log('uploadAudioBlob mime', mimeType || '(empty)', 'filename', filename);
 			if(json && json.file){
 				// warm cache by fetching the uploaded audio file (do not autoplay)
 				var audioFetchUrl = encodeURI(json.file) + (json.file.indexOf('?') === -1 ? '?_=' + Date.now() : '&_=' + Date.now());
@@ -4244,13 +4613,191 @@ async function uploadAudioBlob(blob){
 
 	function image_show(e){
 
-		 var image = e.target.src;
-		 var image_viewer = _("image_viewer");
+			 var image = e.target.src;
+			 var image_viewer = _("image_viewer");
 
-		 image_viewer.innerHTML = "<img src='"+image+"' style='width:50%' />";
-		 image_viewer.className = "image_on";
+			 image_viewer.innerHTML = "<img src='"+image+"' style='width:50%' />";
+			 image_viewer.className = "image_on";
 
+			}
+
+	function handle_message_media_error(e){
+		try{
+			var target = e && e.target ? e.target : null;
+			if(!target) return;
+			if(target._mediaErrorHandled) return;
+			target._mediaErrorHandled = true;
+
+			var note = document.createElement('div');
+			note.className = 'message_media_missing';
+			note.textContent = 'Attachment unavailable on this server.';
+			var voiceNoteCard = target.closest ? target.closest('.message_voice_note') : null;
+
+			if(voiceNoteCard && voiceNoteCard.parentNode){
+				voiceNoteCard.parentNode.replaceChild(note, voiceNoteCard);
+			}else if(target.parentNode){
+				target.parentNode.replaceChild(note, target);
+			}
+		}catch(err){
+			console.warn('handle_message_media_error failed', err);
 		}
+	}
+
+		function sync_voice_note_button(audioEl){
+			try{
+				if(!audioEl || !audioEl.closest) return;
+				var card = audioEl.closest('.message_voice_note');
+			if(!card) return;
+			var button = card.querySelector('.message_voice_note_toggle');
+			if(!button) return;
+			var isPlaying = !audioEl.paused;
+			card.classList.toggle('is-playing', isPlaying);
+			button.setAttribute('aria-label', isPlaying ? 'Pause voice note' : 'Play voice note');
+			card.setAttribute('aria-label', isPlaying ? 'Pause voice note' : 'Play voice note');
+			}catch(err){
+				console.warn('sync_voice_note_button failed', err);
+			}
+		}
+
+		function format_voice_note_duration(totalSeconds){
+			totalSeconds = Math.max(0, Math.round(Number(totalSeconds) || 0));
+			var mins = Math.floor(totalSeconds / 60);
+			var secs = totalSeconds % 60;
+			return mins + ':' + String(secs).padStart(2, '0');
+		}
+
+		function sync_voice_note_meta(audioEl){
+			try{
+				if(!audioEl || !audioEl.closest) return;
+				var card = audioEl.closest('.message_voice_note');
+				if(!card) return;
+				var durationEl = card.querySelector('.message_voice_note_duration');
+				if(!durationEl) return false;
+				var totalSeconds = Number(audioEl.duration);
+				if((!isFinite(totalSeconds) || totalSeconds <= 0) && audioEl.seekable && audioEl.seekable.length){
+					try{
+						totalSeconds = Number(audioEl.seekable.end(audioEl.seekable.length - 1));
+					}catch(e){}
+				}
+				if(!isFinite(totalSeconds) || totalSeconds <= 0){
+					durationEl.textContent = '0:00';
+					return false;
+				}
+				durationEl.textContent = format_voice_note_duration(totalSeconds);
+				audioEl.dataset.voiceNoteDurationResolved = '1';
+				return true;
+			}catch(err){
+				console.warn('sync_voice_note_meta failed', err);
+				return false;
+			}
+		}
+
+		function probe_voice_note_duration(audioEl){
+			try{
+				if(!audioEl || audioEl.dataset.voiceNoteDurationProbeStarted === '1' || audioEl.dataset.voiceNoteDurationResolved === '1') return;
+				audioEl.dataset.voiceNoteDurationProbeStarted = '1';
+				var originalTime = 0;
+				try{ originalTime = Number(audioEl.currentTime) || 0; }catch(e){}
+
+				var cleanup = function(){
+					audioEl.removeEventListener('durationchange', onProbeUpdate);
+					audioEl.removeEventListener('loadeddata', onProbeUpdate);
+					audioEl.removeEventListener('canplay', onProbeUpdate);
+					audioEl.removeEventListener('seeked', onProbeUpdate);
+				};
+
+				var onProbeUpdate = function(){
+					if(!sync_voice_note_meta(audioEl)) return;
+					cleanup();
+					try{
+						if(Math.abs((Number(audioEl.currentTime) || 0) - originalTime) > 0.01){
+							audioEl.currentTime = originalTime;
+						}
+					}catch(e){}
+				};
+
+				audioEl.addEventListener('durationchange', onProbeUpdate);
+				audioEl.addEventListener('loadeddata', onProbeUpdate);
+				audioEl.addEventListener('canplay', onProbeUpdate);
+				audioEl.addEventListener('seeked', onProbeUpdate);
+
+				try{ audioEl.preload = 'auto'; }catch(e){}
+				try{ audioEl.load(); }catch(e){}
+				setTimeout(function(){
+					if(audioEl.dataset.voiceNoteDurationResolved === '1') return;
+					try{ audioEl.currentTime = 1e101; }catch(e){}
+				}, 0);
+			}catch(err){
+				console.warn('probe_voice_note_duration failed', err);
+			}
+		}
+
+		function init_voice_note_meta(container){
+			try{
+				var scope = (container && container.querySelectorAll) ? container : document;
+				var audios = scope.querySelectorAll('.message_voice_note audio');
+				Array.prototype.forEach.call(audios, function(audioEl){
+					if(!audioEl) return;
+					if(audioEl.dataset.voiceNoteMetaBound !== '1'){
+						audioEl.dataset.voiceNoteMetaBound = '1';
+						var refresh = function(){
+							if(!sync_voice_note_meta(audioEl)){
+								probe_voice_note_duration(audioEl);
+							}
+						};
+						audioEl.addEventListener('loadedmetadata', refresh);
+						audioEl.addEventListener('durationchange', refresh);
+						audioEl.addEventListener('loadeddata', refresh);
+						audioEl.addEventListener('canplay', refresh);
+						audioEl.addEventListener('canplaythrough', refresh);
+					}
+					if(!sync_voice_note_meta(audioEl)){
+						probe_voice_note_duration(audioEl);
+					}
+				});
+			}catch(err){
+				console.warn('init_voice_note_meta failed', err);
+			}
+		}
+
+		function handle_voice_note_key(e, target){
+		try{
+			e = e || window.event;
+			var key = e && typeof e.key !== 'undefined' ? e.key : '';
+			if(key === 'Enter' || key === ' ' || key === 'Spacebar'){
+				if(e && e.preventDefault) e.preventDefault();
+				toggle_voice_note(target);
+			}
+		}catch(err){
+			console.warn('handle_voice_note_key failed', err);
+		}
+	}
+
+	function toggle_voice_note(button){
+		try{
+			if(!button) return;
+			var card = null;
+			if(button.classList && button.classList.contains('message_voice_note')){
+				card = button;
+			}else if(button.closest){
+				card = button.closest('.message_voice_note');
+			}
+			if(!card) return;
+			var audioEl = card.querySelector('audio');
+			if(!audioEl) return;
+			if(audioEl.paused){
+				var playResult = audioEl.play();
+				if(playResult && typeof playResult.catch === 'function'){
+					playResult.catch(function(err){ console.warn('voice note play blocked', err); });
+				}
+			}else{
+				audioEl.pause();
+			}
+			sync_voice_note_button(audioEl);
+		}catch(err){
+			console.warn('toggle_voice_note failed', err);
+		}
+	}
 
 		
 

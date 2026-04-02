@@ -523,3 +523,40 @@ Files touched
 - `api.php` — added reusable helpers for desktop chat header/sidebar markup.
 - `includes/chats.php` — returns sidebar HTML alongside active-thread data.
 - `includes/send_messages.php` — keeps desktop sidebar data in sync after sending messages.
+
+---
+
+2026-04-02 — websocket transport clarification and voice-note duration fix
+
+Summary
+
+I used this session to clarify which parts of the app are actually realtime over WebSocket and to fix the voice-note UI so recorded audio shows its real duration instead of staying at `0:00`.
+
+What I changed
+
+1. Confirmed the app's transport split
+
+- Verified that the project does use WebSockets, but only for the signaling/live-talk path.
+- The signaling client in `index.html` opens a `WebSocket` to `window.CAROCHAT_WS_URL` / the local `ws://...:3000` fallback and exchanges `register`, `offer`, `answer`, and `candidate` messages for the WebRTC flow.
+- Confirmed that normal chat, contacts, settings, message send/delete, and thread refresh are still handled through `XMLHttpRequest` / `fetch` calls to `api.php` and `uploader.php`.
+- Confirmed that standard chat updates are still driven by polling, including the `chats_refresh` interval, rather than a websocket message stream.
+
+2. Fixed voice-note duration rendering
+
+- Traced the voice-note UI and found that the server-rendered markup starts with a placeholder `0:00` and only tried to replace it from `audio.duration` on the first `loadedmetadata` event.
+- That approach was too fragile for recorded audio, especially `.webm` voice notes where duration metadata may not be available immediately or may report as unset / non-finite on first load.
+- Added client-side helpers in `index.html` to:
+  - format duration consistently
+  - retry duration resolution on multiple media events
+  - fall back to a seek-based duration probe when metadata is incomplete
+- Added a voice-note initializer so newly rendered messages get duration processing immediately after chat HTML is inserted or refreshed, instead of depending only on inline media callbacks.
+
+How I verified it
+
+- Re-read the transport paths in `index.html`, `api.php`, `config.php`, and `signaling-server.js` to confirm the websocket scope accurately.
+- Parsed the inline scripts from `index.html` with Node after the duration changes to catch syntax errors.
+- Checked the uploader/audio path and confirmed the duration issue was in the browser-side rendering logic rather than the upload insert path.
+
+Files touched
+
+- `index.html` — added resilient voice-note duration formatting/probing and initialized voice-note metadata after chat renders and refreshes.
